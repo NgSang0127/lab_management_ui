@@ -1,51 +1,22 @@
-.schedule-table {
-    width: 100%;
-    table-layout: fixed;
-    border-collapse: collapse;
-    margin: 20px 0;
+.MuiTooltip-tooltip {
+    background-color: #EDEEEF!important;
+    color: #2f343D!important;
+}
+.tooltip-content {
+    max-width: 300px;
+    border: 1px solid #011f31;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.schedule-table th, .schedule-table td {
-    border: 1px solid #ccc;
-    text-align: center;
-    padding: 0; /* Bỏ padding của ô để môn học chiếm toàn bộ */
-    width: 14.285%; /* Chia đều 7 cột */
-    vertical-align: top; /* Canh nội dung ở đầu ô */
+.tooltip-header {
+    border-bottom: 1px solid #ccc;
 }
 
-.schedule-table th {
-    background-color: #007bff;
-    color: white;
-    padding: 10px; /* Thêm padding cho tiêu đề */
+.tooltip-body p {
+    margin: 0.5rem 0;
 }
 
-.lesson-time {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    padding: 10px;
+.tooltip-target {
+    cursor: pointer;
 }
-
-.highlight {
-    background-color: #f5f5dc;
-    color: #004085;
-    height: 100%; /* Môn học chiếm toàn bộ chiều cao của ô */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.subject-name {
-    font-weight: bold;
-    color: green;
-    margin-bottom: 5px;
-}
-
-.room {
-    font-style: italic;
-}
-
-td {
-    height: 60px; /* Chiều cao cơ bản của mỗi ô (tùy chỉnh theo nhu cầu) */
-}
-
