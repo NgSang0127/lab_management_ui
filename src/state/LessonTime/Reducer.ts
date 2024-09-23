@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import {API_URL} from "../../config/api.ts";
 
-// Định nghĩa kiểu dữ liệu cho lesson time
+
 interface LessonTime {
     id: number;
     lessonNumber: number;
@@ -11,7 +11,7 @@ interface LessonTime {
     session: string;
 }
 
-// Action để gọi API lấy dữ liệu về giờ tiết học từ backend
+
 export const fetchLessonTimes = createAsyncThunk<LessonTime[]>(
     'lessonTimes/fetchLessonTimes',
     async (_, { rejectWithValue }) => {

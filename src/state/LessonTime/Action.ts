@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchLessonTimes } from './Reducer'; // Import fetchLessonTimes từ file Reducer.ts
 
-// Định nghĩa kiểu dữ liệu cho lesson time
+
 export interface LessonTime {
     id: number;
     lessonNumber: number;
@@ -10,7 +10,7 @@ export interface LessonTime {
     session: string;
 }
 
-// Khai báo state cho lesson time
+
 interface LessonTimeState {
     lessonTimes: LessonTime[];
     isLoading: boolean;
@@ -19,29 +19,27 @@ interface LessonTimeState {
 
 // Giá trị khởi tạo của state
 const initialState: LessonTimeState = {
-    lessonTimes: [], // Dữ liệu thời gian tiết học
-    isLoading: false, // Trạng thái đang load
-    error: null, // Thông báo lỗi nếu có
+    lessonTimes: [],
+    isLoading: false,
+    error: null,
 };
 
-// Slice quản lý lessonTimes
+
 const lessonTimeSlice = createSlice({
     name: 'lessonTimes',
     initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder
-            // Khi bắt đầu fetch dữ liệu
             .addCase(fetchLessonTimes.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
             })
-            // Khi fetch thành công
+
             .addCase(fetchLessonTimes.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.lessonTimes = action.payload; // Lưu dữ liệu vào state
             })
-            // Khi fetch thất bại
             .addCase(fetchLessonTimes.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;

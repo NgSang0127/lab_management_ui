@@ -1,28 +1,23 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import {loginUser, registerUser} from "./Reducer.ts";
-import {AuthResponseData} from "./ActionType.ts";
 
-// Define the AuthState interface
-interface AuthState {
-    user: never | null; // Allow user to be any type or null
-    isLoading: boolean;
-    error: string | null; // Error can be a string or null
-    accessToken: string | null;
-    refreshToken: string | null;
-    isAuthenticated: boolean;
-    activationStatus: string | null;
-    success: string;
+
+export interface Auth{
+    accessToken: string;
+    refreshToken: string;
 }
 
+interface AuthState {
+    auth: Auth;
+    isLoading: boolean;
+    error: string | null;
+}
+
+// @ts-ignore
 const initialState: AuthState = {
-    user: null,
-    isLoading: false,
-    error: null,
-    accessToken: null,
-    refreshToken: null,
-    isAuthenticated: false,
-    activationStatus: null,
-    success: "",
+    auth:null,
+    isLoading:false,
+    error:null,
 };
 
 export const authSlice = createSlice({
@@ -39,36 +34,29 @@ export const authSlice = createSlice({
             // Register user
             .addCase(registerUser.pending, (state) => {
                 state.isLoading = true;
-                state.error = null; // Reset error on pending
-                state.success = "";
+                state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
+            .addCase(registerUser.fulfilled, (state) => {
                 state.isLoading = false;
-                state.success = action.payload.message;
-
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
-                // Ensure action.payload is handled correctly
-                state.error = action.payload as string || 'An unknown error occurred';
+                state.error = action.payload as string ;
             })
 
         //get user
             .addCase(loginUser.pending,(state)=>{
                 state.isLoading=true;
                 state.error=null;
-                state.success ="";
             })
             .addCase(loginUser.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.accessToken=action.payload.accessToken;
-                state.refreshToken=action.payload.refreshToken;
-                state.success="Login success";
+                state.auth=action.payload;
             })
             .addCase(loginUser.rejected,(state,action)=>{
                 state.isLoading=false;
-                state.error=action.payload as string || 'An unknown error occurred';
-                state.success="";
+                state.error=action.payload as string;
+
             })
     },
 });

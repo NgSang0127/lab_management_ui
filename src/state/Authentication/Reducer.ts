@@ -23,10 +23,10 @@ export const loginUser = createAsyncThunk<AuthResponseData, LoginRequestData, { 
     async (reqData, {rejectWithValue}) => {
         try {
             const {data} = await api.post<AuthResponseData>(`${API_URL}/auth/login`, reqData);
-            if (data.accessToken) localStorage.setItem('jwt', data.accessToken);
-            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
+            if (data.access_token) localStorage.setItem('jwt', data.access_token);
+            if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token);
 
-
+            console.log(data)
             return data;
         } catch (err) {
             if (err instanceof AxiosError) {

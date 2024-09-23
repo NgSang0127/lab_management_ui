@@ -12,6 +12,7 @@ import {store} from "./state/store.ts";
 import Success from "./components/Email/Success.tsx";
 import Error from "./components/Email/Error.tsx";
 import Calendar from "./components/Timetable/ScheduleTable.tsx";
+import ImportTimetable from "./components/Timetable/ImportTimetable.tsx";
 
 
 const router = createBrowserRouter([
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
             {
                 path:'timetable/by-week',
                 element: <Calendar/>
+            },
+            {
+                path:'timetable/import',
+                element: <ImportTimetable/>
             }
         ],
 

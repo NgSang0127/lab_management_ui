@@ -15,8 +15,8 @@ export interface LoginRequestData {
 }
 
  export interface AuthResponseData {
-    accessToken: string;
-    refreshToken: string;
+    access_token: string;
+    refresh_token: string;
     role: string;
     message: string;
 

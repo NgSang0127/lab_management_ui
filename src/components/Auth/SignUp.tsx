@@ -135,7 +135,7 @@ export default function SignUp() {
             setUsernameError(false);
             setUsernameErrorMessage('');
         }
-        if (!formData.phoneNumber || formData.phoneNumber.length < 11) {
+        if (!formData.phoneNumber || formData.phoneNumber.length > 11) {
             setPhoneNumberError(true);
             setPhoneNumberErrorMessage('Phone number is not correct format');
             isValid = false;
