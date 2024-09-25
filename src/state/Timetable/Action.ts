@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {fetchTimetables, importTimetable} from "./Reducer.ts";
+import {fetchTimetables, getRangeWeek, importTimetable} from "./Reducer.ts";
 
 
 
@@ -35,6 +35,7 @@ export interface Timetable {
 
 
 interface TimetableState {
+    weekRange: { firstWeekStart: string; lastWeekEnd: string } | null;
     timetables: Timetable[];
     isLoading: boolean;
     error: string | null;
@@ -42,6 +43,7 @@ interface TimetableState {
 
 
 const initialState: TimetableState = {
+    weekRange:null,
     timetables: [],
     isLoading: false,
     error: null,
@@ -79,7 +81,21 @@ const timetableSlice = createSlice({
             .addCase(fetchTimetables.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
+            })
+            // getRangeWeek
+            .addCase(getRangeWeek.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getRangeWeek.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.weekRange = action.payload;
+            })
+            .addCase(getRangeWeek.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
             });
+        ;
     },
 });
 

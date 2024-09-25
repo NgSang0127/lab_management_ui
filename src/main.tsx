@@ -52,16 +52,18 @@ const router = createBrowserRouter([
     {
         path: "/error",
         element: <Error/>
-    }
+    },
+    {
+        path: '*', // For any route that doesn't match
+        element: <div>404 Not Found</div>, // You can replace this with a 404 component
+    },
 
 ]);
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <Provider store={store}>
-
             <ThemeContextProvider>
-
                 <RouterProvider router={router}/>
             </ThemeContextProvider>
         </Provider>

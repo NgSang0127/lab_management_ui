@@ -1,5 +1,5 @@
 
-import NavBar from "../components/Navbar/Navbar.tsx";
+
 import Navbar from "../components/Navbar/Navbar.tsx";
 import React, {useContext} from "react";
 import {ThemeContext} from "../theme/ThemeContext.tsx";

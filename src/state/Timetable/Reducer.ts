@@ -74,3 +74,16 @@ export const fetchTimetables = createAsyncThunk(
         }
     }
 );
+
+export const getRangeWeek = createAsyncThunk(
+    'timetable/getRangeWeek',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await axios.get(`${API_URL}/timetable/weeks-range`);
+            console.log("rangeweek",response);
+            return response.data; // Trả về dữ liệu cho reducer
+        } catch (e) {
+            return rejectWithValue((e as AxiosError).message);
+        }
+    }
+);

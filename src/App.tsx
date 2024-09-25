@@ -8,10 +8,7 @@ import React, {useContext} from "react";
 import {Outlet} from "react-router-dom";
 
 
-
 const App: React.FC = () => {
-
-
 
     const {isDarkMode, showCustomTheme, toggleTheme, toggleCustomTheme} = useContext(ThemeContext);
     return (
@@ -24,7 +21,9 @@ const App: React.FC = () => {
                 mode={isDarkMode ? 'dark' : 'light'}
                 toggleColorMode={toggleTheme}
             />
-            <Outlet/>
+            <div className="pt-16">
+                <Outlet/>
+            </div>
             <Auth/>
         </ThemeProvider>
 

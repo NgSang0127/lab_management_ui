@@ -20,6 +20,7 @@ import {Person} from "@mui/icons-material";
 import {useNavigate} from "react-router-dom";
 
 
+
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
     position: 'fixed',
     display: 'flex',
@@ -32,6 +33,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
     boxShadow: theme.shadows[1],
     backgroundImage: 'none',
     padding: 4,
+    zIndex:1000,
 }));
 
 interface NavBarProps {
@@ -70,7 +72,7 @@ export default function NavBar({
                             aria-label="Back to templates"
                             startIcon={<ArrowBackRoundedIcon/>}
                             component="a"
-                            href="/material-ui/getting-started/templates/"
+                            href="/"
                             sx={{display: {xs: 'none', sm: 'flex'}}}
                         >
                             Back to templates
