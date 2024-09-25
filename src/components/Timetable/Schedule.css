@@ -1,0 +1,51 @@
+/* schedule.css */
+
+/* Định dạng cho bảng */
+table {
+    width: 100%;
+    border-collapse: collapse; /* Gộp các đường biên lại với nhau */
+}
+
+/* Định dạng cho các ô */
+th, td {
+    border: 1px solid rgb(175, 175, 175); /* Đường viền nhẹ */
+    padding: 0;
+    vertical-align: middle;
+    height: 2px;
+}
+
+/* Định dạng cho tiêu đề */
+th {
+    background-color: #3b82f6; /* Màu nền xanh */
+    color: white; /* Màu chữ trắng */
+}
+
+/* Định dạng cho ô chứa môn học */
+.schedule-cell {
+    display: flex; /* Sử dụng Flexbox */
+    flex-direction: column; /* Sắp xếp theo chiều dọc */
+    justify-content: center; /* Căn giữa nội dung theo chiều dọc */
+    align-items: center; /* Căn giữa nội dung theo chiều ngang */
+    height: 100%; /* Chiều cao đầy đủ */
+}
+
+/* Định dạng cho các môn học */
+.schedule-item {
+    width: 100%; /* Chiếm toàn bộ chiều rộng */
+    height: 100%; /* Chiếm toàn bộ chiều cao */
+    padding: 8px; /* Padding nhẹ */
+    box-sizing: border-box; /* Bao gồm padding trong kích thước */
+}
+
+/* Định dạng cho các tên môn học */
+.schedule-item .course-name {
+    font-weight: bold; /* Chữ đậm */
+    color: #38a169; /* Màu xanh lá */
+}
+
+/* Định dạng cho phòng học */
+.schedule-item .room-info {
+    font-size: 0.8em; /* Kích thước chữ nhỏ hơn */
+    color: #2f855a; /* Màu xanh lá đậm */
+    font-style: italic; /* Chữ nghiêng */
+}
