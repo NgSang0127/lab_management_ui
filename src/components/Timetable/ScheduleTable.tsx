@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import './Tooltip.css';
 import { RootState, useAppDispatch } from '../../state/store.ts';
@@ -9,14 +9,10 @@ import './schedule.css'; // Đường dẫn đến file CSS của bạn
 import SelectWeek from "./SelectWeek.tsx";
 import { fetchLessonTimes } from "../../state/LessonTime/Reducer.ts";
 import { fetchTimetables } from "../../state/Timetable/Reducer.ts";
+import {courseColors} from "../../utils/courseColors.ts";
+import {setSelectedWeek} from "../../state/Timetable/Action.ts";
+import {useNavigate} from "react-router-dom";
 
-
-const courseColors = [
-    'bg-red-100', 'bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100',
-    'bg-pink-100', 'bg-indigo-100', 'bg-orange-100', 'bg-teal-100', 'bg-gray-100',
-    'bg-lime-100', 'bg-cyan-100', 'bg-amber-100', 'bg-violet-100', 'bg-rose-100',
-    'bg-fuchsia-100', 'bg-emerald-100', 'bg-sky-100', 'bg-indigo-200', 'bg-amber-200'
-];
 
 
 const courseColorMap = new Map<string, string>();
@@ -48,10 +44,12 @@ const getCourseColor = (courseName: string) => {
 const rooms = ['LA1.604', 'LA1.605', 'LA1.606', 'LA1.607', 'LA1.608'];
 
 const ScheduleTable: React.FC = () => {
-    const [selectedWeek, setSelectedWeek] = useState<{ startDate: string, endDate: string } | null>(null);
+    const navigate=useNavigate();
+    const dispatch = useAppDispatch();
+
+    const selectedWeek = useSelector((state: RootState) => state.timetable.selectedWeek);
     const previousWeek = useRef<{ startDate: string, endDate: string } | null>(null);
     const userChangedWeek = useRef(false);
-    const dispatch = useAppDispatch();
 
     const {
         lessonTimes,
@@ -71,6 +69,7 @@ const ScheduleTable: React.FC = () => {
         dispatch(fetchLessonTimes());
     }, [dispatch]);
 
+
     useEffect(() => {
         if (
             selectedWeek &&
@@ -89,10 +88,17 @@ const ScheduleTable: React.FC = () => {
 
     const handleWeekChange = (week: { startDate: string, endDate: string }) => {
         if (!selectedWeek || selectedWeek.startDate !== week.startDate || selectedWeek.endDate !== week.endDate) {
-            userChangedWeek.current = true;  // Đánh dấu tuần được thay đổi bởi người dùng
-            setSelectedWeek(week);
+            userChangedWeek.current = true;
+            dispatch(setSelectedWeek(week));  // Dispatch tuần đã chọn vào Redux
             console.log("Week changed to:", week);
         }
+    };
+    // Hàm xử lý sự kiện click vào môn học
+    const handleCourseClick = (courseId:string,NH:string,TH:string) => {
+        navigate(`/courses/${courseId}/${NH}/${TH}`,
+            {
+                state:{selectedWeek}
+            });
     };
 
     const getScheduleItems = (dayOfWeek: string, period: number, room: string) => {
@@ -154,6 +160,7 @@ const ScheduleTable: React.FC = () => {
                                                         {scheduleItems.map((scheduleItem, index) => (
                                                             <CustomTooltip key={index} scheduleItem={scheduleItem}>
                                                                 <div
+                                                                    onClick={()=>handleCourseClick(scheduleItem.courses[0].code,scheduleItem.courses[0].nh,scheduleItem.courses[0].th)}
                                                                     className=' w-full h-full flex flex-col justify-center items-center text-center p-1'>
                                                                     <span
                                                                         className="font-semibold p-1 text-xs text-green-700">{scheduleItem.courses[0].name}</span>

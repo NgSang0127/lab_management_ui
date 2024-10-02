@@ -13,6 +13,7 @@ import Success from "./components/Email/Success.tsx";
 import Error from "./components/Email/Error.tsx";
 import Calendar from "./components/Timetable/ScheduleTable.tsx";
 import ImportTimetable from "./components/Timetable/ImportTimetable.tsx";
+import CardDetailsCourse from "./components/Timetable/CardDetailsCourse.tsx";
 
 
 const router = createBrowserRouter([
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
             {
                 path:'timetable/import',
                 element: <ImportTimetable/>
+            },
+            {
+                path:'courses/:courseId/:NH/:TH',
+                element: <CardDetailsCourse/>
             }
         ],
 
@@ -54,8 +59,8 @@ const router = createBrowserRouter([
         element: <Error/>
     },
     {
-        path: '*', // For any route that doesn't match
-        element: <div>404 Not Found</div>, // You can replace this with a 404 component
+        path: '*',
+        element: <div>404 Not Found</div>,
     },
 
 ]);

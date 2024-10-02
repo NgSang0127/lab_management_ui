@@ -9,8 +9,12 @@ interface TimetableApiResponse {
     courses: Array<{
         name: string;
         code: string;
-        nh:number;
+        nh:string;
+        th:string;
+        credits:number;
+
     }>;
+    numberOfStudents:number;
     startLessonTime: {
         startTime: string;
         lessonNumber: number;
@@ -23,12 +27,14 @@ interface TimetableApiResponse {
         name: string;
     };
     instructor: {
+        instructorId:string;
         user: {
             fullName: string;
         };
     };
     startLesson:number;
     totalLessonDay: number;
+    totalLessonSemester: number;
     classId: string;
     studyTime: string;
 }
@@ -87,3 +93,23 @@ export const getRangeWeek = createAsyncThunk(
         }
     }
 );
+
+export const fetchCourseDetails = createAsyncThunk(
+    'timetable/fetchCourseDetails',
+    async (params:{ courseId:string; NH:string; TH:string }, { rejectWithValue }) => {
+        try {
+            const {data} = await axios.get(`${API_URL}/timetable/course-details`,{
+                params:{
+                    courseId:params.courseId,
+                    NH:params.NH,
+                    TH:params.TH
+                }
+            });
+            console.log(data);
+            return data;
+        } catch (e) {
+            return rejectWithValue((e as AxiosError).message);
+        }
+    }
+);
+

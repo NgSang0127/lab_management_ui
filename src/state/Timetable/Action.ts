@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {fetchTimetables, getRangeWeek, importTimetable} from "./Reducer.ts";
+import {fetchCourseDetails, fetchTimetables, getRangeWeek, importTimetable} from "./Reducer.ts";
 
 
 
@@ -9,8 +9,11 @@ export interface Timetable {
     courses: Array<{
         name: string;
         code: string;
-        nh: number;
+        nh: string;
+        th:string;
+        credits:number;
     }>;
+    numberOfStudents:number;
     startLessonTime: {
         startTime: string;
         lessonNumber: number;
@@ -23,12 +26,14 @@ export interface Timetable {
         name: string;
     };
     instructor: {
+        instructorId:string,
         user: {
             fullName: string;
         };
     };
     startLesson:number;
     totalLessonDay: number;
+    totalLessonSemester: number;
     classId: string;
     studyTime: string;
 }
@@ -37,23 +42,34 @@ export interface Timetable {
 interface TimetableState {
     weekRange: { firstWeekStart: string; lastWeekEnd: string } | null;
     timetables: Timetable[];
+    selectedWeek: { startDate: string; endDate: string } | null;
     isLoading: boolean;
     error: string | null;
+    course:Timetable | null;
+
 }
+
 
 
 const initialState: TimetableState = {
     weekRange:null,
+    selectedWeek:null,
     timetables: [],
     isLoading: false,
     error: null,
+    course:null
+
 };
 
 
 const timetableSlice = createSlice({
     name: 'timetable',
     initialState,
-    reducers: {},
+    reducers: {
+        setSelectedWeek(state, action) {
+            state.selectedWeek = action.payload;
+        },
+    },
     extraReducers: (builder) => {
         builder
             //importTimetable
@@ -94,9 +110,23 @@ const timetableSlice = createSlice({
             .addCase(getRangeWeek.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
-            });
+            })
+            //getCourseDetails
+            .addCase(fetchCourseDetails.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(fetchCourseDetails.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.course=action.payload;
+            })
+            .addCase(fetchCourseDetails.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
         ;
     },
 });
 
+export const { setSelectedWeek } = timetableSlice.actions;
 export default timetableSlice;

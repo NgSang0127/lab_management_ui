@@ -1,22 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Select, MenuItem, FormControl, InputLabel, CircularProgress } from '@mui/material';
-import { RootState, useAppDispatch } from '../../state/store.ts';
-import { getRangeWeek } from '../../state/Timetable/Reducer.ts';
+import { RootState, useAppDispatch } from '../../state/store';
+import { getRangeWeek} from '../../state/Timetable/Reducer';
 import { SelectChangeEvent } from "@mui/material/Select";
-import calculateWeeks from "../../utils/calculateWeeks.ts";
+import calculateWeeks from "../../utils/calculateWeeks";
+import {setSelectedWeek} from "../../state/Timetable/Action.ts";
 
 interface SelectWeekProps {
     onWeekChange: (week: { startDate: string, endDate: string }) => void;
-    initialWeek: { startDate: string, endDate: string } | null; // Thêm initialWeek từ parent
+    initialWeek: { startDate: string, endDate: string } | null;
 }
 
 const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) => {
     const dispatch = useAppDispatch();
-    const { weekRange, isLoading, error } = useSelector((state: RootState) => state.timetable);
-    const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
-    const [weeks, setWeeks] = useState<Array<{ startDate: string, endDate: string }>>([]);
-    const initialized = useRef(false); // Biến đánh dấu khởi tạo
+    const { weekRange, selectedWeek, isLoading, error } = useSelector((state: RootState) => state.timetable);
+    const [weeks, setWeeks] = React.useState<Array<{ startDate: string, endDate: string }>>([]);
+    const initialized = useRef(false);
 
     // Chỉ gọi getRangeWeek khi component lần đầu được mount
     useEffect(() => {
@@ -34,18 +34,17 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
 
             // Nếu có initialWeek từ parent, sử dụng tuần đó, không reset
             if (initialWeek) {
-                setSelectedWeek(`${initialWeek.startDate} -- ${initialWeek.endDate}`);
-            } else {
-                // Chọn tuần hiện tại lần đầu khi component mount
+                dispatch(setSelectedWeek(initialWeek)); // Dispatch tuần được truyền từ parent
+            } else if (!selectedWeek) {
+                // Chọn tuần hiện tại lần đầu khi component mount nếu chưa có tuần nào được chọn
                 const currentWeek = getCurrentWeek(calculatedWeeks);
                 if (currentWeek) {
-                    const currentWeekValue = `${currentWeek.startDate} -- ${currentWeek.endDate}`;
-                    setSelectedWeek(currentWeekValue);
-                    onWeekChange(currentWeek);  // Callback để thay đổi tuần trong parent component
+                    dispatch(setSelectedWeek(currentWeek));
+                    onWeekChange(currentWeek);
                 }
             }
         }
-    }, [weekRange, weeks, onWeekChange, initialWeek]);
+    }, [weekRange, weeks, onWeekChange, initialWeek, dispatch, selectedWeek]);
 
     // Tìm tuần hiện tại dựa trên ngày hiện tại
     const getCurrentWeek = (weeks: Array<{ startDate: string, endDate: string }>) => {
@@ -57,18 +56,25 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
         });
     };
 
-
     const handleChange = (event: SelectChangeEvent<string>) => {
         const selectedWeekValue = event.target.value as string;
         const [startDate, endDate] = selectedWeekValue.split('--').map(date => date.trim());
 
-        // Chỉ cập nhật tuần nếu tuần được chọn khác với tuần hiện tại
-        if (selectedWeek !== selectedWeekValue) {
-            setSelectedWeek(selectedWeekValue);
-            onWeekChange({ startDate, endDate });
+        // Dispatch tuần được chọn vào Redux và gọi callback
+        if (selectedWeek?.startDate !== startDate || selectedWeek?.endDate !== endDate) {
+            const newSelectedWeek = { startDate, endDate };
+            dispatch(setSelectedWeek(newSelectedWeek));
+            onWeekChange(newSelectedWeek); // Callback để thay đổi tuần trong parent component
         }
     };
 
+
+    // Chuyển selectedWeek thành chuỗi dạng "startDate -- endDate" để khớp với MenuItem value
+    let selectedWeekValue = selectedWeek ? `${selectedWeek.startDate} -- ${selectedWeek.endDate}` : '';
+
+    if (!weeks.find(week => `${week.startDate} -- ${week.endDate}` === selectedWeekValue)) {
+        selectedWeekValue = '';
+    }
     if (isLoading) {
         return <CircularProgress />;
     }
@@ -83,7 +89,7 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
             <Select
                 labelId="select-week-label"
                 id="select-week"
-                value={selectedWeek || ''}
+                value={selectedWeekValue}  // Sử dụng selectedWeekValue với đúng định dạng
                 onChange={handleChange}
                 label="Chọn Tuần"
                 variant="outlined"
@@ -92,17 +98,17 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
                     weeks.map((week, index) => (
                         <MenuItem
                             key={index}
-                            value={`${week.startDate} -- ${week.endDate}`}
+                            value={`${week.startDate} -- ${week.endDate}`}  // Sử dụng định dạng này cho value
                             sx={{
                                 '&.Mui-selected': {
-                                    backgroundColor: '#2bcdd3',  // Màu nền khi tuần được chọn
-                                    fontWeight: 'bold',            // Chữ in đậm khi được chọn
-                                    color: '#011f31',              // Màu chữ khi được chọn
+                                    backgroundColor: '#2bcdd3',
+                                    fontWeight: 'bold',
+                                    color: '#011f31',
                                 },
                                 '&:hover': {
-                                    backgroundColor: '#73f8e7',  // Màu nền khi hover vào tuần
+                                    backgroundColor: '#73f8e7',
                                 },
-                                fontWeight: selectedWeek === `${week.startDate} -- ${week.endDate}` ? 'bold' : 'normal', // Định dạng in đậm nếu được chọn
+                                fontWeight: selectedWeek?.startDate === week.startDate ? 'bold' : 'normal',
                             }}
                         >
                             {`Tuần ${index + 1} [Từ ${week.startDate} -- Đến ${week.endDate}]`}
