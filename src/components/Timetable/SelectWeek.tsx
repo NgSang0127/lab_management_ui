@@ -2,10 +2,11 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { Select, MenuItem, FormControl, InputLabel, CircularProgress } from '@mui/material';
 import { RootState, useAppDispatch } from '../../state/store';
-import { getRangeWeek} from '../../state/Timetable/Reducer';
+import { getRangeWeek } from '../../state/Timetable/Reducer';
 import { SelectChangeEvent } from "@mui/material/Select";
 import calculateWeeks from "../../utils/calculateWeeks";
-import {setSelectedWeek} from "../../state/Timetable/Action.ts";
+import { setSelectedWeek } from "../../state/Timetable/Action.ts";
+import { parse, isWithinInterval } from 'date-fns'; // Import từ date-fns
 
 interface SelectWeekProps {
     onWeekChange: (week: { startDate: string, endDate: string }) => void;
@@ -46,13 +47,15 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
         }
     }, [weekRange, weeks, onWeekChange, initialWeek, dispatch, selectedWeek]);
 
-    // Tìm tuần hiện tại dựa trên ngày hiện tại
+    // Tìm tuần hiện tại dựa trên ngày hiện tại bằng cách sử dụng isWithinInterval từ date-fns
     const getCurrentWeek = (weeks: Array<{ startDate: string, endDate: string }>) => {
         const today = new Date();
         return weeks.find(week => {
-            const startDate = new Date(week.startDate.split('/').reverse().join('/'));
-            const endDate = new Date(week.endDate.split('/').reverse().join('/'));
-            return today >= startDate && today <= endDate;
+            // Chuyển đổi từ chuỗi dd/MM/yyyy sang đối tượng Date
+            const startDate = parse(week.startDate, 'dd/MM/yyyy', new Date());
+            const endDate = parse(week.endDate, 'dd/MM/yyyy', new Date());
+            // Sử dụng isWithinInterval để kiểm tra tuần hiện tại
+            return isWithinInterval(today, { start: startDate, end: endDate });
         });
     };
 
@@ -67,7 +70,6 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
             onWeekChange(newSelectedWeek); // Callback để thay đổi tuần trong parent component
         }
     };
-
 
     // Chuyển selectedWeek thành chuỗi dạng "startDate -- endDate" để khớp với MenuItem value
     let selectedWeekValue = selectedWeek ? `${selectedWeek.startDate} -- ${selectedWeek.endDate}` : '';
@@ -101,9 +103,9 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
                             value={`${week.startDate} -- ${week.endDate}`}  // Sử dụng định dạng này cho value
                             sx={{
                                 '&.Mui-selected': {
-                                    backgroundColor: '#2bcdd3',
+                                    backgroundColor: '#73f8e7',
                                     fontWeight: 'bold',
-                                    color: '#011f31',
+                                    color: '#000203',
                                 },
                                 '&:hover': {
                                     backgroundColor: '#73f8e7',

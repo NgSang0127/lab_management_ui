@@ -12,6 +12,7 @@ import { fetchTimetables } from "../../state/Timetable/Reducer.ts";
 import {courseColors} from "../../utils/courseColors.ts";
 import {setSelectedWeek} from "../../state/Timetable/Action.ts";
 import {useNavigate} from "react-router-dom";
+import { parse, addDays, isSameDay } from 'date-fns';
 
 
 
@@ -101,14 +102,52 @@ const ScheduleTable: React.FC = () => {
             });
     };
 
-    const getScheduleItems = (dayOfWeek: string, period: number, room: string) => {
-        return timetables.filter(item =>
-            convertDayOfWeekToVietnamese(item.dayOfWeek) === dayOfWeek &&
-            item.startLessonTime.lessonNumber <= period &&
-            item.endLessonTime.lessonNumber >= period &&
-            item.room.name === room
-        );
+
+    const getScheduleItems = (dayOfWeek: string, period: number, roomName: string) => {
+        if (!selectedWeek) {
+            return [];
+        }
+
+        // Chuyển đổi selectedWeek.startDate từ chuỗi 'dd/MM/yyyy' sang đối tượng Date
+        const startDate = parse(selectedWeek.startDate, 'dd/MM/yyyy', new Date());
+
+        // Kiểm tra nếu startDate là một đối tượng Date hợp lệ
+        if (isNaN(startDate.getTime())) {
+            return [];
+        }
+
+        // Lọc các môn học từ thời khóa biểu
+        return timetables.filter(item => {
+            // Kiểm tra nếu có ngày hủy và đó là một mảng
+            if (Array.isArray(item?.cancelDates)) {
+                const isCanceled = item.cancelDates.some(cancelDateStr => {
+                    // Chuyển đổi cancelDate từ chuỗi dd/MM/yyyy sang đối tượng Date
+                    const canceledDate = parse(cancelDateStr, 'dd/MM/yyyy', new Date());
+
+                    // Tính toán ngày hiện tại trong tuần đang xét
+                    const daysOffset = daysOfWeek.indexOf(dayOfWeek);
+                    const currentDayOfWeekDate = addDays(startDate, daysOffset);
+
+                    // So sánh ngày bị hủy với ngày hiện tại trong tuần
+                    return isSameDay(canceledDate, currentDayOfWeekDate);
+                });
+
+                // Nếu môn học bị hủy, không hiển thị nó
+                if (isCanceled) {
+                    return false;
+                }
+            }
+
+            // Lọc các môn học không bị hủy và phù hợp với các điều kiện khác
+            return convertDayOfWeekToVietnamese(item.dayOfWeek) === dayOfWeek &&
+                item.startLessonTime.lessonNumber <= period &&
+                item.endLessonTime.lessonNumber >= period &&
+                item.room.name === roomName;
+        });
     };
+
+
+
 
     const getLessonTime = (period: number) => {
         return lessonTimes?.find(lesson => lesson.lessonNumber === period);

@@ -11,6 +11,9 @@ const Home = () => {
                 <li>
                     <Link to="timetable/by-week">Get timetable By week</Link>
                 </li>
+                <li>
+                    <Link to="timetable/cancel">Cancel Timetable</Link>
+                </li>
             </ul>
         </nav>
     )

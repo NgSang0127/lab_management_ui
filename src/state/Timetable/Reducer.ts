@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios, { AxiosError } from 'axios';
-import { API_URL } from '../../config/api.ts';  // Chỉnh đường dẫn API theo nhu cầu
+import { API_URL } from '../../config/api.ts';
 
 
 interface TimetableApiResponse {
@@ -37,6 +37,7 @@ interface TimetableApiResponse {
     totalLessonSemester: number;
     classId: string;
     studyTime: string;
+    cancelDates:string[];
 }
 
 export const importTimetable = createAsyncThunk(
@@ -103,6 +104,43 @@ export const fetchCourseDetails = createAsyncThunk(
                     courseId:params.courseId,
                     NH:params.NH,
                     TH:params.TH
+                }
+            });
+            console.log(data);
+            return data;
+        } catch (e) {
+            return rejectWithValue((e as AxiosError).message);
+        }
+    }
+);
+
+export const fetchTimetableByDate = createAsyncThunk(
+    'timetable/fetchTimetableByDate',
+    async (params:{date:string}, { rejectWithValue }) => {
+        try {
+            const {data} = await axios.get(`${API_URL}/timetable/by-date`,{
+                params:{
+                    date:params.date
+                }
+            });
+            console.log(data);
+            return data;
+        } catch (e) {
+            return rejectWithValue((e as AxiosError).message);
+        }
+    }
+);
+
+export const cancelTimetable = createAsyncThunk(
+    'timetable/cancelTimetable',
+    async (params:{cancelDate:string,startLesson:number,roomName:string,timetableId:number}, { rejectWithValue }) => {
+        try {
+            const {data} = await axios.post(`${API_URL}/timetable/cancel`,null,{
+                params:{
+                    cancelDate:params.cancelDate,
+                    startLesson:params.startLesson,
+                    roomName:params.roomName,
+                    timetableId:params.timetableId
                 }
             });
             console.log(data);

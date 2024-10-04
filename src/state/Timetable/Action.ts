@@ -1,5 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {fetchCourseDetails, fetchTimetables, getRangeWeek, importTimetable} from "./Reducer.ts";
+import {
+    cancelTimetable,
+    fetchCourseDetails,
+    fetchTimetableByDate,
+    fetchTimetables,
+    getRangeWeek,
+    importTimetable
+} from "./Reducer.ts";
 
 
 
@@ -36,6 +43,7 @@ export interface Timetable {
     totalLessonSemester: number;
     classId: string;
     studyTime: string;
+    cancelDates:string[];
 }
 
 
@@ -121,6 +129,31 @@ const timetableSlice = createSlice({
                 state.course=action.payload;
             })
             .addCase(fetchCourseDetails.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+            //getTimetableByDate
+            .addCase(fetchTimetableByDate.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(fetchTimetableByDate.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.timetables=action.payload;
+            })
+            .addCase(fetchTimetableByDate.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+            //cancelTimetable
+            .addCase(cancelTimetable.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(cancelTimetable.fulfilled,(state)=>{
+                state.isLoading=false;
+            })
+            .addCase(cancelTimetable.rejected,(state,action)=>{
                 state.isLoading=false;
                 state.error=action.payload as string;
             })

@@ -14,6 +14,7 @@ import Error from "./components/Email/Error.tsx";
 import Calendar from "./components/Timetable/ScheduleTable.tsx";
 import ImportTimetable from "./components/Timetable/ImportTimetable.tsx";
 import CardDetailsCourse from "./components/Timetable/CardDetailsCourse.tsx";
+import CancelTimetable from "./components/Timetable/CancelTimetable.tsx";
 
 
 const router = createBrowserRouter([
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
             {
                 path:'courses/:courseId/:NH/:TH',
                 element: <CardDetailsCourse/>
+            },
+            {
+                path:'timetable/cancel',
+                element: <CancelTimetable/>
             }
         ],
 
