@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import {
-    cancelTimetable,
+    cancelTimetable, createTimetable,
     fetchCourseDetails,
     fetchTimetableByDate,
     fetchTimetables,
@@ -9,10 +9,21 @@ import {
 } from "./Reducer.ts";
 
 
+export interface TimetableRequest {
+    timetableName: string;
+    roomName: string;
+    startLesson: number;
+    endLesson: number;
+    date: string;
+    instructorId: string;
+    description: string;
+}
+
 
 export interface Timetable {
     id: number;
     dayOfWeek: string;
+    timetableName:string;
     courses: Array<{
         name: string;
         code: string;
@@ -44,6 +55,8 @@ export interface Timetable {
     classId: string;
     studyTime: string;
     cancelDates:string[];
+    description:string;
+
 }
 
 
@@ -53,7 +66,7 @@ interface TimetableState {
     selectedWeek: { startDate: string; endDate: string } | null;
     isLoading: boolean;
     error: string | null;
-    course:Timetable | null;
+    timetable:Timetable | null;
 
 }
 
@@ -65,7 +78,7 @@ const initialState: TimetableState = {
     timetables: [],
     isLoading: false,
     error: null,
-    course:null
+    timetable:null
 
 };
 
@@ -126,7 +139,7 @@ const timetableSlice = createSlice({
             })
             .addCase(fetchCourseDetails.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.course=action.payload;
+                state.timetable=action.payload;
             })
             .addCase(fetchCourseDetails.rejected,(state,action)=>{
                 state.isLoading=false;
@@ -154,6 +167,18 @@ const timetableSlice = createSlice({
                 state.isLoading=false;
             })
             .addCase(cancelTimetable.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+            //createTimetable
+            .addCase(createTimetable.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(createTimetable.fulfilled,(state)=>{
+                state.isLoading=false;
+            })
+            .addCase(createTimetable.rejected,(state,action)=>{
                 state.isLoading=false;
                 state.error=action.payload as string;
             })

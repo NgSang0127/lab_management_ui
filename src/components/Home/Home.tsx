@@ -14,6 +14,9 @@ const Home = () => {
                 <li>
                     <Link to="timetable/cancel">Cancel Timetable</Link>
                 </li>
+                <li>
+                    <Link to="timetable/create">Create Timetable</Link>
+                </li>
             </ul>
         </nav>
     )

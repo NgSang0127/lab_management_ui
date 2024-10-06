@@ -13,6 +13,7 @@ import {courseColors} from "../../utils/courseColors.ts";
 import {setSelectedWeek} from "../../state/Timetable/Action.ts";
 import {useNavigate} from "react-router-dom";
 import { parse, addDays, isSameDay } from 'date-fns';
+import {daysOfWeek, periods, rooms} from "../../utils/utilsTimetable.ts";
 
 
 
@@ -23,26 +24,26 @@ const hashStringToNumber = (str: string) => {
     for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
         hash = (hash << 5) - hash + char;
-        hash |= 0; // Chuyển đổi sang số nguyên 32-bit
+        hash |= 0;
     }
     return Math.abs(hash); // Trả về số dương
 };
 
-const getCourseColor = (courseName: string) => {
-    // Nếu môn học đã có màu, trả về màu đó
-    if (courseColorMap.has(courseName)) {
-        return courseColorMap.get(courseName);
+const getCourseColor = (courseName: string | undefined, timetableName: string) => {
+    // Nếu có courseName và đã có màu cho courseName, trả về màu đó
+    const key = courseName || timetableName;
+
+    if (courseColorMap.has(key)) {
+        return courseColorMap.get(key);
     }
 
-    // Nếu chưa có màu, gán màu mới từ danh sách màu
-    const index = hashStringToNumber(courseName) % courseColors.length;
+    // Nếu chưa có màu, gán màu mới từ danh sách màu dựa trên tên khóa học hoặc tên thời khóa biểu
+    const index = hashStringToNumber(key) % courseColors.length;
     const color = courseColors[index];
-    courseColorMap.set(courseName, color);
+    courseColorMap.set(key, color);
     return color;
 };
 
-
-const rooms = ['LA1.604', 'LA1.605', 'LA1.606', 'LA1.607', 'LA1.608'];
 
 const ScheduleTable: React.FC = () => {
     const navigate=useNavigate();
@@ -63,8 +64,6 @@ const ScheduleTable: React.FC = () => {
         error: errorTimetables
     } = useSelector((state: RootState) => state.timetable);
 
-    const daysOfWeek = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
-    const periods = Array.from({length: 16}, (_, index) => index + 1);
 
     useEffect(() => {
         dispatch(fetchLessonTimes());
@@ -90,16 +89,23 @@ const ScheduleTable: React.FC = () => {
     const handleWeekChange = (week: { startDate: string, endDate: string }) => {
         if (!selectedWeek || selectedWeek.startDate !== week.startDate || selectedWeek.endDate !== week.endDate) {
             userChangedWeek.current = true;
-            dispatch(setSelectedWeek(week));  // Dispatch tuần đã chọn vào Redux
+            dispatch(setSelectedWeek(week));
             console.log("Week changed to:", week);
         }
     };
     // Hàm xử lý sự kiện click vào môn học
-    const handleCourseClick = (courseId:string,NH:string,TH:string) => {
-        navigate(`/courses/${courseId}/${NH}/${TH}`,
-            {
-                state:{selectedWeek}
+    const handleCourseClick = (courseId: string | null, NH: string | null, TH: string | null, timetableName: string | null) => {
+        if (courseId && NH && TH) {
+            // Chuyển hướng khi có course
+            navigate(`/courses/${courseId}/${NH}/${TH}`, {
+                state: { selectedWeek }
             });
+        } else if (timetableName) {
+            // Chuyển hướng khi không có courseId, NH, TH và sử dụng timetableName
+            navigate(`/courses/${timetableName}`, {
+                state: { selectedWeek }
+            });
+        }
     };
 
 
@@ -160,9 +166,9 @@ const ScheduleTable: React.FC = () => {
     return (
         <div className="container mx-auto px-3">
             <h1 className="text-3xl font-semibold text-center text-gray-800">
-                {selectedWeek ? `Thời Khóa Biểu Tuần [${selectedWeek.startDate} - ${selectedWeek.endDate}]` : 'Thời Khóa Biểu'}
+                {selectedWeek ? `Thời Khóa Biểu Tuần ${selectedWeek.startDate} - ${selectedWeek.endDate}` : 'Thời Khóa Biểu'}
             </h1>
-            <SelectWeek onWeekChange={handleWeekChange} initialWeek={selectedWeek}/> {/* Truyền tuần ban đầu */}
+            <SelectWeek onWeekChange={handleWeekChange} initialWeek={selectedWeek}/>
             <div className="overflow-x-auto">
                 <table className="w-full table-fixed border-collapse">
                     <thead>
@@ -190,8 +196,8 @@ const ScheduleTable: React.FC = () => {
                                         const firstItem = scheduleItems[0];
                                         const rowSpan = firstItem.endLessonTime.lessonNumber - firstItem.startLessonTime.lessonNumber + 1; // Số tiết môn học chiếm
 
-                                        if (firstItem.startLessonTime.lessonNumber === period) { // Chỉ hiển thị môn học ở tiết đầu tiên của nó
-                                            const courseColor=getCourseColor(firstItem.courses[0].name);
+                                        if (firstItem.startLessonTime.lessonNumber === period) {
+                                            const courseColor = getCourseColor(firstItem.courses?.[0]?.name, firstItem.timetableName);
                                             return (
                                                 <td key={`${dayOfWeek}-${room}-${period}`}
                                                     className="border p-0 relative " rowSpan={rowSpan}>
@@ -199,12 +205,29 @@ const ScheduleTable: React.FC = () => {
                                                         {scheduleItems.map((scheduleItem, index) => (
                                                             <CustomTooltip key={index} scheduleItem={scheduleItem}>
                                                                 <div
-                                                                    onClick={()=>handleCourseClick(scheduleItem.courses[0].code,scheduleItem.courses[0].nh,scheduleItem.courses[0].th)}
+                                                                    // Kiểm tra nếu có course thì tìm theo courseId, NH, TH, nếu không thì tìm theo timetableName
+                                                                    onClick={() => handleCourseClick(
+                                                                        scheduleItem.courses && scheduleItem.courses.length > 0
+                                                                            ? scheduleItem.courses[0].code
+                                                                            : null,
+                                                                        scheduleItem.courses && scheduleItem.courses.length > 0
+                                                                            ? scheduleItem.courses[0].nh
+                                                                            : null,
+                                                                        scheduleItem.courses && scheduleItem.courses.length > 0
+                                                                            ? scheduleItem.courses[0].th
+                                                                            : null,
+                                                                        scheduleItem.timetableName  // Truyền timetableName nếu không có course
+                                                                    )}
                                                                     className=' w-full h-full flex flex-col justify-center items-center text-center p-1'>
                                                                     <span
-                                                                        className="font-semibold p-1 text-xs text-green-700">{scheduleItem.courses[0].name}</span>
-                                                                    <span className="text-xs italic"><span
-                                                                        className="text-green-600">{scheduleItem.instructor.user.fullName}</span></span>
+                                                                        className="font-semibold p-1 text-xs text-green-700">
+                                                                        {scheduleItem.courses && scheduleItem.courses.length > 0
+                                                                        ? scheduleItem.courses[0].name
+                                                                        : scheduleItem.timetableName}</span>
+                                                                    <span className="text-xs italic text-green-600">
+                                                                        {
+                                                                        scheduleItem.instructor.user.fullName}
+                                                                        </span>
                                                                 </div>
                                                             </CustomTooltip>
                                                         ))}

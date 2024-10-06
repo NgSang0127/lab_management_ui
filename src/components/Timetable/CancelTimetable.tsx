@@ -11,7 +11,7 @@ const CancelTimetable: React.FC = () => {
     const dispatch = useAppDispatch();
     const { timetables, isLoading, error } = useSelector((state: RootState) => state.timetable);
     const [cancelDate, setCancelDate] = useState<string>('');
-    const [selectedTimetable, setSelectedTimetable] = useState<number | null>(null);  
+    const [selectedTimetable, setSelectedTimetable] = useState<number | null>(null);
 
     // Trạng thái cho Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);

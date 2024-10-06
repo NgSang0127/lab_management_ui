@@ -37,7 +37,7 @@ const ImportTimetable: React.FC = () => {
             setError(false);
 
 
-            const resultAction: any = await dispatch(importTimetable(formData));
+            const resultAction = await dispatch(importTimetable(formData));
 
             if (importTimetable.fulfilled.match(resultAction)) {
                 setFeedbackMessage('File imported successfully');

@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { Select, MenuItem, FormControl, InputLabel, CircularProgress } from '@mui/material';
-import { RootState, useAppDispatch } from '../../state/store';
-import { getRangeWeek } from '../../state/Timetable/Reducer';
-import { SelectChangeEvent } from "@mui/material/Select";
+import React, {useEffect, useRef} from 'react';
+import {useSelector} from 'react-redux';
+import {CircularProgress, FormControl, InputLabel, MenuItem, Select} from '@mui/material';
+import {RootState, useAppDispatch} from '../../state/store';
+import {getRangeWeek} from '../../state/Timetable/Reducer';
+import {SelectChangeEvent} from "@mui/material/Select";
 import calculateWeeks from "../../utils/calculateWeeks";
-import { setSelectedWeek } from "../../state/Timetable/Action.ts";
-import { parse, isWithinInterval } from 'date-fns'; // Import từ date-fns
+import {setSelectedWeek} from "../../state/Timetable/Action.ts";
+import {endOfDay, isWithinInterval, parse, startOfDay} from 'date-fns'; // Import từ date-fns
 
 interface SelectWeekProps {
     onWeekChange: (week: { startDate: string, endDate: string }) => void;
@@ -47,17 +47,22 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
         }
     }, [weekRange, weeks, onWeekChange, initialWeek, dispatch, selectedWeek]);
 
-    // Tìm tuần hiện tại dựa trên ngày hiện tại bằng cách sử dụng isWithinInterval từ date-fns
+;
+
+    //Tính toán lấy ra tuần hiện tại
     const getCurrentWeek = (weeks: Array<{ startDate: string, endDate: string }>) => {
         const today = new Date();
+
         return weeks.find(week => {
-            // Chuyển đổi từ chuỗi dd/MM/yyyy sang đối tượng Date
-            const startDate = parse(week.startDate, 'dd/MM/yyyy', new Date());
-            const endDate = parse(week.endDate, 'dd/MM/yyyy', new Date());
-            // Sử dụng isWithinInterval để kiểm tra tuần hiện tại
-            return isWithinInterval(today, { start: startDate, end: endDate });
+            const startDate = startOfDay(parse(week.startDate, 'dd/MM/yyyy', new Date()));
+            const endDate = endOfDay(parse(week.endDate, 'dd/MM/yyyy', new Date()));
+
+
+            return isWithinInterval(today, {start: startDate, end: endDate});
         });
     };
+
+
 
     const handleChange = (event: SelectChangeEvent<string>) => {
         const selectedWeekValue = event.target.value as string;

@@ -1,9 +1,10 @@
-import { addDays, format, isBefore } from 'date-fns';
+import { addDays, format, isBefore, parse } from 'date-fns';
 
 const calculateWeeks = (firstWeekStart: string, lastWeekEnd: string) => {
     const weeksArray = [];
-    const currentWeekStart = new Date(firstWeekStart);
-    const end = new Date(lastWeekEnd);
+
+    let currentWeekStart = parse(firstWeekStart, 'dd/MM/yyyy', new Date());
+    const end = parse(lastWeekEnd, 'dd/MM/yyyy', new Date());
 
     while (isBefore(currentWeekStart, addDays(end, 1))) {
         const currentWeekEnd = addDays(currentWeekStart, 6);
@@ -12,7 +13,7 @@ const calculateWeeks = (firstWeekStart: string, lastWeekEnd: string) => {
             endDate: format(currentWeekEnd, 'dd/MM/yyyy'),
         });
 
-        currentWeekStart.setTime(addDays(currentWeekStart, 7).getTime());
+        currentWeekStart = addDays(currentWeekStart, 7);
     }
     return weeksArray;
 };

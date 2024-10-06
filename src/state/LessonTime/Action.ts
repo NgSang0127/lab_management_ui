@@ -38,7 +38,7 @@ const lessonTimeSlice = createSlice({
 
             .addCase(fetchLessonTimes.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.lessonTimes = action.payload; // Lưu dữ liệu vào state
+                state.lessonTimes = action.payload;
             })
             .addCase(fetchLessonTimes.rejected, (state, action) => {
                 state.isLoading = false;
