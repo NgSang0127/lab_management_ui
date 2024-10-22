@@ -12,10 +12,10 @@ const Home = () => {
                     <Link to="timetable/by-week">Get timetable By week</Link>
                 </li>
                 <li>
-                    <Link to="timetable/cancel">Cancel Timetable</Link>
+                    <Link to="admin/timetable/cancel">Cancel Timetable</Link>
                 </li>
                 <li>
-                    <Link to="timetable/create">Create Timetable</Link>
+                    <Link to="admin/timetable/create">Create Timetable</Link>
                 </li>
             </ul>
         </nav>

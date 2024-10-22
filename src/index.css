@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+
 /* Tùy chỉnh thanh cuộn */
 @layer base {
     ::-webkit-scrollbar {
@@ -28,3 +31,4 @@
         scrollbar-color: #888 #f1f1f1;
     }
 }
+

@@ -3,7 +3,7 @@ import { TextField, Button, MenuItem, FormControl, Select, CircularProgress, Typ
 import { RootState, useAppDispatch } from '../../state/store';
 import { createTimetable } from '../../state/Timetable/Reducer';
 import { useSelector } from "react-redux";
-import { periods, utilsTimetable } from "../../utils/utilsTimetable";
+import {periods, rooms} from "../../utils/utilsTimetable";
 
 const CreateTimetable: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -109,7 +109,7 @@ const CreateTimetable: React.FC = () => {
                         onChange={(e) => setRoomName(e.target.value as string)}
                         required
                         variant="outlined">
-                        {utilsTimetable.map((room, index) => (
+                        {rooms.map((room, index) => (
                             <MenuItem key={index} value={room}>
                                 {room}
                             </MenuItem>

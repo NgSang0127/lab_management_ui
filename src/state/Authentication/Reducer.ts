@@ -36,4 +36,17 @@ export const loginUser = createAsyncThunk<AuthResponseData, LoginRequestData, { 
         }
     }
 )
+export const getUser = createAsyncThunk(
+    'auth/getUser',
+    async (_, {rejectWithValue}) => {
+        try {
+            const {data} = await api.get(`${API_URL}/user/profile`);
+            console.log(data)
+            return data;
+        } catch (err) {
+            return rejectWithValue((err as AxiosError).message);
+        }
+    }
+)
+
 

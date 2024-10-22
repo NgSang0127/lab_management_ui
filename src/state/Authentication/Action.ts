@@ -1,21 +1,45 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {loginUser, registerUser} from "./Reducer.ts";
+import {getUser, loginUser, registerUser} from "./Reducer.ts";
 
 
 export interface Auth{
-    accessToken: string;
-    refreshToken: string;
+    access_token: string;
+    refresh_token: string;
+    role:string;
+    message:string;
+}
+
+export interface User {
+    id: number;
+    firstName: string;
+    lastName: string;
+    username: string;
+    phoneNumber: string;
+    email: string;
+    role: Role;
+    accountLocked: boolean;
+    enabled: boolean;
+    createdDate: string;
+    lastModifiedDate: string;
+}
+
+
+export enum Role {
+    STUDENT = "STUDENT",
+    INSTRUCTOR = "INSTRUCTOR",
+    ADMIN = "ADMIN"
 }
 
 interface AuthState {
-    auth: Auth;
+    auth: Auth |null;
     isLoading: boolean;
     error: string | null;
+    user:User |null;
 }
 
-// @ts-ignore
 const initialState: AuthState = {
     auth:null,
+    user:null,
     isLoading:false,
     error:null,
 };
@@ -36,15 +60,16 @@ export const authSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state) => {
+            .addCase(registerUser.fulfilled, (state,action) => {
                 state.isLoading = false;
+                state.auth=action.payload;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string ;
             })
 
-        //get user
+        //login user
             .addCase(loginUser.pending,(state)=>{
                 state.isLoading=true;
                 state.error=null;
@@ -58,6 +83,20 @@ export const authSlice = createSlice({
                 state.error=action.payload as string;
 
             })
+            //getUser
+            .addCase(getUser.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(getUser.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.user=action.payload;
+            })
+            .addCase(getUser.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+
     },
 });
 export  default authSlice.reducer;
