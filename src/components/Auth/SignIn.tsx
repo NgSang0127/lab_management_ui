@@ -24,7 +24,7 @@ import {ThemeContext} from "../../theme/ThemeContext.tsx";
 import {useContext} from "react";
 import logo from "@images/logo.png";
 import {LoginRequestData} from "../../state/Authentication/ActionType.ts";
-import {loginUser} from "../../state/Authentication/Reducer.ts";
+import {getUser, loginUser} from "../../state/Authentication/Reducer.ts";
 import {useAppDispatch} from "../../state/store.ts";
 import {useNavigate} from "react-router-dom";
 
@@ -128,6 +128,7 @@ export default function SignIn() {
             try {
                 const response = await dispatch(loginUser(formData)).unwrap();
                 console.log("response", response);
+                await dispatch(getUser()).unwrap();
                 navigate('/');
 
             } catch (error) {

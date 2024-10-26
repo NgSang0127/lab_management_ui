@@ -13,7 +13,7 @@ import { getUser } from "./state/Authentication/Reducer.ts";
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
 
-    const storedAccessToken = localStorage.getItem('jwt');
+    const storedAccessToken = localStorage.getItem('accessToken');
     useEffect(() => {
         if (storedAccessToken) {
             console.log("Access token from localStorage: ", storedAccessToken);
@@ -21,7 +21,7 @@ const App: React.FC = () => {
         } else {
             console.log("No access_token found in localStorage");
         }
-    }, [dispatch, storedAccessToken]); 
+    }, [dispatch, storedAccessToken]);
 
     const { isDarkMode, showCustomTheme } = useContext(ThemeContext);
     return (

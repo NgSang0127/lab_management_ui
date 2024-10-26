@@ -6,6 +6,12 @@ import Success from "../components/Email/Success.tsx";
 import Error from "../components/Email/Error.tsx";
 import teacherRoutes from "./TeacherRoute.tsx";
 import adminRoutes from "./AdminRoute.tsx";
+import Home from "../components/Home/Home.tsx";
+import Calendar from "../components/Timetable/ScheduleTable.tsx";
+
+import CardDetailsCourse from "../components/Timetable/CardDetailsCourse.tsx";
+import Extracurricular from "../components/Timetable/Extracurricular.tsx";
+import CheckEmail from "../components/Email/CheckEmail.tsx";
 
 
 const router = createBrowserRouter([
@@ -16,23 +22,50 @@ const router = createBrowserRouter([
             ...teacherRoutes,
             ...adminRoutes,
             {
+                index: true,
+                element: <Home/>,
+            },
+            {
+                path: 'timetable/by-week',
+                element: <Calendar/>,
+            },
+            {
                 path: 'account/signin',
                 element: <SignIn/>,
             },
             {
                 path: 'account/signup',
                 element: <SignUp/>,
-            }
+            },
+            {
+                path: 'courses',
+                children:[
+                    {
+                        path:':courseId/:NH/:TH',
+                        element: <CardDetailsCourse/>
+                    },
+                    {
+                        path:':timetableName',
+                        element: <Extracurricular/>
+                    }
+                ]
+
+            },
+            {
+                path:"check-email",
+                element: <CheckEmail/>
+            },
+            {
+                path: 'success',
+                element: <Success/>,
+            },
+            {
+                path: 'error',
+                element: <Error/>
+            },
         ]
     },
-    {
-        path: '/success',
-        element: <Success/>,
-    },
-    {
-        path: '/error',
-        element: <Error/>
-    },
+
     {
         path: '*',
         element: <div>404 Not Found</div>,

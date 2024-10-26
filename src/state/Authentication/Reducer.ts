@@ -6,9 +6,9 @@ import {AxiosError} from "axios";
 
 export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
     'auth/registerUser',
-    async (reqData, { rejectWithValue }) => {
+    async (reqData, {rejectWithValue}) => {
         try {
-            const { data } = await api.post(`${API_URL}/auth/register`, reqData);
+            const {data} = await api.post(`${API_URL}/auth/register`, reqData);
 
             return data;
         } catch (err) {
@@ -23,7 +23,7 @@ export const loginUser = createAsyncThunk<AuthResponseData, LoginRequestData, { 
     async (reqData, {rejectWithValue}) => {
         try {
             const {data} = await api.post<AuthResponseData>(`${API_URL}/auth/login`, reqData);
-            if (data.access_token) localStorage.setItem('jwt', data.access_token);
+            if (data.access_token) localStorage.setItem('accessToken', data.access_token);
             if (data.refresh_token) localStorage.setItem('refreshToken', data.refresh_token);
 
             console.log(data)
@@ -43,6 +43,17 @@ export const getUser = createAsyncThunk(
             const {data} = await api.get(`${API_URL}/user/profile`);
             console.log(data)
             return data;
+        } catch (err) {
+            return rejectWithValue((err as AxiosError).message);
+        }
+    }
+)
+export const logout = createAsyncThunk(
+    'auth/logout',
+    async (_, {rejectWithValue}) => {
+        try {
+            localStorage.clear();
+            await api.get(`${API_URL}/auth/logout`);
         } catch (err) {
             return rejectWithValue((err as AxiosError).message);
         }

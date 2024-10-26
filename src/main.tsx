@@ -6,6 +6,8 @@ import { RouterProvider} from 'react-router-dom';
 import {ThemeContextProvider} from './theme/ThemeContext.tsx';
 import {store} from "./state/store.ts";
 import router from "./route/Routes.tsx";
+import "@fontsource/montserrat/300.css";
+
 
 
 createRoot(document.getElementById('root')!).render(

@@ -1,12 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
-import {getUser, loginUser, registerUser} from "./Reducer.ts";
+import {createSlice} from "@reduxjs/toolkit";
+import {getUser, loginUser, logout, registerUser} from "./Reducer.ts";
 
 
-export interface Auth{
+export interface Auth {
     access_token: string;
     refresh_token: string;
-    role:string;
-    message:string;
+    role: string;
+    message: string;
 }
 
 export interface User {
@@ -26,33 +26,29 @@ export interface User {
 
 export enum Role {
     STUDENT = "STUDENT",
-    INSTRUCTOR = "INSTRUCTOR",
+    TEACHER = "TEACHER",
     ADMIN = "ADMIN"
 }
 
 interface AuthState {
-    auth: Auth |null;
+    auth: Auth | null;
     isLoading: boolean;
     error: string | null;
-    user:User |null;
+    user: User | null;
 }
 
 const initialState: AuthState = {
-    auth:null,
-    user:null,
-    isLoading:false,
-    error:null,
+    auth: null,
+    user: null,
+    isLoading: false,
+    error: null,
 };
+
 
 export const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        logout: (state) => {
-            return initialState;
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             // Register user
@@ -60,43 +56,57 @@ export const authSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(registerUser.fulfilled, (state,action) => {
+            .addCase(registerUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.auth=action.payload;
+                state.auth = action.payload;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
-                state.error = action.payload as string ;
+                state.error = action.payload as string;
             })
 
-        //login user
-            .addCase(loginUser.pending,(state)=>{
-                state.isLoading=true;
-                state.error=null;
+            //login user
+            .addCase(loginUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
-            .addCase(loginUser.fulfilled,(state,action)=>{
-                state.isLoading=false;
-                state.auth=action.payload;
+            .addCase(loginUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.auth = action.payload;
+
             })
-            .addCase(loginUser.rejected,(state,action)=>{
-                state.isLoading=false;
-                state.error=action.payload as string;
+            .addCase(loginUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
 
             })
             //getUser
-            .addCase(getUser.pending,(state)=>{
-                state.isLoading=true;
-                state.error=null;
+            .addCase(getUser.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
-            .addCase(getUser.fulfilled,(state,action)=>{
-                state.isLoading=false;
-                state.user=action.payload;
+            .addCase(getUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.user = action.payload;
             })
-            .addCase(getUser.rejected,(state,action)=>{
-                state.isLoading=false;
-                state.error=action.payload as string;
+            .addCase(getUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+            //logout
+            .addCase(logout.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(logout.fulfilled, (state) => {
+                state.user = null;
+                state.isLoading = false;
+            })
+            .addCase(logout.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
             })
 
     },
 });
-export  default authSlice.reducer;
+export default authSlice.reducer;

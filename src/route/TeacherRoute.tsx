@@ -1,30 +1,27 @@
-import Home from "../components/Home/Home.tsx";
-import Calendar from "../components/Timetable/ScheduleTable.tsx";
-import ImportTimetable from "../components/Timetable/ImportTimetable.tsx";
-import CardDetailsCourse from "../components/Timetable/CardDetailsCourse.tsx";
-import Extracurricular from "../components/Timetable/Extracurricular.tsx";
+import UserProfile from "../components/Profile/UserProfile.tsx";
+import Notification from "../components/Profile/Notification.tsx";
+import ProfileSettings from "../components/Profile/ProfileSettings.tsx";
+import Profile from "../components/Profile/Profile.tsx";
 
 const teacherRoutes = [
     {
-        index: true,
-        element: <Home/>, // Home component as default child for teachers
+        path:'my-profile',
+        element: <Profile/>,
+        children:[
+            {
+              path:"",
+              element: <UserProfile/>
+            },
+            {
+                path:'notifications',
+                element: <Notification/>
+            },
+            {
+                path:'settings',
+                element: <ProfileSettings/>
+            },
+        ]
     },
-    {
-        path: 'timetable/by-week',
-        element: <Calendar/>,
-    },
-    {
-        path: 'timetable/import',
-        element: <ImportTimetable/>,
-    },
-    {
-        path: 'courses/:courseId/:NH/:TH',
-        element: <CardDetailsCourse/>,
-    },
-    {
-        path: 'courses/:timetableName',
-        element: <Extracurricular/>,
-    }
 ];
 
 export default teacherRoutes;

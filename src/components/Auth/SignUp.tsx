@@ -157,12 +157,8 @@ export default function SignUp() {
         event.preventDefault();
         if (validateInputs()) {
             try {
-                const response = await dispatch(registerUser(formData)).unwrap();
-                if (response.role === 'STUDENT') {
-                    navigate('/');
-                } else {
-                    // Chuyển hướng cho các vai trò khác nếu cần
-                }
+                 dispatch(registerUser(formData)).unwrap();
+                navigate("/check-email")
             } catch (error) {
                 console.error('Failed to login:', error);
             }

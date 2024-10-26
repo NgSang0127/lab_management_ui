@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios, { AxiosError } from 'axios';
-import { API_URL } from '../../config/api.ts';
+import {api, API_URL} from '../../config/api.ts';
 import {TimetableRequest} from "./Action.ts";
 
 
@@ -47,7 +47,7 @@ export const importTimetable = createAsyncThunk(
     'timetable/importTimetable',
     async (formData: FormData, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${API_URL}/timetable/import`, formData, {
+            const response = await api.post(`${API_URL}/timetable/import`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -74,7 +74,7 @@ export const fetchTimetables = createAsyncThunk(
     'timetable/fetchTimetables',
     async (params: { startDate: string; endDate: string }, { rejectWithValue }) => {
         try {
-            const { data } = await axios.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
+            const { data } = await api.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
                 params: { startDate: params.startDate, endDate: params.endDate },
             });
             console.log("timetable",data);
@@ -89,7 +89,7 @@ export const getRangeWeek = createAsyncThunk(
     'timetable/getRangeWeek',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get(`${API_URL}/timetable/weeks-range`);
+            const response = await api.get(`${API_URL}/timetable/weeks-range`);
             console.log("rangeweek",response);
             return response.data; // Trả về dữ liệu cho reducer
         } catch (e) {
@@ -122,7 +122,7 @@ export const fetchCourseDetails = createAsyncThunk(
             }
 
             // Gửi yêu cầu với các tham số phù hợp
-            const { data } = await axios.get(`${API_URL}/timetable/course-details`, {
+            const { data } = await api.get(`${API_URL}/timetable/course-details`, {
                 params: requestParams,
             });
 
@@ -139,7 +139,7 @@ export const fetchTimetableByDate = createAsyncThunk(
     'timetable/fetchTimetableByDate',
     async (params:{date:string}, { rejectWithValue }) => {
         try {
-            const {data} = await axios.get(`${API_URL}/timetable/by-date`,{
+            const {data} = await api.get(`${API_URL}/timetable/by-date`,{
                 params:{
                     date:params.date
                 }
@@ -156,7 +156,7 @@ export const cancelTimetable = createAsyncThunk(
     'timetable/cancelTimetable',
     async (params:{cancelDate:string,startLesson:number,roomName:string,timetableId:number}, { rejectWithValue }) => {
         try {
-            const {data} = await axios.post(`${API_URL}/timetable/cancel`,null,{
+            const {data} = await api.post(`${API_URL}/timetable/cancel`,null,{
                 params:{
                     cancelDate:params.cancelDate,
                     startLesson:params.startLesson,
@@ -177,7 +177,7 @@ export const createTimetable = createAsyncThunk(
     'timetable/createTimetable',
     async (request :TimetableRequest, { rejectWithValue }) => {
         try {
-            const {data} = await axios.post(`${API_URL}/timetable/create`,request);
+            const {data} = await api.post(`${API_URL}/timetable/create`,request);
             console.log(data);
             return data;
         } catch (e) {
