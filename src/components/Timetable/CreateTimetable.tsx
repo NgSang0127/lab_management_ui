@@ -7,6 +7,7 @@ import {periods, rooms} from "../../utils/utilsTimetable";
 
 const CreateTimetable: React.FC = () => {
     const dispatch = useAppDispatch();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isLoading, error } = useSelector((state: RootState) => state.timetable);
 
     // Các state để lưu thông tin form
@@ -122,6 +123,7 @@ const CreateTimetable: React.FC = () => {
                     <InputLabel>Tiết bắt đầu</InputLabel>
                     <Select
                         value={startLesson}
+                        color="primary"
                         onChange={(e) => setStartLesson(e.target.value as number)}
                         required
                         variant="outlined">
@@ -156,7 +158,10 @@ const CreateTimetable: React.FC = () => {
                     onChange={(e) => setDate(e.target.value)}
                     fullWidth
                     required
-                    InputLabelProps={{ shrink: true }}
+                    slotProps={{
+                        inputLabel: {
+                            shrink: true,
+                        }}}
                 />
 
                 <TextField
@@ -177,10 +182,10 @@ const CreateTimetable: React.FC = () => {
                     required
                 />
 
-                {/* Loading spinner */}
+
                 {isLoadingLocal && <CircularProgress />}
 
-                {/* Hiển thị lỗi nếu có */}
+
                 {error && <Typography color="error">{error}</Typography>}
 
                 <Button

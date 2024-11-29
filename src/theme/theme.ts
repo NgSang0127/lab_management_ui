@@ -6,30 +6,66 @@ export const lightTheme = createTheme({
         primary: { main: '#3DC2EC' },
         secondary: { main: '#73f8e7' },
         black: {
-            main: "#242B2E"
+            main: "#011f31"
         },
         background: {
-            default: "#f8f6f4",
-            paper: "transparent", // Make sure to set this to transparent if you're using a gradient
+            default: "rgb(252, 252, 252)",
+            paper: "rgb(252, 252, 252)",
         },
-        textColor: {
-            main: "#111111",
+        text: {
+            primary: "#111111",
+            secondary: "#111111",
         }
     },
     typography: {
-        fontFamily: 'Montserrat, sans-serif',
+        fontFamily: 'Roboto, sans-serif',
     },
     components: {
-        MuiPaper: {
+        MuiTextField: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#FFDEE9',
-                    backgroundImage: 'linear-gradient(0deg, #FFDEE9 0%, #B5FFFC 100%)',
-                    // Optional additional styles
-                    
+                    '& .MuiInputLabel-root': {
+                        color: '#011f31', // Màu nhãn cho primary color
+                    },
+                    '& .MuiInputBase-input': {
+                        color: '#111111', // Màu văn bản chính
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#011f31', // Màu viền cho primary color
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#3DC2EC', // Màu viền khi hover
+                    },
+                    '&:hover .MuiInputLabel-root': {
+                        color: '#3DC2EC', // Màu chữ nhãn khi hover
+                    },
                 },
             },
         },
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    color: '#011f31', // Đặt màu nhãn cho InputLabel
+                    '&.Mui-focused': {
+                        color: '#3DC2EC', // Màu nhãn khi focus
+                    },
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                root: {
+                    color: '#111111', // Đặt màu văn bản của Select
+                    '&:hover': {
+                        backgroundColor: 'rgba(61, 194, 236, 0.1)', // Màu nền khi hover
+                    },
+                    '&.Mui-focused': {
+                        borderColor: '#3DC2EC', // Màu viền khi Select được focus
+                    },
+                },
+            },
+        },
+
     },
 });
 
@@ -41,6 +77,60 @@ export const darkTheme = createTheme({
         background: {
             default: '#121212',
             paper: 'transparent', // Keep this transparent for the gradient
+        },
+        text: {
+            primary: '#f1f6f9', // Light text color for dark mode
+            secondary: '#f1f6f9', // Light text color for dark mode
+        },
+    },
+    typography: {
+        fontFamily: 'Roboto, sans-serif',
+    },
+    components: {
+        MuiTextField: {
+            styleOverrides: {
+                root: {
+                    '& .MuiInputLabel-root': {
+                        color: '#2bcdd3', // Màu nhãn cho primary color
+                    },
+                    '& .MuiInputBase-input': {
+                        color: '#f1f6f9', // Màu văn bản cho dark mode
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#2bcdd3', // Màu viền cho primary color
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#2bcdd3', // Màu viền khi hover
+                    },
+                    '&:hover .MuiInputLabel-root': {
+                        color: '#2bcdd3', // Màu chữ nhãn khi hover
+                    },
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                root: {
+                    '& .MuiSelect-root': {
+                        color: '#f1f6f9', // Màu văn bản chính
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#2bcdd3', // Màu viền cho primary color
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#2bcdd3', // Màu viền khi hover
+                    },
+                    '&:hover .MuiSelect-root': {
+                        color: '#2bcdd3', // Màu chữ khi hover
+                    },
+                    '& .MuiInputLabel-root': {
+                        color: '#2bcdd3', // Màu nhãn cho primary color
+                    },
+                    '&:hover .MuiInputLabel-root': {
+                        color: '#2bcdd3', // Màu chữ nhãn khi hover
+                    },
+                },
+            },
         },
     },
 });

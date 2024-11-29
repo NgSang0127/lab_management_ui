@@ -42,11 +42,15 @@ const Navbar: React.FC = () => {
     }, [dispatch]);
 
     return (
-        <AppBar position="sticky" sx={{
-            zIndex: 1200,
-            backgroundColor: '#0093E9',
-            backgroundImage: 'linear-gradient(298deg, #0093E9 0%, #80D0C7 100%)'
-        }} className="shadow-md">
+        <AppBar
+            position="sticky"
+            sx={{
+                zIndex: 1200,
+                backgroundColor: '#85FFBD',
+                backgroundImage: 'linear-gradient(119deg, #85FFBD 0%, #FFFB7D 100%)',
+                boxShadow: 'none',
+            }}
+        >
             <Toolbar className="flex justify-between items-center">
                 <Button
                     onClick={() => navigate("/")}

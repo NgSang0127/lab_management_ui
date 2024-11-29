@@ -1,0 +1,47 @@
+
+.slick-prev, .slick-next {
+    z-index: 1 !important;
+    width: 80px !important; /* Tăng chiều rộng */
+    height: 80px !important; /* Tăng chiều cao */
+    background: none !important;
+    opacity: 0.8;
+    border-radius: 5px;
+    transition: opacity 0.3s ease;
+}
+
+.slick-prev:before, .slick-next:before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    border: solid #f8f6f4;
+    border-width: 0 3px 3px 0;
+    transform: rotate(135deg);
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center;
+    transition: opacity 0.3s ease;
+}
+
+.slick-prev {
+    left: 10px; /* Adjust this value if the arrow is too far left */
+}
+
+.slick-next {
+    right: 10px; /* Adjust this value if the arrow is too far right */
+}
+
+
+.slick-prev:before {
+    transform: rotate(135deg) translate(-50%, -50%);
+}
+
+.slick-next:before {
+    transform: rotate(-45deg) translate(-50%, -50%);
+}
+
+.slick-prev:hover:before, .slick-next:hover:before {
+    opacity: 1;
+}

@@ -2,6 +2,8 @@ import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
 import CancelTimetable from "../components/Timetable/CancelTimetable.tsx";
 import ImportTimetable from "../components/Timetable/ImportTimetable.tsx";
 
+import Dashboard from "../components/Dashboard/Dashboard.tsx";
+
 
 const adminRoutes = [
     {
@@ -18,6 +20,11 @@ const adminRoutes = [
             {
                 path: 'timetable/import',
                 element: <ImportTimetable/>
+            },
+            {
+                path:'dashboard',
+                element: <Dashboard/>
+
             }
         ]
     }

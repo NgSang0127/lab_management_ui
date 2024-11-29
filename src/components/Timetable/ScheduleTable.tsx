@@ -164,7 +164,7 @@ const ScheduleTable: React.FC = () => {
     if (errorTimetables) return <p>Có lỗi xảy ra khi tải timetables: {errorTimetables}</p>;
 
     return (
-        <div className="container mx-auto px-3">
+        <div className="container mx-auto px-3 py-5">
             <h1 className="text-3xl font-semibold text-center text-gray-800">
                 {selectedWeek ? `Thời Khóa Biểu Tuần ${selectedWeek.startDate} - ${selectedWeek.endDate}` : 'Thời Khóa Biểu'}
             </h1>

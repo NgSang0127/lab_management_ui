@@ -2,9 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
-
-/* Tùy chỉnh thanh cuộn */
 @layer base {
     ::-webkit-scrollbar {
         width: 12px;
