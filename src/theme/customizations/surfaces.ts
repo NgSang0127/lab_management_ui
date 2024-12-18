@@ -59,12 +59,12 @@ export const surfacesCustomizations: Components<Theme> = {
         styleOverrides: {
             root: ({ theme }) => {
                 return {
-                    padding: 16,
+                    padding: 27,
                     gap: 16,
                     transition: 'all 100ms ease',
                     backgroundColor: gray[50],
                     borderRadius: theme.shape.borderRadius,
-                    border: `1px solid ${theme.palette.divider}`,
+                    border: `2px solid ${theme.palette.divider}`,
                     boxShadow: 'none',
                     ...theme.applyStyles('dark', {
                         backgroundColor: gray[800],

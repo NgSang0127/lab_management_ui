@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {getUser, loginUser, logout, registerUser} from "./Reducer.ts";
+import {forgotPassword, getUser, loginUser, logout, registerUser, resetPassword, validateResetCode} from "./Reducer.ts";
 
 
 export interface Auth {
@@ -14,8 +14,10 @@ export interface User {
     firstName: string;
     lastName: string;
     username: string;
+    fullName: string;
     phoneNumber: string;
     email: string;
+    image:string;
     role: Role;
     accountLocked: boolean;
     enabled: boolean;
@@ -34,12 +36,14 @@ interface AuthState {
     auth: Auth | null;
     isLoading: boolean;
     error: string | null;
+    success: string | null;
     user: User | null;
 }
 
 const initialState: AuthState = {
     auth: null,
     user: null,
+    success:'',
     isLoading: false,
     error: null,
 };
@@ -105,6 +109,51 @@ export const authSlice = createSlice({
             .addCase(logout.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
+            })
+            //forgotPassword
+            .addCase(forgotPassword.pending,(state)=>{
+                state.isLoading = true;
+                state.error=null;
+            })
+            .addCase(forgotPassword.fulfilled,(state,action)=>{
+                state.isLoading = false;
+                state.success=action.payload;
+                state.error=null;
+            })
+            .addCase(forgotPassword.rejected,(state,action)=>{
+                state.isLoading = false;
+                state.success='';
+                state.error=action.payload as string;
+            })
+        //validate reset code
+            .addCase(validateResetCode.pending,(state)=>{
+                state.isLoading = true;
+                state.error=null;
+            })
+            .addCase(validateResetCode.fulfilled,(state, action)=>{
+                state.isLoading = false;
+                state.success=action.payload;
+                state.error=null;
+            })
+            .addCase(validateResetCode.rejected,(state, action)=>{
+                state.isLoading = false;
+                state.success='';
+                state.error=action.payload as string;
+            })
+        //reset password
+            .addCase(resetPassword.pending,(state)=>{
+                state.isLoading = true;
+                state.error=null;
+            })
+            .addCase(resetPassword.fulfilled,(state, action)=>{
+                state.isLoading = false;
+                state.success=action.payload;
+                state.error=null;
+            })
+            .addCase(resetPassword.rejected,(state, action)=>{
+                state.isLoading = false;
+                state.success='';
+                state.error=action.payload as string;
             })
 
     },

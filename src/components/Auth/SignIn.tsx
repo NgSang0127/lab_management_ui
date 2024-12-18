@@ -1,35 +1,34 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
-import CssBaseline from '@mui/material/CssBaseline';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Divider from '@mui/material/Divider';
-import FormLabel from '@mui/material/FormLabel';
-import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-import MuiCard from '@mui/material/Card';
+import React, {useContext, useState} from 'react';
 import {
-    ThemeProvider,
-    createTheme,
-    styled
-} from '@mui/material/styles';
+    Box,
+    Button,
+    Checkbox,
+    CssBaseline,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    IconButton,
+    InputAdornment,
+    Link,
+    Stack,
+    TextField,
+    Typography
+} from '@mui/material';
+import {Visibility, VisibilityOff} from '@mui/icons-material';
 import ForgotPassword from './ForgotPassword';
-import getThemeSignInSignUp from "../../theme/getThemeSignInSignUp.ts";
+import {ThemeProvider, createTheme, styled} from '@mui/material/styles';
+import {ThemeContext} from '../../theme/ThemeContext.tsx';
+import {LoginRequestData} from '../../state/Authentication/ActionType.ts';
+import {useAppDispatch} from '../../state/store.ts';
+import {getUser, loginUser} from '../../state/Authentication/Reducer.ts';
+import {useNavigate} from 'react-router-dom';
+import logo from '@images/logo.png';
+import getThemeSignInSignUp from '../../theme/getThemeSignInSignUp.ts';
+import Divider from "@mui/material/Divider";
 import {FacebookIcon, GoogleIcon} from "../../theme/CustomIcons.tsx";
-import {ThemeContext} from "../../theme/ThemeContext.tsx";
-import {useContext} from "react";
-import logo from "@images/logo.png";
-import {LoginRequestData} from "../../state/Authentication/ActionType.ts";
-import {getUser, loginUser} from "../../state/Authentication/Reducer.ts";
-import {useAppDispatch} from "../../state/store.ts";
-import {useNavigate} from "react-router-dom";
 
-
-const Card = styled(MuiCard)(({theme}) => ({
+// Extract common styles
+const cardStyles = (theme: any) => ({
     display: 'flex',
     flexDirection: 'column',
     alignSelf: 'center',
@@ -39,98 +38,85 @@ const Card = styled(MuiCard)(({theme}) => ({
     [theme.breakpoints.up('sm')]: {
         width: '550px',
     },
-    boxShadow:
-        'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+    boxShadow: 'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
     ...theme.applyStyles('dark', {
-        boxShadow:
-            'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
+        boxShadow: 'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
     }),
-}));
+});
 
+const formContainerStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    gap: 2,
+};
+
+// Styled components
+const Card = styled(Box)(({theme}) => cardStyles(theme));
 const SignInContainer = styled(Stack)(({theme}) => ({
     height: 'auto',
-    backgroundImage:
-        'rgba(255, 255, 255, 0.8)',
+    backgroundImage: 'rgba(255, 255, 255, 0.8)',
     backgroundRepeat: 'no-repeat',
     [theme.breakpoints.up('sm')]: {
         height: '100dvh',
     },
     ...theme.applyStyles('dark', {
-        backgroundImage:
-            'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+        backgroundImage: 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
     }),
 }));
 
+// Refactored component
 export default function SignIn() {
     const {isDarkMode, showCustomTheme} = useContext(ThemeContext);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-
     const mode = isDarkMode ? 'dark' : 'light';
     const defaultTheme = createTheme({palette: {mode}});
-    const SignInTheme = createTheme(getThemeSignInSignUp(mode));
+    const signInTheme = createTheme(getThemeSignInSignUp(mode));
 
-    const [formData, setFormData] = React.useState<LoginRequestData>({
-        username: '',
-        password: '',
-    });
+    // Consolidated state for errors
+    const [formData, setFormData] = useState<LoginRequestData>({username: '', password: ''});
+    const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState({username: '', password: ''});
+    const [open, setOpen] = useState(false);
 
-    const [usernameError, setUsernameError] = React.useState(false);
-    const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
-    const [passwordError, setPasswordError] = React.useState(false);
-    const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-    const [open, setOpen] = React.useState(false);
-
-
+    // Handlers - extracted for modularity
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
         setFormData(prevData => ({...prevData, [name]: value}));
     };
 
-    const handleClickOpen = () => {
+    const togglePasswordVisibility = () => {
+        setShowPassword(prev => !prev);
+    };
+
+    const handleForgotPasswordOpen = () => {
+        event.preventDefault();
         setOpen(true);
+        setErrors({username: '', password: ''}); // Clear errors when dialog opens
     };
-
-    const handleClose = () => {
+    const handleForgotPasswordClose = () => {
         setOpen(false);
-    };
-
+    }
 
     const validateInputs = () => {
+        const validationErrors = {
+            username: formData.username ? '' : 'Username is required',
+            password: formData.password.length >= 8 ? '' : 'Password must be at least 8 characters',
+        };
+        setErrors(validationErrors);
 
-        let isValid = true;
-
-        if (!formData.username || formData.username.length < 1) {
-            setPasswordError(true);
-            setPasswordErrorMessage('Username is required');
-            isValid = false;
-        } else {
-            setUsernameError(false);
-            setUsernameErrorMessage('');
-        }
-
-        if (!formData.password || formData.password.length < 8) {
-            setPasswordError(true);
-            setPasswordErrorMessage('Password must be at least 8 characters long.');
-            isValid = false;
-        } else {
-            setPasswordError(false);
-            setPasswordErrorMessage('');
-        }
-
-        return isValid;
+        return !validationErrors.username && !validationErrors.password;
     };
-    console.log(showCustomTheme);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
         if (validateInputs()) {
             try {
-                const response = await dispatch(loginUser(formData)).unwrap();
-                console.log("response", response);
+                await dispatch(loginUser(formData)).unwrap();
                 await dispatch(getUser()).unwrap();
                 navigate('/');
-
             } catch (error) {
                 console.error('Failed to login:', error);
             }
@@ -138,95 +124,67 @@ export default function SignIn() {
     };
 
     return (
-        <ThemeProvider theme={showCustomTheme ? SignInTheme : defaultTheme}>
+        <ThemeProvider theme={showCustomTheme ? signInTheme : defaultTheme}>
             <CssBaseline/>
-
             <SignInContainer direction="column" justifyContent="space-between">
-                <Stack
-                    sx={{
-                        justifyContent: 'center',
-                        height: '100dvh',
-                    }}
-                >
-                    <Card variant="outlined">
-                        <Box
-                            component="img"
-                            src={logo}
-                            alt="Logo"
-                            sx={{width: 60, height: 60}}
-                        />
-                        <Typography
-                            component="h1"
-                            variant="h4"
-                            sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}
-                        >
+                <Stack sx={{justifyContent: 'center', height: '100dvh'}}>
+                    <Card>
+                        <Box component="img" src={logo} alt="Logo" sx={{width: 60, height: 60}}/>
+                        <Typography component="h1" variant="h4"
+                                    sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}>
                             Sign in
                         </Typography>
-                        <Box
-                            component="form"
-                            onSubmit={handleSubmit}
-                            noValidate
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                width: '100%',
-                                gap: 2,
-                            }}
-                        >
+                        <Box component="form" onSubmit={handleSubmit} noValidate sx={formContainerStyles}>
                             <FormControl>
                                 <FormLabel htmlFor="username">Username</FormLabel>
                                 <TextField
-                                    onChange={handleChange}
-                                    autoComplete="username"
                                     name="username"
-                                    required
-                                    fullWidth
                                     id="username"
                                     placeholder="ITIT...."
-                                    error={usernameError}
-                                    helperText={usernameErrorMessage}
-                                    color={usernameError ? 'error' : 'primary'}
+                                    autoComplete="username"
+                                    required
+                                    fullWidth
+                                    onChange={handleChange}
+                                    error={Boolean(errors.username)}
+                                    helperText={errors.username}
                                 />
                             </FormControl>
                             <FormControl>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                                     <FormLabel htmlFor="password">Password</FormLabel>
-                                    <Link
-                                        component="button"
-                                        onClick={handleClickOpen}
-                                        variant="body2"
-                                        sx={{alignSelf: 'baseline'}}
+                                    <Link component="button" onClick={handleForgotPasswordOpen} variant="body2"
+                                          sx={{alignSelf: 'baseline'}}
                                     >
                                         Forgot your password?
                                     </Link>
                                 </Box>
                                 <TextField
-                                    onChange={handleChange}
-                                    error={passwordError}
-                                    helperText={passwordErrorMessage}
                                     name="password"
-                                    placeholder="••••••••"
-                                    type="password"
                                     id="password"
+                                    placeholder="••••••••"
+                                    type={showPassword ? 'text' : 'password'}
                                     autoComplete="current-password"
-                                    autoFocus
                                     required
                                     fullWidth
-                                    variant="outlined"
-                                    color={passwordError ? 'error' : 'primary'}
+                                    onChange={handleChange}
+                                    error={Boolean(errors.password)}
+                                    helperText={errors.password}
+                                    slotProps={{
+                                        input:{
+                                        endAdornment: (
+                                            <InputAdornment position="end">
+                                                <IconButton onClick={togglePasswordVisibility} edge="end">
+                                                    {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                                </IconButton>
+                                            </InputAdornment>
+                                        )},
+                                    }}
                                 />
                             </FormControl>
-                            <FormControlLabel
-                                control={<Checkbox value="remember" color="primary"/>}
-                                label="Remember me"
-                            />
-                            <ForgotPassword open={open} handleClose={handleClose}/>
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                                onClick={validateInputs}
-                            >
+                            <FormControlLabel control={<Checkbox value="remember" color="primary"/>}
+                                              label="Remember me"/>
+                            <ForgotPassword open={open} handleClose={handleForgotPasswordClose}/>
+                            <Button type="submit" fullWidth variant="contained">
                                 Sign in
                             </Button>
                             <Typography sx={{textAlign: 'center'}}>

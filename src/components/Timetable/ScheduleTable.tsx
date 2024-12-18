@@ -94,10 +94,10 @@ const ScheduleTable: React.FC = () => {
         }
     };
     // Hàm xử lý sự kiện click vào môn học
-    const handleCourseClick = (courseId: string | null, NH: string | null, TH: string | null, timetableName: string | null) => {
-        if (courseId && NH && TH) {
+    const handleCourseClick = (courseId: string | null, NH: string | null, TH: string | null,studyTime:string | null, timetableName: string | null) => {
+        if (courseId && NH && TH && studyTime) {
             // Chuyển hướng khi có course
-            navigate(`/courses/${courseId}/${NH}/${TH}`, {
+            navigate(`/courses/${courseId}/${NH}/${TH}/${studyTime}`, {
                 state: { selectedWeek }
             });
         } else if (timetableName) {
@@ -216,6 +216,9 @@ const ScheduleTable: React.FC = () => {
                                                                         scheduleItem.courses && scheduleItem.courses.length > 0
                                                                             ? scheduleItem.courses[0].th
                                                                             : null,
+                                                                        scheduleItem.studyTime && scheduleItem.studyTime.length > 0
+                                                                            ? encodeURIComponent(scheduleItem.studyTime)
+                                                                            :null,
                                                                         scheduleItem.timetableName  // Truyền timetableName nếu không có course
                                                                     )}
                                                                     className=' w-full h-full flex flex-col justify-center items-center text-center p-1'>

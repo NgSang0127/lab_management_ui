@@ -4,6 +4,8 @@ import {useDispatch} from "react-redux";
 import lessonTimeSlice from "./LessonTime/Action.ts";
 import timetableSlice from "./Timetable/Action.ts";
 import logsSlice from "./Dashboard/Action.ts";
+import userSlice from "./User/Action.ts";
+import {adminSlice} from "./Admin/Action.ts";
 
 export type AppDispatch = typeof store.dispatch;
 
@@ -15,6 +17,8 @@ const rootReducer=combineReducers({
     timetable:timetableSlice.reducer,
     lessonTime:lessonTimeSlice.reducer,
     logs:logsSlice.reducer,
+    user:userSlice.reducer,
+    admin:adminSlice.reducer,
 });
 
 export const store=configureStore({

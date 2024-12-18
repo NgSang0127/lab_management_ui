@@ -103,7 +103,7 @@ const CreateTimetable: React.FC = () => {
                 />
 
                 {/* Select for roomName */}
-                <FormControl fullWidth>
+                <FormControl  fullWidth>
                     <InputLabel>Phòng học</InputLabel>
                     <Select
                         value={roomName}

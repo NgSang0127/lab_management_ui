@@ -1,8 +1,7 @@
 import {useParams} from "react-router";
-import {useEffect} from "react";
+import {useEffect, useRef} from "react";
 import {RootState, useAppDispatch} from "../../state/store.ts";
 import {fetchCourseDetails} from "../../state/Timetable/Reducer.ts";
-import {useLocation} from "react-router-dom";
 import {useSelector} from "react-redux";
 import convertDayOfWeekToVietnamese from "../../utils/convertDay.ts";
 import {Card, CardContent, Typography} from '@mui/material';
@@ -21,16 +20,26 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 const CardDetailsCourse = () => {
-    const {courseId, NH, TH} = useParams<{ courseId: string, NH: string, TH: string }>();
+    const {courseId, NH, TH,studyTime} = useParams<{ courseId: string, NH: string, TH: string,studyTime: string,timetableName: string;}>();
+    const decodeStudyTime=decodeURIComponent(studyTime);
     const dispatch = useAppDispatch();
     const {timetable} = useSelector((state: RootState) => state.timetable);
-    const location = useLocation();
-
+    const previousParams = useRef<string | null>(null);
     useEffect(() => {
-        if (courseId && NH && TH) {
-            dispatch(fetchCourseDetails({courseId, NH, TH}));
+        if (
+            courseId &&
+            NH &&
+            TH &&
+            decodeStudyTime &&
+            (previousParams.current !== `${courseId}-${NH}-${TH}`)
+        ) {
+            dispatch(fetchCourseDetails({ courseId, NH, TH,decodeStudyTime }));
+            console.log("Gọi API lần đầu tiên");
+            previousParams.current = `${courseId}-${NH}-${TH}`;
         }
-    }, [courseId, NH, TH, dispatch, location.pathname]);
+    }, [courseId, NH, TH,decodeStudyTime, dispatch]);
+
+
 
     return (
         <div className="container mx-auto px-6 py-10">

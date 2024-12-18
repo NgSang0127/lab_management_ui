@@ -11,10 +11,10 @@ import {
     TextField,
     Button,
     CircularProgress,
-    TablePagination,
+    TablePagination, Typography,
 } from "@mui/material";
-import { RootState, useAppDispatch } from "../../state/store.ts";
-import { getLogsBetween } from "../../state/Dashboard/Reducer.ts";
+import { RootState, useAppDispatch } from "../../../state/store.ts";
+import { getLogsBetween } from "../../../state/Dashboard/Reducer.ts";
 
 const LogTable: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -45,7 +45,7 @@ const LogTable: React.FC = () => {
     }, [isFiltered, startDate, endDate, page, rowsPerPage, dispatch]);
 
     // Xử lý thay đổi ngày bắt đầu và ngày kết thúc
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, dateType: "start" | "end") => {
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, dateType: "start" | "end") => {
         if (dateType === "start") {
             setStartDate(e.target.value);
         } else {
@@ -54,7 +54,7 @@ const LogTable: React.FC = () => {
     };
 
     // Xử lý thay đổi trang
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_event: unknown, newPage: number) => {
         if (startDate && endDate) {
             dispatch(
                 getLogsBetween({
@@ -83,8 +83,9 @@ const LogTable: React.FC = () => {
         }
     };
 
-    return <div className="w-full h-full p-2">
+    return <div className=" h-full px-7">
         {/* Bộ lọc ngày */}
+        <Typography variant="h5" className="pb-7">Details</Typography>
         <div className="flex mb-4 gap-4">
             <TextField
                 label="Start Date"
@@ -130,8 +131,8 @@ const LogTable: React.FC = () => {
         {/* Hiển thị dữ liệu logs */}
         {isLoading ? <div className="flex justify-center items-center">
                 <CircularProgress />
-            </div> : error ? <div className="flex justify-center items-center">
-                <span>Error: {error}</span>
+            </div> : error.getLogsBetween ? <div className="flex justify-center items-center">
+                <span>Error: {error.getLogsBetween}</span>
             </div> : <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="logs table">
                     <TableHead>

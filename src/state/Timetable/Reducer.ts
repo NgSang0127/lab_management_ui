@@ -100,12 +100,13 @@ export const getRangeWeek = createAsyncThunk(
 
 export const fetchCourseDetails = createAsyncThunk(
     'timetable/fetchCourseDetails',
-    async (params: { courseId?: string; NH?: string; TH?: string; timetableName?: string }, { rejectWithValue }) => {
+    async (params: { courseId?: string; NH?: string; TH?: string;decodeStudyTime?:string; timetableName?: string }, { rejectWithValue }) => {
         try {
             type RequestParams = {
                 courseId?: string;
                 NH?: string;
                 TH?: string;
+                studyTime?:string;
                 timetableName?: string;
             };
 
@@ -116,6 +117,7 @@ export const fetchCourseDetails = createAsyncThunk(
                 requestParams.courseId = params.courseId;
                 requestParams.NH = params.NH;
                 requestParams.TH = params.TH;
+                requestParams.studyTime=params.decodeStudyTime;
             } else if (params.timetableName) {
                 // Nếu không có courseId, thì truyền timetableName
                 requestParams.timetableName = params.timetableName;

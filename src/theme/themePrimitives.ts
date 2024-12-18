@@ -171,7 +171,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         },
     },
     typography: {
-        fontFamily: ['"Inter", "sans-serif"'].join(','),
+        fontFamily: ['"Roboto", "Helvetica"'].join(','),
         h1: {
             fontSize: customTheme.typography.pxToRem(48),
             fontWeight: 600,

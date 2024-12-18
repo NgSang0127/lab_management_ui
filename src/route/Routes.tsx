@@ -12,6 +12,8 @@ import Calendar from "../components/Timetable/ScheduleTable.tsx";
 import CardDetailsCourse from "../components/Timetable/CardDetailsCourse.tsx";
 import Extracurricular from "../components/Timetable/Extracurricular.tsx";
 import CheckEmail from "../components/Email/CheckEmail.tsx";
+import ResetCodeInput from "../components/Auth/ResetCodeInput.tsx";
+import ResetPassword from "../components/Auth/ResetPassword.tsx";
 
 
 const router = createBrowserRouter([
@@ -34,14 +36,22 @@ const router = createBrowserRouter([
                 element: <SignIn/>,
             },
             {
+              path: 'account/reset-code',
+              element: <ResetCodeInput/>
+            },
+            {
                 path: 'account/signup',
                 element: <SignUp/>,
+            },
+            {
+                path: 'account/reset-password',
+                element: <ResetPassword/>
             },
             {
                 path: 'courses',
                 children:[
                     {
-                        path:':courseId/:NH/:TH',
+                        path:':courseId/:NH/:TH/:studyTime',
                         element: <CardDetailsCourse/>
                     },
                     {

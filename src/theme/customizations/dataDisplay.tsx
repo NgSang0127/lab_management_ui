@@ -22,8 +22,8 @@ export const dataDisplayCustomizations: Components<Theme> = {
         styleOverrides: {
             root: ({ theme }) => ({
                 [`& .${svgIconClasses.root}`]: {
-                    width: '1rem',
-                    height: '1rem',
+                    width: '1.5rem',
+                    height: '1.5rem',
                     color: theme.palette.text.secondary,
                 },
                 [`& .${typographyClasses.root}`]: {
@@ -45,7 +45,7 @@ export const dataDisplayCustomizations: Components<Theme> = {
                             backgroundColor: alpha(theme.palette.action.selected, 0.3),
                         },
                         '&:hover': {
-                            backgroundColor: alpha(theme.palette.action.selected, 0.5),
+                            backgroundColor: alpha(theme.palette.action.selected, 1),
                         },
                     },
                     '&:focus-visible': {

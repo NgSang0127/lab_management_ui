@@ -31,9 +31,9 @@ const ScrollToTopButton: React.FC = () => {
         <div style={{
             display: isVisible ? 'block' : 'none',
             position: 'fixed',
-            bottom: '10px',
-            right: '20px',
-            zIndex: 1000 // Đặt zIndex cao để nút không bị ẩn
+            bottom: '7px',
+            right: '1px',
+            zIndex: 1000
         }}>
             <Button
                 onClick={scrollToTop}
@@ -42,8 +42,8 @@ const ScrollToTopButton: React.FC = () => {
                     backgroundColor: '#212121', // Màu nền đen
                     color: 'white',
                     borderRadius: '50%',
-                    minWidth: '50px',
-                    height: '50px',
+                    minWidth: '40px',
+                    height: '40px',
                     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
                     display: 'flex',
                     padding: '0',

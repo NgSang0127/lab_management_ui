@@ -7,7 +7,13 @@ export interface RegisterRequest{
     phoneNumber:string;
 }
 
-
+export interface ForgotPasswordRequest{
+    email:string;
+}
+export interface ResetPasswordRequest{
+    code:string;
+    newPassword:string | null;
+}
 
 export interface LoginRequestData {
     username: string;

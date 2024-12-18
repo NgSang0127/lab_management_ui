@@ -22,13 +22,9 @@ const Navbar: React.FC = () => {
     const dispatch = useDispatch();
 
     const handleAvatar = () => {
-        navigate(user?.role === "TEACHER" ? "/my-profile" : "/admin/profile");
+        navigate(user?.role === "TEACHER" ? "/admin/hcmiu" : "/admin/profile");
     };
 
-    const handleLogout = () => {
-        dispatch(logout() as never);
-        navigate("/account/signin");
-    };
 
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent) => {
@@ -46,8 +42,8 @@ const Navbar: React.FC = () => {
             position="sticky"
             sx={{
                 zIndex: 1200,
-                backgroundColor: '#85FFBD',
-                backgroundImage: 'linear-gradient(119deg, #85FFBD 0%, #FFFB7D 100%)',
+                backgroundColor: '#0093E9',
+                backgroundImage: 'linear-gradient(294deg, #0093E9 0%, #80D0C7 100%)',
                 boxShadow: 'none',
             }}
         >
@@ -92,14 +88,16 @@ const Navbar: React.FC = () => {
                     )}
                     {user?.enabled ? (
                         <div className="flex items-center">
-                            <IconButton onClick={handleAvatar}>
-                                <Avatar sx={{ bgcolor: "white", color: blue.A400 }}>
-                                    {user?.firstName[0].toUpperCase()}
+                            <IconButton onClick={handleAvatar} sx={{
+                                border: 'none',
+                                outline: 'none',
+                                boxShadow: 'none',
+                            }}>
+                                <Avatar sx={{ bgcolor: "white", color: blue.A400 }} src={user?.image || undefined}>
+                                    {!user?.image && user?.firstName ? user?.firstName[0].toUpperCase() : null}
                                 </Avatar>
                             </IconButton>
-                            <Button onClick={handleLogout} color="inherit">
-                                Logout
-                            </Button>
+
                         </div>
                     ) : (
                         <IconButton edge="end" onClick={() => navigate("/account/signin")} color="primary">

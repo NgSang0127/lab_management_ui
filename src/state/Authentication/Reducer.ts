@@ -1,7 +1,13 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api, API_URL} from "../../config/api.ts";
-import {AuthResponseData, LoginRequestData, RegisterRequest} from "./ActionType.ts";
-import {AxiosError} from "axios";
+import {
+    AuthResponseData,
+    ForgotPasswordRequest,
+    LoginRequestData,
+    RegisterRequest,
+    ResetPasswordRequest
+} from "./ActionType.ts";
+import axios, {AxiosError} from "axios";
 
 
 export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
@@ -41,13 +47,57 @@ export const getUser = createAsyncThunk(
     async (_, {rejectWithValue}) => {
         try {
             const {data} = await api.get(`${API_URL}/user/profile`);
-            console.log(data)
+            console.log("get User", data)
             return data;
         } catch (err) {
             return rejectWithValue((err as AxiosError).message);
         }
     }
 )
+export const forgotPassword = createAsyncThunk(
+    'auth/forgotPassword',
+    async (request: ForgotPasswordRequest, {rejectWithValue}) => {
+        try {
+            const {data} = await api.post(`${API_URL}/auth/forgot-password`, request);
+            return data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+export const validateResetCode = createAsyncThunk(
+    'auth/validateResetCode',
+    async (request: ResetPasswordRequest, {rejectWithValue}) => {
+        try {
+            const {data} = await api.post(`${API_URL}/auth/validate-reset-code`, request);
+            return data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const resetPassword = createAsyncThunk(
+    'auth/resetPassword',
+    async (request: ResetPasswordRequest, {rejectWithValue}) => {
+        try {
+            const {data} = await api.post(`${API_URL}/auth/reset-password`, request);
+            return data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error) && error.response && error.response.data) {
+                return rejectWithValue(error.response.data);
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
 export const logout = createAsyncThunk(
     'auth/logout',
     async (_, {rejectWithValue}) => {
@@ -59,5 +109,8 @@ export const logout = createAsyncThunk(
         }
     }
 )
+
+
+
 
 
