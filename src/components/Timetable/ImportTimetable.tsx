@@ -1,30 +1,105 @@
-import React, { useState } from 'react';
-import { Button, CircularProgress, TextField, Box, Typography, Alert } from '@mui/material';
+import React, { useState, useCallback } from 'react';
+import {
+    Button,
+    CircularProgress,
+    Box,
+    Typography,
+    Paper,
+    Stack,
+    IconButton,
+    Tooltip,
+    AlertColor,
+} from '@mui/material';
+import { Upload as UploadIcon, Close as CloseIcon } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
 import { importTimetable } from '../../state/Timetable/Reducer.ts';
-import {useAppDispatch} from "../../state/store.ts";
+import { useAppDispatch } from "../../state/store.ts";
+import LoadingIndicator from "../Support/LoadingIndicator"; // Nếu bạn có component này
+import CustomAlert from "../Support/CustomAlert"; // Nếu bạn có component này
+
+// Styled input for file selection
+const Input = styled('input')({
+    display: 'none',
+});
+
+// Styled component for drag-and-drop area
+const DragAndDropBox = styled(Box)(({ theme }) => ({
+    border: `2px dashed ${theme.palette.primary.main}`,
+    borderRadius: theme.shape.borderRadius,
+    padding: theme.spacing(4),
+    textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s',
+    '&:hover': {
+        backgroundColor: theme.palette.action.hover,
+    },
+}));
 
 const ImportTimetable: React.FC = () => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-    const [error, setError] = useState<boolean>(false);
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: AlertColor;
+    }>({
+        open: false,
+        message: "",
+        severity: "info",
+    });
 
     const dispatch = useAppDispatch();
 
-    // Handle file input change
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setSelectedFile(e.target.files[0]);
+    // Handle closing the alert
+    const handleCloseAlert = useCallback(() => {
+        setAlert((prev) => ({ ...prev, open: false }));
+    }, []);
+
+    // Handle file selection via input
+    const handleFileSelect = (file: File) => {
+        const validTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+        ];
+        if (validTypes.includes(file.type)) {
+            setSelectedFile(file);
+        } else {
+            setAlert({
+                open: true,
+                message: 'Please select a valid Excel file (.xlsx or .xls).',
+                severity: 'warning',
+            });
         }
     };
 
-    // Handle form submit
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    // Handle file input change
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            handleFileSelect(e.target.files[0]);
+        }
+    };
 
+    // Handle drag and drop
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFileSelect(e.dataTransfer.files[0]);
+        }
+    };
+
+    // Prevent default behavior for drag over
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
+
+    // Handle form submit
+    const handleSubmit = async () => {
         if (!selectedFile) {
-            setFeedbackMessage('Please select a file first!');
-            setError(true);
+            setAlert({
+                open: true,
+                message: 'Please select a file first!',
+                severity: 'error',
+            });
             return;
         }
 
@@ -33,69 +108,113 @@ const ImportTimetable: React.FC = () => {
 
         try {
             setLoading(true);
-            setFeedbackMessage(null);
-            setError(false);
-
+            setAlert({ open: false, message: "", severity: "info" });
 
             const resultAction = await dispatch(importTimetable(formData));
 
             if (importTimetable.fulfilled.match(resultAction)) {
-                setFeedbackMessage('File imported successfully');
-                setError(false);
+                setAlert({
+                    open: true,
+                    message: 'File imported successfully!',
+                    severity: 'success',
+                });
+                setSelectedFile(null); // Reset file input
             } else if (importTimetable.rejected.match(resultAction)) {
-                setFeedbackMessage('Error uploading file. Please try again.');
-                setError(true);
+                setAlert({
+                    open: true,
+                    message: 'Error uploading file. Please try again.',
+                    severity: 'error',
+                });
             }
         } catch (err) {
-            setFeedbackMessage('An unknown error occurred');
-            setError(true);
+            setAlert({
+                open: true,
+                message: 'An unknown error occurred.',
+                severity: 'error',
+            });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box className="container mx-auto py-20 px-4">
-            <Typography variant="h4" className="text-center mb-6 text-gray-800 font-semibold">
-                Import Timetable
-            </Typography>
+        <Box className="container mx-auto py-10 px-4">
+            {/* Loading Indicator */}
+            <LoadingIndicator open={loading} />
 
-            <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <div className="mb-4">
-                    <TextField
-                        fullWidth
-                        type="file"
-                        onChange={handleFileChange}
-                        helperText="Please upload an Excel file (.xlsx or .xls)"
-                        variant="outlined"
-                    />
-                </div>
+            <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
+                <Typography variant="h4" align="center" gutterBottom>
+                    Import Timetable
+                </Typography>
 
-                <Box className="flex items-center justify-between">
+                <Box
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    sx={{ mt: 4 }}
+                >
+                    <DragAndDropBox>
+                        <UploadIcon sx={{ fontSize: 50, color: 'primary.main' }} />
+                        <Typography variant="h6" color="textSecondary" sx={{ mt: 2 }}>
+                            Drag and drop an Excel file here, or click to select a file
+                        </Typography>
+                        <label htmlFor="file-input">
+                            <Input
+                                accept=".xlsx,.xls"
+                                id="file-input"
+                                type="file"
+                                onChange={handleFileChange}
+                            />
+                            <Button
+                                variant="contained"
+                                component="span"
+                                color="primary"
+                                startIcon={<UploadIcon />}
+                                sx={{ mt: 2 }}
+                            >
+                                Choose File
+                            </Button>
+                        </label>
+                    </DragAndDropBox>
+                </Box>
+
+                {selectedFile && (
+                    <Stack direction="row" spacing={1} alignItems="center" mt={2}>
+                        <Typography variant="body1">{selectedFile.name}</Typography>
+                        <Tooltip title="Remove File">
+                            <IconButton onClick={() => setSelectedFile(null)} color="error">
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Stack>
+                )}
+
+                <Box className="flex items-center justify-center mt-4">
                     {loading ? (
                         <CircularProgress color="primary" />
                     ) : (
                         <Button
-                            type="submit"
                             variant="contained"
-                            color="primary"
-                            className="bg-blue-500 hover:bg-blue-700"
+                            color="success"
+                            onClick={handleSubmit}
+                            startIcon={<UploadIcon />}
+                            disabled={!selectedFile}
+                            fullWidth
+                            sx={{ maxWidth: 200,mt:5}}
                         >
                             Upload Timetable
                         </Button>
                     )}
                 </Box>
 
-                {feedbackMessage && (
-                    <Box mt={4}>
-                        {error ? (
-                            <Alert severity="error">{feedbackMessage}</Alert>
-                        ) : (
-                            <Alert severity="success">{feedbackMessage}</Alert>
-                        )}
-                    </Box>
+                {alert.open && (
+                    <CustomAlert
+                        open={alert.open}
+                        message={alert.message}
+                        severity={alert.severity}
+                        onClose={handleCloseAlert}
+                    />
                 )}
-            </form>
+            </Paper>
         </Box>
     );
 };

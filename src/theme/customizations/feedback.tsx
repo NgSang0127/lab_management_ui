@@ -1,21 +1,29 @@
 import { Theme, alpha, Components } from '@mui/material/styles';
-import { gray, orange } from '../themePrimitives';
+import {gray, green, orange, red} from '../themePrimitives';
 
 /* eslint-disable import/prefer-default-export */
 export const feedbackCustomizations: Components<Theme> = {
     MuiAlert: {
         styleOverrides: {
-            root: ({ theme }) => ({
+            root: ({ theme, ownerState }) => ({
                 borderRadius: 10,
-                backgroundColor: orange[100],
+                backgroundColor: ownerState.severity === 'success'
+                    ? green[100]
+                    : ownerState.severity === 'error'
+                        ? red[100]
+                        : orange[100], // Default orange background
                 color: theme.palette.text.primary,
-                border: `1px solid ${alpha(orange[300], 0.5)}`,
+                border: `1px solid ${alpha(ownerState.severity === 'success' ? green[300] : orange[300], 0.5)}`,
                 '& .MuiAlert-icon': {
-                    color: orange[500],
+                    color: ownerState.severity === 'success'
+                        ? green[500]
+                        : ownerState.severity === 'error'
+                            ? red[500]
+                            : orange[500],
                 },
                 ...theme.applyStyles('dark', {
-                    backgroundColor: `${alpha(orange[900], 0.5)}`,
-                    border: `1px solid ${alpha(orange[800], 0.5)}`,
+                    backgroundColor: `${alpha(ownerState.severity === 'success' ? green[900] : orange[900], 0.5)}`,
+                    border: `1px solid ${alpha(ownerState.severity === 'success' ? green[800] : orange[800], 0.5)}`,
                 }),
             }),
         },

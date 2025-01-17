@@ -1,14 +1,12 @@
-import React, { useState } from "react";
-import Sidebar from "./Sidebar";
-import { Box } from "@mui/material";
+import React, {useContext} from "react";
+import SidebarAdmin from "./SidebarAdmin.tsx";
+import { Box} from "@mui/material";
 import { Outlet } from "react-router-dom";
+import { SidebarContext } from "../../context/SidebarContext";
 
-const Dashboard: React.FC = () => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+const DashboardAdmin: React.FC = () => {
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
+    const { isSidebarOpen } = useContext(SidebarContext);
 
     return (
         <Box
@@ -16,14 +14,14 @@ const Dashboard: React.FC = () => {
                 display: "grid",
                 gridTemplateColumns: {
                     xs: "1fr", // Mobile: chỉ 1 cột
-                    sm: isSidebarOpen ? "250px 1fr" : "50px 1fr", // Desktop: Sidebar chiếm 250px hoặc 50px
+                    sm: isSidebarOpen ? "250px 1fr" : "50px 1fr", // Desktop: SidebarAdmin chiếm 250px hoặc 50px
                 },
                 minHeight: "100vh",
                 gap: 1,
                 transition: "grid-template-columns 0.3s ease-in-out", // Hiệu ứng mượt khi thay đổi chiều rộng
             }}
         >
-            {/* Sidebar */}
+            {/* SidebarAdmin */}
             <Box
                 sx={{
                     padding: 1,
@@ -31,7 +29,7 @@ const Dashboard: React.FC = () => {
                     transition: "width 0.3s ease-in-out", // Hiệu ứng chiều rộng
                 }}
             >
-                <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+                <SidebarAdmin />
             </Box>
 
             {/* Main Content */}
@@ -50,4 +48,4 @@ const Dashboard: React.FC = () => {
     );
 };
 
-export default Dashboard;
+export default DashboardAdmin;

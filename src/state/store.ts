@@ -6,6 +6,7 @@ import timetableSlice from "./Timetable/Action.ts";
 import logsSlice from "./Dashboard/Action.ts";
 import userSlice from "./User/Action.ts";
 import {adminSlice} from "./Admin/Action.ts";
+import usageTimeUsersSlice from "./Dashboard/UsageTimeUsersSlice.ts";
 
 export type AppDispatch = typeof store.dispatch;
 
@@ -19,6 +20,7 @@ const rootReducer=combineReducers({
     logs:logsSlice.reducer,
     user:userSlice.reducer,
     admin:adminSlice.reducer,
+    usage:usageTimeUsersSlice.reducer,
 });
 
 export const store=configureStore({

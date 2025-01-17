@@ -63,6 +63,8 @@ export interface Timetable {
 interface TimetableState {
     weekRange: { firstWeekStart: string; lastWeekEnd: string } | null;
     timetables: Timetable[];
+    course:Timetable | null;
+    timetableDate:Timetable[];
     selectedWeek: { startDate: string; endDate: string } | null;
     isLoading: boolean;
     error: string | null;
@@ -74,6 +76,8 @@ interface TimetableState {
 
 const initialState: TimetableState = {
     weekRange:null,
+    course:null,
+    timetableDate:[],
     selectedWeek:null,
     timetables: [],
     isLoading: false,
@@ -106,7 +110,6 @@ const timetableSlice = createSlice({
                 state.error=action.payload as string;
             })
             //fetchtimetable
-
             .addCase(fetchTimetables.pending, (state) => {
                 state.isLoading = true;
                 state.error = null;
@@ -139,7 +142,7 @@ const timetableSlice = createSlice({
             })
             .addCase(fetchCourseDetails.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.timetable=action.payload;
+                state.course=action.payload;
             })
             .addCase(fetchCourseDetails.rejected,(state,action)=>{
                 state.isLoading=false;
@@ -152,7 +155,7 @@ const timetableSlice = createSlice({
             })
             .addCase(fetchTimetableByDate.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.timetables=action.payload;
+                state.timetableDate=action.payload;
             })
             .addCase(fetchTimetableByDate.rejected,(state,action)=>{
                 state.isLoading=false;

@@ -1,19 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { TextField, Button, Typography, Box, InputAdornment, IconButton, Snackbar, Alert } from '@mui/material';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+    TextField,
+    Button,
+    Typography,
+    Box,
+    InputAdornment,
+    IconButton,
+} from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../../../state/store.ts';
 import { ChangePasswordRequest } from '../../../state/User/Action.ts';
 import { changePassword } from '../../../state/User/Reducer.ts';
+import CustomAlert from "../../Support/CustomAlert.tsx";
+import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
+import { AlertColor } from '@mui/material/Alert';
 
 const PASSWORD_MIN_LENGTH = 8;
-const MISMATCH_ERROR = 'Mật khẩu mới và xác nhận mật khẩu không khớp!';
-const LENGTH_ERROR = `Mật khẩu mới phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự!`;
+const MISMATCH_ERROR = 'The new password and confirmation do not match!';
+const LENGTH_ERROR = `The new password must be at least ${PASSWORD_MIN_LENGTH} characters long!`;
 
-const ChangePassword = () => {
+const ChangePassword: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { isLoading, successMessage, errorMessage } = useSelector((state: RootState) => state.user);
+    const { isLoading, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.user
+    );
 
     const [passwordState, setPasswordState] = useState<ChangePasswordRequest>({
         currentPassword: '',
@@ -27,132 +39,179 @@ const ChangePassword = () => {
         confirmPassword: false,
     });
 
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: AlertColor;
+    }>({
+        open: false,
+        message: "",
+        severity: "info",
+    });
 
-    // Input change handler
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
+        setAlert({ open: true, message, severity });
+    };
+
+
+    const handleCloseAlert = useCallback(() => {
+        setAlert((prev) => ({ ...prev, open: false }));
+    }, []);
+
+
+    useEffect(() => {
+        if (successMessage || errorMessage) {
+            const message = successMessage || errorMessage;
+            const severity = successMessage ? 'success' : 'error';
+            showAlert(message, severity);
+
+            if (successMessage) {
+                setPasswordState({
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: '',
+                });
+            }
+        }
+    }, [successMessage, errorMessage]);
+
+
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const { name, value } = e.target;
         setPasswordState((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Toggle password visibility
+
     const togglePasswordVisibility = (field: keyof typeof visibilityState) => {
         setVisibilityState((prev) => ({ ...prev, [field]: !prev[field] }));
     };
 
-    // Save password with validation
+
     const handleSave = () => {
-        const { newPassword, confirmPassword } = passwordState;
+        const { newPassword, confirmPassword, currentPassword } = passwordState;
+
+        if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+            showAlert("Please fill in all fields.", 'error');
+            return;
+        }
 
         if (newPassword !== confirmPassword) {
-            setSnackbarMessage(MISMATCH_ERROR);
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
+            showAlert(MISMATCH_ERROR, 'error');
             return;
         }
 
         if (newPassword.length < PASSWORD_MIN_LENGTH) {
-            setSnackbarMessage(LENGTH_ERROR);
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
+            showAlert(LENGTH_ERROR, 'error');
             return;
         }
 
+        // Dispatch changePassword action
         dispatch(changePassword(passwordState));
-    };
-
-    useEffect(() => {
-        if (successMessage) {
-            setSnackbarMessage(successMessage);
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-            setPasswordState({
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: '',
-            });
-        }
-    }, [successMessage]);
-
-    useEffect(() => {
-        if (errorMessage) {
-            setSnackbarMessage(errorMessage);
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-        }
-    }, [errorMessage]);
-
-    // Reusable Password Field Component
-    const renderPasswordField = (
-        label: string,
-        name: keyof ChangePasswordRequest,
-        isVisible: boolean
-    ) => (
-        <TextField
-            label={label}
-            name={name}
-            type={isVisible ? 'text' : 'password'}
-            value={passwordState[name]}
-            onChange={handleInputChange}
-            fullWidth
-            sx={{ marginBottom: '16px' }}
-            slotProps={{
-                input:{
-                endAdornment: (
-                    <InputAdornment position="end">
-                        <IconButton
-                            onClick={() => togglePasswordVisibility(name as keyof typeof visibilityState)}
-                            edge="end"
-                        >
-                            {isVisible ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                    </InputAdornment>
-                )},
-            }}
-        />
-    );
-
-    const handleCloseSnackbar = () => {
-        setSnackbarOpen(false);
     };
 
     return (
         <Box
-            className="p-6 border rounded-lg shadow-md bg-white"
-            sx={{ maxWidth: '1200px', margin: 'auto' }}
+            sx={{
+                padding: '24px',
+                margin: '20px',
+                maxWidth: '900px',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#ffffff',
+            }}
         >
-            <Typography variant="h5" sx={{ marginBottom: '24px', textAlign: 'center' }}>
-                Cài đặt bảo mật
-            </Typography>
-            {renderPasswordField('Mật khẩu hiện tại', 'currentPassword', visibilityState.currentPassword)}
-            {renderPasswordField('Mật khẩu mới', 'newPassword', visibilityState.newPassword)}
-            {renderPasswordField('Xác nhận mật khẩu mới', 'confirmPassword', visibilityState.confirmPassword)}
+            {/* Loading Indicator */}
+            {isLoading && <LoadingIndicator open={isLoading} />}
 
+            <Typography
+                variant="h5"
+                sx={{
+                    marginBottom: '24px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                }}
+            >
+                Security Settings
+            </Typography>
+
+            {/* Password Fields */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {['currentPassword', 'newPassword', 'confirmPassword'].map((field) => (
+                    <TextField
+                        key={field}
+                        label={
+                            field === 'currentPassword'
+                                ? 'Current Password'
+                                : field === 'newPassword'
+                                    ? 'New Password'
+                                    : 'Confirm New Password'
+                        }
+                        name={field}
+                        type={visibilityState[field as keyof typeof visibilityState] ? 'text' : 'password'}
+                        value={passwordState[field as keyof ChangePasswordRequest]}
+                        onChange={handleInputChange}
+                        fullWidth
+                        required
+                        slotProps={{
+                            input:{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => togglePasswordVisibility(field as keyof typeof visibilityState)}
+                                        edge="end"
+                                        aria-label={`Toggle ${
+                                            field === 'currentPassword'
+                                                ? 'current password'
+                                                : field === 'newPassword'
+                                                    ? 'new password'
+                                                    : 'confirm password'
+                                        } visibility`}
+                                    >
+                                        {visibilityState[field as keyof typeof visibilityState] ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            )},
+                        }}
+                        aria-label={
+                            field === 'currentPassword'
+                                ? 'Current Password'
+                                : field === 'newPassword'
+                                    ? 'New Password'
+                                    : 'Confirm Password'
+                        }
+                    />
+                ))}
+            </Box>
+
+            {/* Save Button */}
             <Button
                 variant="contained"
                 color="primary"
                 size="large"
                 onClick={handleSave}
-                sx={{ width: '100%', padding: '7px' }}
+                sx={{ width: '100%', padding: '12px', marginTop: '24px' }}
                 disabled={isLoading}
+                aria-label="Save Password"
             >
-                {isLoading ? 'Đang thay đổi...' : 'Lưu mật khẩu'}
+                Save Password
             </Button>
 
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
+            {/* Custom Alert for Notifications */}
+            <CustomAlert
+                open={alert.open}
+                onClose={handleCloseAlert}
+                message={alert.message}
+                severity={alert.severity}
+            />
         </Box>
     );
+
 };
 
 export default ChangePassword;

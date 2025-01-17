@@ -2,13 +2,12 @@ import axios from "axios";
 
 export const API_URL = "http://localhost:8080/api/v1";
 
-// Instance chính cho các API thông thường
 export const api = axios.create({
     baseURL: API_URL,
     headers: {
-        'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
     },
+    withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {

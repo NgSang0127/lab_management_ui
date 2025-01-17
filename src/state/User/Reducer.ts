@@ -11,8 +11,12 @@ export const changePassword=createAsyncThunk(
             console.log("change password",response.data)
             return response.data;
         }catch (error:unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -26,8 +30,12 @@ export const updateInformationUser=createAsyncThunk(
             const response=await api.put(`${API_URL}/user/update`,data);
             return response.data;
         }catch (error:unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -39,11 +47,15 @@ export const endSession=createAsyncThunk(
     'user/endSession',
     async (_,{rejectWithValue})=>{
         try{
-            const response=await api.post(`${API_URL}/user-activity/end-session`,{});
+            const response=await api.post('/user-activity/end-session',{});
             return response.data;
         }catch (error:unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }

@@ -22,6 +22,8 @@ interface AdminState{
     error:string | null,
     page: number;
     size: number;
+    first:boolean,
+    last:boolean,
     totalElements: number;
     totalPages: number;
 }
@@ -31,6 +33,8 @@ const initialState:AdminState={
     size: 10,
     totalElements: 0,
     totalPages: 0,
+    first:true,
+    last:false,
     isLoading:false,
     success:null,
     error:null
@@ -51,6 +55,8 @@ export const adminSlice=createSlice({
                 state.user=action.payload.content;
                 state.page = action.payload.number;
                 state.size = action.payload.size;
+                state.first=action.payload.first;
+                state.last=action.payload.last;
                 state.totalElements = action.payload.totalElements;
                 state.totalPages = action.payload.totalPages;
             })

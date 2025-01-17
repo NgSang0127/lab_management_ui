@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {
     Button,
     Table,
@@ -21,25 +21,28 @@ import {
     FormControlLabel,
     Switch,
 } from "@mui/material";
+import Grid from '@mui/material/Grid2';
 import { RootState, useAppDispatch } from "../../../state/store.ts";
 import { useSelector } from "react-redux";
 import { createUser, deleteUser, getUsers, updateUser } from "../../../state/Admin/Reducer.ts";
 import { CreateUserRequestByAdmin } from "../../../state/Admin/Action.ts";
-import {SelectChangeEvent} from "@mui/material/Select";
+import { SelectChangeEvent } from "@mui/material/Select";
+import debounce from 'lodash.debounce';
+
 
 const modalStyle = {
     position: "absolute" as const,
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: { xs: '90%', sm: 400 }, // Make it responsive on small screens
+    width: { xs: '90%', sm: 500 },
     bgcolor: "background.paper",
-    borderRadius: 2, // Rounded corners for modern look
+    borderRadius: 2,
     boxShadow: 24,
     p: 4,
     display: 'flex',
     flexDirection: 'column',
-    gap: 2, // Add space between elements
+    gap: 2,
 };
 
 interface FormData {
@@ -56,7 +59,7 @@ interface FormData {
 
 const UserManagement: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { user, isLoading, error, success, page, totalElements } = useSelector(
+    const { user, isLoading, error, success, totalElements } = useSelector(
         (state: RootState) => state.admin
     );
 
@@ -69,20 +72,40 @@ const UserManagement: React.FC = () => {
         firstName: "",
         lastName: "",
         email: "",
-        role: "", // Default role
+        role: "",
         enabled: true,
         username: "",
         password: "",
         phoneNumber: "",
         accountLocked: false,
     });
+
     // Pagination state
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+    const [page, setPage] = useState<number>(0); // Local state for current page
 
-    // Fetch users on mount or when page changes
+    // Filter state
+    const [keyword, setKeyword] = useState<string>("");
+    const [roleFilter, setRoleFilter] = useState<string>("");
+
+    // Fetch users whenever page, rowsPerPage, keyword or roleFilter change
+
+    const debouncedFetchUsers = useMemo(
+        () =>
+            debounce((currentPage: number, currentRowsPerPage: number, currentKeyword: string, currentRole: string) => {
+                dispatch(getUsers({ page: currentPage, size: currentRowsPerPage, keyword: currentKeyword, role: currentRole }));
+            }, 500),
+        [dispatch]
+    );
+    // Fetch users whenever page, rowsPerPage, keyword or roleFilter change
     useEffect(() => {
-        dispatch(getUsers({ page, size: rowsPerPage }));
-    }, [dispatch, page, rowsPerPage]);
+        debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
+        // Cleanup debounce on unmount
+        return () => {
+            debouncedFetchUsers.cancel();
+        };
+    }, [page, rowsPerPage, keyword, roleFilter, debouncedFetchUsers]);
+
 
     // Open modal
     const handleOpen = (user: (CreateUserRequestByAdmin & { id: number }) | null = null) => {
@@ -92,7 +115,7 @@ const UserManagement: React.FC = () => {
                 firstName: user.firstName || "",
                 lastName: user.lastName || "",
                 email: user.email || "",
-                role: user.role.toLowerCase() as "student" | "teacher", // Ensure lowercase
+                role: user.role.toLowerCase() as "student" | "teacher",
                 enabled: user.enabled,
                 username: user.username || "",
                 password: "", // Clear password for security
@@ -158,105 +181,147 @@ const UserManagement: React.FC = () => {
 
     // Handle change of page
     const handleChangePage = (_event: unknown, newPage: number) => {
-        dispatch(getUsers({ page: newPage, size: rowsPerPage }));
+        setPage(newPage);
     };
 
     // Handle change of rows per page
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newSize = parseInt(event.target.value, 10);
         setRowsPerPage(newSize);
-        dispatch(getUsers({ page: 0, size: newSize })); // Reset to page 0 when rows per page changes
+        setPage(0); // Reset to first page when rows per page changes
+    };
+
+    // Handle filter changes
+    const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setKeyword(e.target.value);
+        setPage(0); // Reset to first page when filter changes
+    };
+
+    const handleRoleFilterChange = (e: SelectChangeEvent<string>) => {
+        setRoleFilter(e.target.value);
+        setPage(0); // Reset to first page when filter changes
     };
 
     return (
         <div className="p-6">
-            <Typography variant="h4" className="mb-4">
+            <Typography variant="h4" className="mb-6">
                 User Management
             </Typography>
             <Button
                 variant="contained"
                 color="primary"
                 onClick={() => handleOpen()}
-                className="mb-4"
+                className="mb-6"
             >
                 Add User
             </Button>
 
+            {/* Filter Controls */}
+            <Box className="mt-4">
+                <Grid container spacing={2}>
+                    <Grid size={{ xs:12, sm:6}}>
+                        <TextField
+                            label="Search"
+                            value={keyword}
+                            onChange={handleKeywordChange}
+                            variant="outlined"
+                            fullWidth
+                            placeholder="Search by name, username..."
+                        />
+                    </Grid>
+                    <Grid size={{ xs:12, sm:6}}>
+                        <FormControl fullWidth variant="outlined">
+                            <InputLabel id="role-filter-label">Filter by Role</InputLabel>
+                            <Select
+                                labelId="role-filter-label"
+                                id="role-filter"
+                                value={roleFilter}
+                                onChange={handleRoleFilterChange}
+                                label="Filter by Role"
+                            >
+                                <MenuItem value="">
+                                    <em>All Roles</em>
+                                </MenuItem>
+                                <MenuItem value="student">Student</MenuItem>
+                                <MenuItem value="teacher">Teacher</MenuItem>
+                                {/* Thêm các role khác nếu có */}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                </Grid>
+            </Box>
+
+            {/* Feedback Messages */}
             {isLoading && (
-                <div className="flex justify-center items-center">
+                <div className="flex justify-center items-center mb-4">
                     <CircularProgress />
                 </div>
             )}
             {error && (
-                <Typography variant="body2" color="error">
+                <Typography variant="body2" color="error" className="mb-4">
                     {typeof error === "string" ? error : JSON.stringify(error)}
                 </Typography>
             )}
 
-            {success && <Typography variant="body2" color="success.main">{success}</Typography>}
+            {success && <Typography variant="body2" color="success.main" className="mb-4">{success}</Typography>}
 
-            <TableContainer component={Paper} className="mt-7">
+            <TableContainer component={Paper} className="mt-4 shadow-lg">
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>First Name</TableCell>
-                            <TableCell>Last Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Role</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell sx={{ minWidth: 50 }}><strong>ID</strong></TableCell>
+                            <TableCell sx={{ minWidth: 100 }}><strong>First Name</strong></TableCell>
+                            <TableCell sx={{ minWidth: 100 }}><strong>Last Name</strong></TableCell>
+                            <TableCell sx={{ minWidth: 200 }}><strong>Email</strong></TableCell>
+                            <TableCell sx={{ minWidth: 120 }}><strong>Role</strong></TableCell>
+                            <TableCell sx={{ minWidth: 150 }} align="center"><strong>Actions</strong></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {user.map((u) => (
-                            <TableRow key={u.id}>
-                                <TableCell>{u.id}</TableCell>
-                                <TableCell>{u.firstName}</TableCell>
-                                <TableCell>{u.lastName}</TableCell>
-                                <TableCell>{u.email}</TableCell>
-                                <TableCell>{u.role}</TableCell>
-                                <TableCell>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        size="small"
-                                        onClick={() => handleOpen({
-                                            ...u,
-                                            password: "",
-                                        })}
-                                        sx={{
-                                            backgroundColor: "blue",
-                                            color: "white",
-                                            "&:hover": {
-                                                backgroundColor: "darkblue",
-                                            },
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="secondary"
-                                        size="small"
-                                        onClick={() => handleDelete(u.id)}
-                                        className="ml-2"
-                                        sx={{
-                                            backgroundColor: "red",
-                                            color: "white",
-                                            "&:hover": {
-                                                backgroundColor: "darkred",
-                                            },
-                                        }}
-                                    >
-                                        Delete
-                                    </Button>
+                        {user.length > 0 ? (
+                            user.map((u) => (
+                                <TableRow key={u.id} hover>
+                                    <TableCell>{u.id}</TableCell>
+                                    <TableCell>{u.firstName}</TableCell>
+                                    <TableCell>{u.lastName}</TableCell>
+                                    <TableCell>{u.email}</TableCell>
+                                    <TableCell>{u.role.charAt(0).toUpperCase() + u.role.slice(1)}</TableCell>
+                                    <TableCell align="center">
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            size="small"
+                                            onClick={() => handleOpen({
+                                                ...u,
+                                                password: "",
+                                            })}
+                                            sx={{
+                                                marginRight: 1,
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            size="small"
+                                            onClick={() => handleDelete(u.id)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} align="center">
+                                    No users found.
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
                 <TablePagination
-                    className="pr-5"
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
                     count={totalElements}
@@ -264,11 +329,13 @@ const UserManagement: React.FC = () => {
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
+                    showFirstButton
+                    showLastButton
                     sx={{ position: 'relative', left: '-10px' }}
                 />
             </TableContainer>
 
-            {/* Modal */}
+            {/* Modal for Add/Edit User */}
             <Modal open={open} onClose={handleClose}>
                 <Box sx={modalStyle}>
                     <Typography variant="h6" className="mb-4">
@@ -280,7 +347,7 @@ const UserManagement: React.FC = () => {
                         value={formData.firstName}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
+                        required
                     />
                     <TextField
                         label="Last Name"
@@ -288,7 +355,7 @@ const UserManagement: React.FC = () => {
                         value={formData.lastName}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
+                        required
                     />
                     <TextField
                         label="Email"
@@ -297,9 +364,9 @@ const UserManagement: React.FC = () => {
                         value={formData.email}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
+                        required
                     />
-                    <FormControl fullWidth className="mb-4">
+                    <FormControl fullWidth required>
                         <InputLabel id="role-label">Role</InputLabel>
                         <Select
                             labelId="role-label"
@@ -321,7 +388,7 @@ const UserManagement: React.FC = () => {
                         value={formData.username}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
+                        required
                     />
                     <TextField
                         label="Password"
@@ -330,7 +397,7 @@ const UserManagement: React.FC = () => {
                         value={formData.password}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
+                        required={!editUser} // Password required only for new users
                     />
                     <TextField
                         label="Phone Number"
@@ -338,7 +405,6 @@ const UserManagement: React.FC = () => {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         fullWidth
-                        className="mb-4"
                     />
                     <FormControlLabel
                         control={
@@ -350,7 +416,6 @@ const UserManagement: React.FC = () => {
                             />
                         }
                         label="Enabled"
-                        className="mb-2"
                     />
                     <FormControlLabel
                         control={
@@ -362,13 +427,13 @@ const UserManagement: React.FC = () => {
                             />
                         }
                         label="Account Locked"
-                        className="mb-4"
                     />
                     <Button
                         variant="contained"
                         color="primary"
                         onClick={handleSubmit}
                         fullWidth
+                        disabled={isLoading}
                     >
                         {editUser ? "Update User" : "Create User"}
                     </Button>
@@ -376,6 +441,7 @@ const UserManagement: React.FC = () => {
             </Modal>
         </div>
     );
+
 };
 
 export default UserManagement;

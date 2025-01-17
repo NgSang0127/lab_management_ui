@@ -1,8 +1,8 @@
 import React from 'react';
 import Tooltip from '@mui/material/Tooltip';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import {Timetable} from '../../state/Timetable/Action.ts';
-import convertDayOfWeekToVietnamese from '../../utils/convertDay.ts';
+import {Timetable} from '../../../state/Timetable/Action.ts';
+import convertDayOfWeekToVietnamese from '../../../utils/convertDay.ts';
 
 // Custom Tooltip component
 const CustomTooltip = ({scheduleItem, children}: { scheduleItem: Timetable, children: React.ReactNode }) => {

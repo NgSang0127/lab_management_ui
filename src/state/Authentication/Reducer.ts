@@ -7,7 +7,7 @@ import {
     RegisterRequest,
     ResetPasswordRequest
 } from "./ActionType.ts";
-import axios, {AxiosError} from "axios";
+import axios from "axios";
 
 
 export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
@@ -17,9 +17,15 @@ export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
             const {data} = await api.post(`${API_URL}/auth/register`, reqData);
 
             return data;
-        } catch (err) {
-
-            return rejectWithValue((err as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -34,11 +40,15 @@ export const loginUser = createAsyncThunk<AuthResponseData, LoginRequestData, { 
 
             console.log(data)
             return data;
-        } catch (err) {
-            if (err instanceof AxiosError) {
-                return rejectWithValue(err.response?.data?.message || 'An error occurred');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
-            return rejectWithValue('An unknown error occurred');
+            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -49,8 +59,15 @@ export const getUser = createAsyncThunk(
             const {data} = await api.get(`${API_URL}/user/profile`);
             console.log("get User", data)
             return data;
-        } catch (err) {
-            return rejectWithValue((err as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -61,8 +78,12 @@ export const forgotPassword = createAsyncThunk(
             const {data} = await api.post(`${API_URL}/auth/forgot-password`, request);
             return data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -75,8 +96,12 @@ export const validateResetCode = createAsyncThunk(
             const {data} = await api.post(`${API_URL}/auth/validate-reset-code`, request);
             return data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -90,8 +115,12 @@ export const resetPassword = createAsyncThunk(
             const {data} = await api.post(`${API_URL}/auth/reset-password`, request);
             return data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -102,10 +131,17 @@ export const logout = createAsyncThunk(
     'auth/logout',
     async (_, {rejectWithValue}) => {
         try {
-            localStorage.clear();
             await api.get(`${API_URL}/auth/logout`);
-        } catch (err) {
-            return rejectWithValue((err as AxiosError).message);
+            localStorage.clear();
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )

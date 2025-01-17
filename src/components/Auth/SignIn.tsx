@@ -102,7 +102,7 @@ export default function SignIn() {
     const validateInputs = () => {
         const validationErrors = {
             username: formData.username ? '' : 'Username is required',
-            password: formData.password.length >= 8 ? '' : 'Password must be at least 8 characters',
+            password: formData.password ? '' : 'Password is required',
         };
         setErrors(validationErrors);
 

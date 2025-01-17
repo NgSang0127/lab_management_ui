@@ -92,13 +92,13 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
 
     return (
         <FormControl size="small">
-            <InputLabel id="select-week-label">Chọn Tuần</InputLabel>
+            <InputLabel id="select-week-label">Select Week</InputLabel>
             <Select
                 labelId="select-week-label"
                 id="select-week"
                 value={selectedWeekValue}  // Sử dụng selectedWeekValue với đúng định dạng
                 onChange={handleChange}
-                label="Chọn Tuần"
+                label="Select Week"
                 variant="outlined"
             >
                 {weeks.length > 0 ? (
@@ -118,7 +118,7 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
                                 fontWeight: selectedWeek?.startDate === week.startDate ? 'bold' : 'normal',
                             }}
                         >
-                            {`Tuần ${index + 1} [Từ ${week.startDate} -- Đến ${week.endDate}]`}
+                            {`Week ${index + 1} [From ${week.startDate} -- To ${week.endDate}]`}
                         </MenuItem>
                     ))
                 ) : (

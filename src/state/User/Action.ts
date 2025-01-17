@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {changePassword, endSession, updateInformationUser} from "./Reducer.ts";
+import {changePassword, updateInformationUser} from "./Reducer.ts";
 
 export interface ChangePasswordRequest {
     currentPassword: string;
@@ -67,22 +67,7 @@ const userSlice = createSlice({
                 state.successMessage = '';
                 state.errorMessage = action.payload as string;
             })
-            //end user activity
-            .addCase(endSession.pending,(state)=>{
-                state.isLoading=true;
-                state.successMessage='';
-                state.errorMessage='';
-            })
-            .addCase(endSession.fulfilled,(state,action)=>{
-                state.isLoading=false;
-                state.successMessage=action.payload;
-                state.errorMessage='';
-            })
-            .addCase(endSession.rejected,(state,action)=>{
-                state.isLoading=false;
-                state.successMessage='';
-                state.errorMessage=action.payload as string;
-            })
+
     }
 })
 export default userSlice;

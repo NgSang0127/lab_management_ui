@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import {api, API_URL} from '../../config/api.ts';
 import {TimetableRequest} from "./Action.ts";
 
@@ -61,9 +61,13 @@ export const importTimetable = createAsyncThunk(
             }
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                return rejectWithValue(error.response?.data?.message || 'An error occurred during import');
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
-            return rejectWithValue('An unknown error occurred');
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -79,8 +83,15 @@ export const fetchTimetables = createAsyncThunk(
             });
             console.log("timetable",data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -92,8 +103,15 @@ export const getRangeWeek = createAsyncThunk(
             const response = await api.get(`${API_URL}/timetable/weeks-range`);
             console.log("rangeweek",response);
             return response.data; // Trả về dữ liệu cho reducer
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -130,8 +148,15 @@ export const fetchCourseDetails = createAsyncThunk(
 
             console.log(data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -148,8 +173,15 @@ export const fetchTimetableByDate = createAsyncThunk(
             });
             console.log(data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -168,8 +200,15 @@ export const cancelTimetable = createAsyncThunk(
             });
             console.log(data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );
@@ -179,11 +218,18 @@ export const createTimetable = createAsyncThunk(
     'timetable/createTimetable',
     async (request :TimetableRequest, { rejectWithValue }) => {
         try {
-            const {data} = await api.post(`${API_URL}/timetable/create`,request);
+            const {data} = await api.post('/timetable/create',request);
             console.log(data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );

@@ -1,48 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import Tooltip from '@mui/material/Tooltip';
-import './Tooltip.css';
+import './Schedule/Tooltip.css';
 import { RootState, useAppDispatch } from '../../state/store.ts';
 import { useSelector } from 'react-redux';
 import convertDayOfWeekToVietnamese from "../../utils/convertDay.ts";
-import CustomTooltip from "./CustomTooltip.tsx";
-import './schedule.css'; // Đường dẫn đến file CSS của bạn
+import CustomTooltip from "./Schedule/CustomTooltip.tsx";
+import './Schedule/Schedule.css'; // Đường dẫn đến file CSS của bạn
 import SelectWeek from "./SelectWeek.tsx";
 import { fetchLessonTimes } from "../../state/LessonTime/Reducer.ts";
 import { fetchTimetables } from "../../state/Timetable/Reducer.ts";
-import {courseColors} from "../../utils/courseColors.ts";
+import { getCourseColor} from "../../utils/courseColors.ts";
 import {setSelectedWeek} from "../../state/Timetable/Action.ts";
 import {useNavigate} from "react-router-dom";
 import { parse, addDays, isSameDay } from 'date-fns';
 import {daysOfWeek, periods, rooms} from "../../utils/utilsTimetable.ts";
 
 
-
-const courseColorMap = new Map<string, string>();
-
-const hashStringToNumber = (str: string) => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash |= 0;
-    }
-    return Math.abs(hash); // Trả về số dương
-};
-
-const getCourseColor = (courseName: string | undefined, timetableName: string) => {
-    // Nếu có courseName và đã có màu cho courseName, trả về màu đó
-    const key = courseName || timetableName;
-
-    if (courseColorMap.has(key)) {
-        return courseColorMap.get(key);
-    }
-
-    // Nếu chưa có màu, gán màu mới từ danh sách màu dựa trên tên khóa học hoặc tên thời khóa biểu
-    const index = hashStringToNumber(key) % courseColors.length;
-    const color = courseColors[index];
-    courseColorMap.set(key, color);
-    return color;
-};
 
 
 const ScheduleTable: React.FC = () => {

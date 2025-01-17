@@ -5,14 +5,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import { RootState, useAppDispatch } from "../../state/store.ts";
 import { useSelector } from "react-redux";
-
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import {forgotPassword} from "../../state/Authentication/Reducer.ts";
 import {useNavigate} from "react-router-dom";
+import {useCallback, useEffect, useState} from "react";
+import {AlertColor, TextField} from "@mui/material";
+import LoadingIndicator from "../Support/LoadingIndicator.tsx";
+import CustomAlert from "../Support/CustomAlert.tsx";
 
 
 interface ForgotPasswordProps {
@@ -24,51 +24,55 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
     const dispatch = useAppDispatch();
     const navigate=useNavigate();
     const { isLoading, success, error } = useSelector((state: RootState) => state.auth);
+    const [email, setEmail] = useState('');
 
-    const [email, setEmail] = React.useState('');
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: AlertColor;
+    }>({
+        open: false,
+        message: "",
+        severity: "info",
+    });
 
-    // Snackbar state for showing messages
-    const [openSnackbar, setOpenSnackbar] = React.useState(false);
-    const [snackbarMessage, setSnackbarMessage] = React.useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = React.useState<'success' | 'error'>('success');
+    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
+        setAlert({ open: true, message, severity });
+    };
 
-    // Handle email input change
+    const handleCloseAlert = useCallback(() => {
+        setAlert((prev) => ({ ...prev, open: false }));
+    }, []);
+
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
     };
 
-    // Handle forgot password submit
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            // Dispatch forgotPassword action
             await dispatch(forgotPassword({ email }));
         } catch (error) {
-            // If there is an error in dispatch, handle it here
-            setSnackbarMessage('An error occurred while sending the reset link.');
-            setSnackbarSeverity('error');
-            setOpenSnackbar(true);
+            showAlert(error as string,'error')
         }
     };
 
-    // Show Snackbar if success or error exists
-    React.useEffect(() => {
+
+    useEffect(() => {
         if (success) {
-            setSnackbarMessage(success);
-            setSnackbarSeverity('success');
-            setOpenSnackbar(true);
+            showAlert(success,'success')
             navigate('/account/reset-code')
         }
 
         if (error) {
-            setSnackbarMessage(error);
-            setSnackbarSeverity('error');
-            setOpenSnackbar(true);
+            showAlert(error,'error')
         }
     }, [success, error]);
 
     return (
         <>
+            <LoadingIndicator open={isLoading} />
             <Dialog
                 open={open}
                 onClose={handleClose}
@@ -82,14 +86,14 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
                     <DialogContentText>
                         Enter your account&apos;s email address, and we&apos;ll send you a link to reset your password.
                     </DialogContentText>
-                    <OutlinedInput
+                    <TextField
                         autoFocus
+                        variant="outlined"
                         required
                         margin="dense"
                         id="email"
                         name="email"
                         label="Email address"
-                        placeholder="Email address"
                         type="email"
                         fullWidth
                         value={email}
@@ -105,20 +109,13 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
             </Dialog>
 
             {/* Snackbar for success and error messages */}
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={6000}
-                onClose={() => setOpenSnackbar(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}  // Set the Snackbar to bottom-center
-            >
-                <Alert
-                    onClose={() => setOpenSnackbar(false)}
-                    severity={snackbarSeverity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
+            <CustomAlert
+                open={alert.open}
+                onClose={handleCloseAlert}
+                message={alert.message}
+                severity={alert.severity}
+            />
+
         </>
     );
 }

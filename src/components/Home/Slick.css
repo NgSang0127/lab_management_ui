@@ -1,47 +1,55 @@
-
-.slick-prev, .slick-next {
-    z-index: 1 !important;
-    width: 80px !important; /* Tăng chiều rộng */
-    height: 80px !important; /* Tăng chiều cao */
-    background: none !important;
-    opacity: 0.8;
-    border-radius: 5px;
-    transition: opacity 0.3s ease;
+/* Ẩn mũi tên mặc định của slick */
+.slick-prev:before,
+.slick-next:before {
+    display: none;
 }
 
-.slick-prev:before, .slick-next:before {
+/* Tùy chỉnh mũi tên trước (prev) */
+.slick-prev,
+.slick-next {
+    width: 40px !important;
+    height: 40px !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.3s ease;
+    z-index: 1 !important;
+}
+
+/* Thêm hiệu ứng khi hover */
+.slick-prev:hover,
+.slick-next:hover {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Thêm icon SVG vào mũi tên trước */
+.slick-prev::after,
+.slick-next::after {
     content: '';
     display: block;
-    width: 20px;
-    height: 20px;
-    border: solid #f8f6f4;
-    border-width: 0 3px 3px 0;
-    transform: rotate(135deg);
-    margin: auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform-origin: center;
-    transition: opacity 0.3s ease;
+    width: 30px;
+    height: 30px;
+    background-repeat: no-repeat;
+    background-size: contain;
 }
 
+/* Thêm icon cho slick-prev */
+.slick-prev::after {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>');
+}
+
+/* Thêm icon cho slick-next */
+.slick-next::after {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>');
+}
+
+/* Điều chỉnh vị trí của mũi tên */
 .slick-prev {
-    left: 10px; /* Adjust this value if the arrow is too far left */
+    left: 10px;
 }
 
 .slick-next {
-    right: 10px; /* Adjust this value if the arrow is too far right */
-}
-
-
-.slick-prev:before {
-    transform: rotate(135deg) translate(-50%, -50%);
-}
-
-.slick-next:before {
-    transform: rotate(-45deg) translate(-50%, -50%);
-}
-
-.slick-prev:hover:before, .slick-next:hover:before {
-    opacity: 1;
+    right: 10px;
 }

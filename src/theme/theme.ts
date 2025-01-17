@@ -52,6 +52,7 @@ export const lightTheme = createTheme({
                 },
             },
         },
+
         MuiSelect: {
             styleOverrides: {
                 root: {

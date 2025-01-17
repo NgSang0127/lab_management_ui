@@ -7,13 +7,20 @@ import Error from "../components/Email/Error.tsx";
 import teacherRoutes from "./TeacherRoute.tsx";
 import adminRoutes from "./AdminRoute.tsx";
 import Home from "../components/Home/Home.tsx";
-import Calendar from "../components/Timetable/ScheduleTable.tsx";
+
 
 import CardDetailsCourse from "../components/Timetable/CardDetailsCourse.tsx";
 import Extracurricular from "../components/Timetable/Extracurricular.tsx";
 import CheckEmail from "../components/Email/CheckEmail.tsx";
 import ResetCodeInput from "../components/Auth/ResetCodeInput.tsx";
 import ResetPassword from "../components/Auth/ResetPassword.tsx";
+import ScheduleTable from "../components/Timetable/Schedule/ScheduleTable.tsx";
+import DashboardAdmin from "../components/Dashboard/DashboardAdmin.tsx";
+import DashboardContent from "../components/Dashboard/DashboardContent.tsx";
+import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
+import NotificationCenter from "../components/Notification/NotificationCenter.tsx";
+import SettingPage from "../components/Dashboard/Setting/SettingPage.tsx";
+import Dashboard from "../components/Dashboard/Dashboard.tsx";
 
 
 const router = createBrowserRouter([
@@ -29,7 +36,7 @@ const router = createBrowserRouter([
             },
             {
                 path: 'timetable/by-week',
-                element: <Calendar/>,
+                element: <ScheduleTable/>,
             },
             {
                 path: 'account/signin',
@@ -48,10 +55,36 @@ const router = createBrowserRouter([
                 element: <ResetPassword/>
             },
             {
+                path:'profile/dashboard',
+                element: <Dashboard/>,
+                children: [
+                    {
+                        path: "",
+                        element: <DashboardContent/>
+                    },
+                    {
+                        path: 'book',
+                        element: <CreateTimetable/>
+                    },
+                    {
+                        path: 'notification',
+                        element: <NotificationCenter/>
+                    },
+                    {
+                        path: 'setting',
+                        element: <SettingPage/>
+                    },
+                    {
+                        path: 'by-week',
+                        element: <ScheduleTable/>,
+                    },
+                    ]
+            },
+            {
                 path: 'courses',
                 children:[
                     {
-                        path:':courseId/:NH/:TH/:studyTime',
+                        path:':courseId/:NH/:TH?/:studyTime',
                         element: <CardDetailsCourse/>
                     },
                     {

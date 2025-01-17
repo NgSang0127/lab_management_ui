@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import {api, API_URL} from "../../config/api.ts";
+import {api} from "../../config/api.ts";
+import axios from "axios";
 
 
 interface LessonTime {
@@ -15,11 +16,18 @@ export const fetchLessonTimes = createAsyncThunk<LessonTime[]>(
     'lessonTimes/fetchLessonTimes',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get<LessonTime[]>(`${API_URL}/lesson-time`);
+            const response = await api.get<LessonTime[]>('/lesson-time');
             console.log(response.data);
             return response.data; // Trả về dữ liệu tiết học
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Failed to fetch lesson times');
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 );

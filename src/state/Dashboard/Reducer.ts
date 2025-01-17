@@ -1,8 +1,9 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {api, API_URL} from "../../config/api.ts";
-import {CourseLogStatistics, DailyLogStatistics, Logs, UsageTimeUsers} from "./Action.ts";
-import {AxiosError} from "axios";
+import {CourseLogStatistics, DailyLogStatistics, Logs} from "./Action.ts";
+import axios from "axios";
 import {PageResponse} from "../Page/ActionType.ts";
+import {UsageTimeUsers} from "./UsageTimeUsersSlice.ts";
 
 export const getLogsBetween = createAsyncThunk(
     'logs/getLogsBetween',
@@ -19,8 +20,15 @@ export const getLogsBetween = createAsyncThunk(
             });
             console.log("logs", data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -38,8 +46,15 @@ export const getDailyLogStatistic = createAsyncThunk(
             });
             console.log("logs", data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -56,8 +71,15 @@ export const getCourseLogStatistics = createAsyncThunk(
             });
             console.log("logs", data);
             return data;
-        } catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -74,8 +96,15 @@ export const getUsageTimeUsers=createAsyncThunk(
                 }
             });
             return data;
-        }catch (e) {
-            return rejectWithValue((e as AxiosError).message);
+        }catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
         }
     }
 )

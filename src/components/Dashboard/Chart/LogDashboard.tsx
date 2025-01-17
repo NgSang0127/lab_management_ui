@@ -1,36 +1,69 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { Container, CircularProgress,  Card, CardContent, Typography, TextField, Button } from '@mui/material';
+import React, { useEffect } from 'react';
+import {
+    Container, CircularProgress, Card, CardContent,
+    Typography
+} from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { Line } from 'react-chartjs-2';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { RootState, useAppDispatch } from "../../../state/store.ts";
-import { getCourseLogStatistics, getDailyLogStatistic } from "../../../state/Dashboard/Reducer.ts";
-import { CourseLogStatistics, DailyLogStatistics } from "../../../state/Dashboard/Action.ts";
+import { Line, Bar } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+} from 'chart.js';
 
-// Register các component của Chart.js
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+import { useSelector } from 'react-redux';
+import { RootState, useAppDispatch } from "../../../state/store";
+import { getCourseLogStatistics, getDailyLogStatistic } from "../../../state/Dashboard/Reducer";
+import { CourseLogStatistics, DailyLogStatistics } from "../../../state/Dashboard/Action";
 
-const LogsDashboard: React.FC = () => {
+
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend
+);
+
+interface LogsDashboardProps {
+    startDate: string;
+    endDate: string;
+    setError: (msg: string) => void;
+    setErrorOpen: (open: boolean) => void;
+}
+
+const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
     const dispatch = useAppDispatch();
 
-    // State cho ngày bắt đầu và ngày kết thúc
-    const [startDate, setStartDate] = useState<string>('2024-11-01');
-    const [endDate, setEndDate] = useState<string>('2024-12-02');
+    const { dailyStats, courseStats, isLoading } = useSelector((state: RootState) => state.logs);
 
-    // Lấy dữ liệu thống kê từ Redux store
-    const { dailyStats, courseStats, isLoading, error } = useSelector((state: RootState) => state.logs);
 
-    // Gọi API khi component mount hoặc khi ngày thay đổi
     useEffect(() => {
         if (startDate && endDate) {
-            dispatch(getDailyLogStatistic({ startDate, endDate }));
-            dispatch(getCourseLogStatistics({ startDate, endDate }));
+            dispatch(getDailyLogStatistic({ startDate, endDate }))
+                .unwrap()
+                .catch((err) => {
+                    setError(err || 'Failed to fetch daily logs');
+                    setErrorOpen(true);
+                });
+            dispatch(getCourseLogStatistics({ startDate, endDate }))
+                .unwrap()
+                .catch((err) => {
+                    setError(err || 'Failed to fetch course logs');
+                    setErrorOpen(true);
+                });
         }
-    }, [dispatch, startDate, endDate]);
+    }, [dispatch, startDate, endDate, setError, setErrorOpen]);
 
-    // Nếu đang tải, hiển thị loading spinner
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -39,16 +72,10 @@ const LogsDashboard: React.FC = () => {
         );
     }
 
-    // Nếu có lỗi
-    if (error.getDailyLogStatistics || error.getCourseLogStatistics) {
-        return <div className="text-red-500 text-center">{error.getDailyLogStatistics || error.getCourseLogStatistics}</div>;
-    }
-
-    // Chuyển đổi dữ liệu thống kê theo ngày thành dữ liệu biểu đồ
+    // Daily chart data
     const dailyLabels = dailyStats.map((stat: DailyLogStatistics) => stat.date);
     const dailyLogCount = dailyStats.map((stat: DailyLogStatistics) => stat.logCount);
 
-    // Cấu hình biểu đồ thống kê theo ngày (Line Chart)
     const dailyChartData = {
         labels: dailyLabels,
         datasets: [
@@ -62,88 +89,90 @@ const LogsDashboard: React.FC = () => {
         ],
     };
 
-    // Chuyển đổi dữ liệu thống kê theo khóa học thành dữ liệu biểu đồ
-    const courseLabels = courseStats.map((stat: CourseLogStatistics) => stat.courseName);
+    // Giữ line chart options cho daily logs
+    const dailyChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: {},
+            y: { beginAtZero: true },
+        },
+    };
+
+    const topCourseStats = [...courseStats]
+        .sort((a: CourseLogStatistics, b: CourseLogStatistics) => b.logCount - a.logCount)
+        .slice(0, 20);
+
+
+    // Course chart data
+    const courseLabels = topCourseStats.map(
+        (stat: CourseLogStatistics) => `${stat.courseName} (TH:${stat.th}, NH:${stat.nh})`
+    );
     const courseLogCount = courseStats.map((stat: CourseLogStatistics) => stat.logCount);
 
-    // Cấu hình biểu đồ thống kê theo khóa học (Bar Chart)
+
     const courseChartData = {
         labels: courseLabels,
         datasets: [
             {
-                label: 'Log Count',
+                label: 'Count',
                 data: courseLogCount,
                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
             },
         ],
     };
 
+    // Horizontal bar options
+    const courseChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y' as const,  // Horizontal bar
+        scales: {
+            y: {
+                ticks: {
+                    autoSkip: false,
+                },
+            },
+            x: {
+                beginAtZero: true,
+            },
+        },
+        plugins: {
+            legend: {
+                display: false, // Ẩn legend nếu muốn
+            },
+        },
+    };
+
     return (
-        <Container>
-            {/* Chọn ngày */}
-            <Grid container spacing={3} sx={{ mb: 3 }}>
-                <Grid >
-                    <TextField
-                        label="Start Date"
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        slotProps={{
-                            inputLabel:{
-                            shrink: true,
-                        }}}
-                    />
-                </Grid>
-
-                <Grid >
-                    <TextField
-                        label="End Date"
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        slotProps={{
-                            inputLabel:{
-                            shrink: true,
-                        }}}
-                    />
-                </Grid>
-
-                <Grid >
-
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            if (startDate && endDate) {
-                                dispatch(getDailyLogStatistic({ startDate, endDate }));
-                                dispatch(getCourseLogStatistics({ startDate, endDate }));
-                            }
-                        }}
-                    >
-                        Apply Dates
-                    </Button>
-                </Grid>
-            </Grid>
-
+        <Container maxWidth="xl">
             <Grid container spacing={4}>
-                {/* Biểu đồ thống kê theo ngày (Line Chart) */}
-                <Grid size={{xs:12,md:6}}>
+                <Grid size={{xs:12}}>
                     <Card className="shadow-lg">
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Daily Log Statistics</Typography>
-                            <div className="h-64">
-                                <Line data={dailyChartData} />
+                            <Typography variant="h6" gutterBottom>
+                                Daily Log Statistics
+                            </Typography>
+                            <div style={{width: '100%', overflowX: 'auto'}}>
+                                <div style={{minWidth: '500px', height: '300px'}}>
+                                    <Line data={dailyChartData} options={dailyChartOptions}/>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
                 </Grid>
 
-                {/* Biểu đồ thống kê theo khóa học (Bar Chart) */}
-                <Grid size={{xs:12,md:6}}>
+                <Grid size={{xs: 12}}>
                     <Card className="shadow-lg">
                         <CardContent>
-                            <Typography variant="h6" gutterBottom>Course Log Statistics</Typography>
-                            <div className="h-64">
-                                <Bar data={courseChartData} />
+                            <Typography variant="h6" gutterBottom>
+                                Top 20 Course Log Statistics
+                            </Typography>
+                            {/* Horizontal scroll */}
+                            <div style={{ width: '100%', height: '400px', overflowX: 'auto' }}>
+                                <div style={{ minWidth: '500px', height: '100%' }}>
+                                    <Bar data={courseChartData} options={courseChartOptions} />
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

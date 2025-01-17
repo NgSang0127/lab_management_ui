@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
-import { TextField, Button, MenuItem, FormControl, Select, CircularProgress, Typography, InputLabel, Snackbar } from '@mui/material';
+import {
+    TextField,
+    Button,
+    MenuItem,
+    FormControl,
+    Select,
+    Typography,
+    InputLabel,
+} from '@mui/material';
+import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from '../../state/store';
 import { createTimetable } from '../../state/Timetable/Reducer';
-import { useSelector } from "react-redux";
-import {periods, rooms} from "../../utils/utilsTimetable";
+import { periods, rooms } from "../../utils/utilsTimetable";
+import LoadingIndicator from "../Support/LoadingIndicator.tsx";
+import CustomAlert from "../Support/CustomAlert.tsx";
+
 
 const CreateTimetable: React.FC = () => {
     const dispatch = useAppDispatch();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isLoading, error } = useSelector((state: RootState) => state.timetable);
 
-    // Các state để lưu thông tin form
+    // Form state
     const [timetableName, setTimetableName] = useState('');
     const [roomName, setRoomName] = useState('');
     const [startLesson, setStartLesson] = useState<number | ''>('');
@@ -18,39 +28,37 @@ const CreateTimetable: React.FC = () => {
     const [date, setDate] = useState('');
     const [instructorId, setInstructorId] = useState('');
     const [description, setDescription] = useState('');
-    const [isLoadingLocal, setIsLoadingLocal] = useState(false); // Local loading state for submitting
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
 
-    // Hàm để mở snackbar với thông báo
-    const handleSnackbar = (message: string) => {
-        setSnackbarMessage(message);
-        setSnackbarOpen(true);
+    // Alert state
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState<'success' | 'error'>('success');
+
+    // Function to open alert
+    const handleAlert = (message: string, severity: 'success' | 'error') => {
+        setAlertMessage(message);
+        setAlertSeverity(severity);
+        setAlertOpen(true);
     };
 
-    // Hàm đóng Snackbar
-    const handleCloseSnackbar = () => {
-        setSnackbarOpen(false);
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
     };
 
-    // Hàm xử lý sự kiện submit
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Kiểm tra các trường trước khi gửi
         if (!timetableName || !roomName || startLesson === '' || endLesson === '' || !date || !instructorId || !description) {
-            handleSnackbar('Vui lòng điền đầy đủ thông tin.');
+            handleAlert('Please fill in all the required fields.', 'error');
             return;
         }
 
-        // Kiểm tra logic tiết bắt đầu và tiết kết thúc
         if (Number(startLesson) >= Number(endLesson)) {
-            handleSnackbar('Tiết kết thúc phải sau tiết bắt đầu.');
+            handleAlert('End lesson must be after start lesson.', 'error');
             return;
         }
 
-        setIsLoadingLocal(true);
-        // Tạo object timetable để gửi lên server
+        // Prepare data
         const timetableData = {
             timetableName,
             roomName,
@@ -62,9 +70,8 @@ const CreateTimetable: React.FC = () => {
         };
 
         try {
-            // Gọi dispatch để tạo thời khóa biểu
-            await dispatch(createTimetable(timetableData)).unwrap(); // unwrap để nhận error từ createAsyncThunk
-            handleSnackbar('Tạo thời khóa biểu thành công!');
+            await dispatch(createTimetable(timetableData)).unwrap();
+            handleAlert('Timetable created successfully!', 'success');
             // Reset form
             setTimetableName('');
             setRoomName('');
@@ -73,17 +80,15 @@ const CreateTimetable: React.FC = () => {
             setDate('');
             setInstructorId('');
             setDescription('');
-        } catch (error) {
-            handleSnackbar(`Có lỗi xảy ra khi tạo thời khóa biểu: ${error}`);
-        } finally {
-            setIsLoadingLocal(false);
+        } catch (err: any) {
+            handleAlert(`Error creating timetable: ${err.message || err}`, 'error');
         }
     };
 
-    // Hàm xử lý khi chọn tiết kết thúc
+    // Handle end lesson change with validation
     const handleEndLessonChange = (value: number) => {
         if (startLesson !== '' && value <= Number(startLesson)) {
-            handleSnackbar('Tiết kết thúc phải lớn hơn tiết bắt đầu.');
+            handleAlert('End lesson must be greater than start lesson.', 'error');
             setEndLesson('');
         } else {
             setEndLesson(value);
@@ -91,25 +96,28 @@ const CreateTimetable: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto px-6 py-10">
-            <Typography variant="h4" className="text-center font-bold mb-8 text-blue-700">Tạo Thời Khóa Biểu</Typography>
-            <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-white shadow-xl rounded-lg p-6 space-y-4">
+        <div style={{ maxWidth: '700px', margin: '0 auto', padding: '40px 20px' }}>
+            <Typography variant="h4" align="center" gutterBottom color="primary">
+                Create Timetable
+            </Typography>
+            <form onSubmit={handleSubmit} style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
                 <TextField
-                    label="Tên thời khóa biểu"
+                    label="Timetable Name"
                     value={timetableName}
                     onChange={(e) => setTimetableName(e.target.value)}
                     fullWidth
                     required
+                    margin="normal"
                 />
 
-                {/* Select for roomName */}
-                <FormControl  fullWidth>
-                    <InputLabel>Phòng học</InputLabel>
+                {/* Room Selection */}
+                <FormControl fullWidth required margin="normal">
+                    <InputLabel>Room</InputLabel>
                     <Select
                         value={roomName}
                         onChange={(e) => setRoomName(e.target.value as string)}
-                        required
-                        variant="outlined">
+                        label="Room"
+                    >
                         {rooms.map((room, index) => (
                             <MenuItem key={index} value={room}>
                                 {room}
@@ -118,96 +126,108 @@ const CreateTimetable: React.FC = () => {
                     </Select>
                 </FormControl>
 
-                {/* Select for startLesson */}
-                <FormControl fullWidth>
-                    <InputLabel>Tiết bắt đầu</InputLabel>
+                {/* Start Lesson Selection */}
+                <FormControl fullWidth required margin="normal">
+                    <InputLabel>Start Lesson</InputLabel>
                     <Select
                         value={startLesson}
-                        color="primary"
                         onChange={(e) => setStartLesson(e.target.value as number)}
-                        required
-                        variant="outlined">
+                        label="Start Lesson"
+                    >
                         {periods.map((period, index) => (
                             <MenuItem key={index} value={period}>
-                                {`Tiết ${period}`}
+                                {`Lesson ${period}`}
                             </MenuItem>
                         ))}
                     </Select>
                 </FormControl>
 
-                {/* Select for endLesson */}
-                <FormControl fullWidth>
-                    <InputLabel>Tiết kết thúc</InputLabel>
+                {/* End Lesson Selection */}
+                <FormControl fullWidth required margin="normal">
+                    <InputLabel>End Lesson</InputLabel>
                     <Select
                         value={endLesson}
                         onChange={(e) => handleEndLessonChange(e.target.value as number)}
-                        required
-                        variant="outlined">
+                        label="End Lesson"
+                    >
                         {periods.map((period, index) => (
                             <MenuItem key={index} value={period}>
-                                {`Tiết ${period}`}
+                                {`Lesson ${period}`}
                             </MenuItem>
                         ))}
                     </Select>
                 </FormControl>
 
+                {/* Date Selection */}
                 <TextField
-                    label="Ngày"
+                    label="Date"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     fullWidth
                     required
+                    margin="normal"
                     slotProps={{
-                        inputLabel: {
-                            shrink: true,
-                        }}}
+                        inputLabel:{
+                        shrink: true,
+                    }}}
                 />
 
+                {/* Instructor ID */}
                 <TextField
-                    label="Mã giảng viên"
+                    label="Instructor ID"
                     value={instructorId}
                     onChange={(e) => setInstructorId(e.target.value)}
                     fullWidth
                     required
+                    margin="normal"
                 />
 
+                {/* Description */}
                 <TextField
-                    label="Mô tả"
+                    label="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     fullWidth
+                    required
                     multiline
                     rows={4}
-                    required
+                    margin="normal"
                 />
 
+                {/* Loading Indicator */}
+                <LoadingIndicator open={isLoading} />
 
-                {isLoadingLocal && <CircularProgress />}
+                {/* Error Message */}
+                {error && (
+                    <Typography color="error" variant="body2" align="center">
+                        {error}
+                    </Typography>
+                )}
 
-
-                {error && <Typography color="error">{error}</Typography>}
-
+                {/* Submit Button */}
                 <Button
                     type="submit"
                     variant="contained"
                     color="primary"
                     fullWidth
-                    disabled={isLoadingLocal}
+                    disabled={isLoading}
+                    style={{ marginTop: '20px' }}
                 >
-                    {isLoadingLocal ? <CircularProgress size={24} /> : 'Tạo Thời Khóa Biểu'}
+                    {isLoading ? 'Submitting...' : 'Create Timetable'}
                 </Button>
             </form>
 
-            {/* Snackbar for notifications */}
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={handleCloseSnackbar}
-                message={snackbarMessage}
+            {/* Custom Alert for Notifications */}
+            <CustomAlert
+                open={alertOpen}
+                onClose={handleCloseAlert}
+                message={alertMessage}
+                severity={alertSeverity}
             />
         </div>
     );
+
 };
 
 export default CreateTimetable;

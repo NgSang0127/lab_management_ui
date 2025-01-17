@@ -1,36 +1,274 @@
-import {Link} from "react-router-dom";
+import React from 'react';
+import {
+    Box,
+    Container,
+    Typography,
+    Button,
+    Card,
+    CardContent,
+    CardMedia,
+    Link,
+    Avatar,
+} from '@mui/material';
+import Grid from '@mui/material/Grid2';
+import { styled } from '@mui/material/styles';
+import ComputerIcon from '@mui/icons-material/Computer';
+import ScienceIcon from '@mui/icons-material/Science';
+import EventIcon from '@mui/icons-material/Event';
+import PeopleIcon from '@mui/icons-material/People';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
+import {testimonials, topNews} from "./topEvent.ts";
+import ContactForm from "./ContactForm.tsx";
+import Stats from "./Stats.tsx";
+import Gallery from "./Gallery.tsx";
+import FAQ from "./FAQ.tsx";
 
 
+// Styled components
+const FeatureCard = styled(Card)(({ theme }) => ({
+    maxWidth: 345,
+    textAlign: 'center',
+    padding: theme.spacing(3),
+    transition: 'transform 0.3s',
+    '&:hover': {
+        transform: 'translateY(-10px)',
+        boxShadow: theme.shadows[6],
+    },
+}));
 
+const NewsCard = styled(Card)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'row',
+    marginBottom: theme.spacing(3),
+    boxShadow: theme.shadows[3],
+    borderRadius: theme.shape.borderRadius,
+    overflow: 'hidden',
+    transition: 'transform 0.3s',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: theme.shadows[6],
+    },
+}));
 
+const TestimonialCard = styled(Card)(({ theme }) => ({
+    padding: theme.spacing(4),
+    textAlign: 'center',
+    backgroundColor: theme.palette.grey[100],
+    boxShadow: theme.shadows[3],
+    borderRadius: theme.shape.borderRadius,
+    transition: 'transform 0.3s',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: theme.shadows[6],
+    },
+}));
 
-const Home = () => {
+const Home: React.FC = () => {
     return (
-        <div>
-            <nav className="px-2 py-5">
-                <ul className="space-y-4">
-                    <li>
-                        <Link to="admin/hcmiu/timetable/import">Import Timetable</Link>
-                    </li>
-                    <li>
-                        <Link to="timetable/by-week">Get timetable By week</Link>
-                    </li>
-                    <li>
-                        <Link to="admin/hcmiu/timetable/cancel">Cancel Timetable</Link>
-                    </li>
-                    <li>
-                        <Link to="admin/hcmiu/timetable/create">Create Timetable</Link>
-                    </li>
+        <Box>
+            {/* Introduction Section */}
+            <Box py={8} bgcolor="#f9f9f9">
+                <Container maxWidth="md">
+                    <Typography variant="h3" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
+                        Welcome to the International University IT Lab
+                    </Typography>
+                    <Typography variant="h6" align="center" color="textSecondary" paragraph>
+                        Our labs provide modern facilities and a professional learning environment to support students and faculty in their research and projects.
+                    </Typography>
+                    <Box textAlign="center" mt={4}>
+                        <Button variant="contained" color="primary" size="large" href="#features"
+                                startIcon={<ScienceIcon/>}>
+                            Learn More
+                        </Button>
+                    </Box>
+                </Container>
+            </Box>
 
-                </ul>
-            </nav>
-            Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+            {/* Statistics Section */}
+            <Stats/>
 
-            The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Malorum" by Cicero are also reproduced in their exact original form, accompanied by English versions from the 1914 translation by H. Rackham.
+            {/* Features Section */}
+            <Box py={8} id="features" bgcolor="#ffffff">
+                <Container maxWidth="lg">
+                    <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
+                        Main Functions
+                    </Typography>
+                    <Grid container spacing={4} mt={4} justifyContent="center">
+                        <Grid size={{xs: 12, md: 3, sm: 6}}>
+                            <FeatureCard>
+                                <Box display="flex" justifyContent="center" mb={2}>
+                                    <ComputerIcon fontSize="large" color="primary"/>
+                                </Box>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                        Device Management
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Monitor and manage lab equipment efficiently and accurately.
+                                    </Typography>
+                                </CardContent>
+                            </FeatureCard>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 3, sm: 6}}>
+                            <FeatureCard>
+                                <Box display="flex" justifyContent="center" mb={2}>
+                                    <ScienceIcon fontSize="large" color="primary"/>
+                                </Box>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                        Project Management
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Support the management of research and development projects in the laboratory.
+                                    </Typography>
+                                </CardContent>
+                            </FeatureCard>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 3, sm: 6}}>
+                            <FeatureCard>
+                                <Box display="flex" justifyContent="center" mb={2}>
+                                    <PeopleIcon fontSize="large" color="primary"/>
+                                </Box>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                        Member Management
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Manage information and roles of lab members.
+                                    </Typography>
+                                </CardContent>
+                            </FeatureCard>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 3, sm: 6}}>
+                            <FeatureCard>
+                                <Box display="flex" justifyContent="center" mb={2}>
+                                    <EventIcon fontSize="large" color="primary"/>
+                                </Box>
+                                <CardContent>
+                                    <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                        Timetable Management
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        Support viewing and scheduling effective schedules for lab activities.
+                                    </Typography>
+                                </CardContent>
+                            </FeatureCard>
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
 
-        </div>
+            {/* Gallery Section */}
+            <Gallery/>
 
-    )
-};
+            {/* News Section */}
+            <Box py={8} bgcolor="#f9f9f9">
+                <Container maxWidth="lg">
+                    <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
+                        News and Events
+                    </Typography>
+                    <Grid container spacing={4} mt={4}>
+                        {topNews.map((news, index) => (
+                            <Grid size={{xs: 12, md: 6}} key={index}>
+                                <NewsCard>
+                                    <CardMedia
+                                        component="img"
+                                        sx={{width: 160}}
+                                        image={news.image}
+                                        alt={news.title}
+                                    />
+                                    <Box sx={{display: 'flex', flexDirection: 'column', flex: 1}}>
+                                        <CardContent>
+                                            <Typography component="div" variant="h6" sx={{fontWeight: 'medium'}}>
+                                                {news.title}
+                                            </Typography>
+                                            <Typography variant="body2" color="textSecondary">
+                                                {news.description}
+                                            </Typography>
+                                            <Box mt={2}>
+                                                <Button size="small" color="primary" href="#">
+                                                    Read More
+                                                </Button>
+                                            </Box>
+                                        </CardContent>
+                                    </Box>
+                                </NewsCard>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            </Box>
 
+            {/* Testimonials Section */}
+            <Box py={8}>
+                <Container maxWidth="lg">
+                    <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
+                        User Feedback
+                    </Typography>
+                    <Grid container spacing={4} mt={4} justifyContent="center">
+                        {testimonials.map((testimonial, index) => (
+                            <Grid size={{xs: 12, md: 6}} key={index}>
+                                <TestimonialCard>
+                                    <Avatar
+                                        alt={testimonial.name}
+                                        src={testimonial.avatar}
+                                        sx={{width: 80, height: 80, margin: '0 auto', mb: 2}}
+                                    />
+                                    <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                        {testimonial.name}
+                                    </Typography>
+                                    <Typography variant="subtitle1" color="textSecondary" gutterBottom>
+                                        {testimonial.position}
+                                    </Typography>
+                                    <Typography variant="body1" color="textSecondary">
+                                        "{testimonial.feedback}"
+                                    </Typography>
+                                </TestimonialCard>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            </Box>
+
+            {/* FAQ Section */}
+            <FAQ />
+            {/* Contact Section */}
+            <Box py={8} bgcolor="#ffffff">
+                <Container maxWidth="lg">
+                    <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
+                        Contact Us
+                    </Typography>
+                    <Grid container spacing={4} mt={4}>
+                        <Grid size={{xs: 12, md: 6}}>
+                            <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
+                                <ContactMailIcon fontSize="large" color="primary"/>
+                                <Typography variant="h6" gutterBottom mt={2} sx={{fontWeight: 'medium'}}>
+                                    Contact Information
+                                </Typography>
+                                <Typography variant="body1" color="textSecondary" paragraph>
+                                    Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City
+                                </Typography>
+                                <Typography variant="body1" color="textSecondary">
+                                    Phone Number: (028) 37244270
+                                </Typography>
+                                <Typography variant="body1" color="textSecondary">
+                                    Email: <Link href="mailto:info@hcmiu.edu.vn" color="primary.light"
+                                                 underline="hover">info@hcmiu.edu.vn</Link>
+                                </Typography>
+                            </Box>
+                        </Grid>
+                        <Grid size={{xs: 12, md: 6}}>
+                            <Box>
+                                <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
+                                    Send Message
+                                </Typography>
+                                <ContactForm/>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
+        </Box>
+    );
+}
 export default Home;

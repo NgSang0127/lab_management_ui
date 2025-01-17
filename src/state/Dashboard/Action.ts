@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {getCourseLogStatistics, getDailyLogStatistic, getLogsBetween, getUsageTimeUsers} from "./Reducer.ts";
-import {User} from "../Authentication/Action.ts";
+import {getCourseLogStatistics, getDailyLogStatistic, getLogsBetween} from "./Reducer.ts";
+
 
 // Các type thống kê
 export interface DailyLogStatistics {
@@ -12,12 +12,10 @@ export interface CourseLogStatistics {
     courseId: string;
     courseName: string;
     logCount: number;
+    th:string;
+    nh:string;
 }
 
-export interface UsageTimeUsers{
-    user: User;
-    totalUsageTime:number;
-}
 
 export interface Logs {
     id: string;
@@ -38,13 +36,14 @@ export interface Logs {
 interface LogsState {
     dailyStats: DailyLogStatistics[];
     courseStats: CourseLogStatistics[];
-    usageTimeUsers: UsageTimeUsers[];
     logs: Logs[];
     page: number;
     size: number;
     totalElements: number;
     totalPages: number;
     isLoading: boolean;
+    first:boolean,
+    last:boolean,
     error: {
         getLogsBetween:string | null;
         getDailyLogStatistics:string | null;
@@ -56,12 +55,13 @@ interface LogsState {
 const initialState: LogsState = {
     dailyStats: [],
     courseStats: [],
-    usageTimeUsers:[],
     logs: [],
     page: 0,
     size: 10,
     totalElements: 0,
     totalPages: 0,
+    first:true,
+    last:false,
     isLoading: false,
     error: {
         getLogsBetween:null,
@@ -87,6 +87,8 @@ const logsSlice = createSlice({
                 state.logs = action.payload.content;
                 state.page = action.payload.number;
                 state.size = action.payload.size;
+                state.first = action.payload.first;
+                state.last = action.payload.last;
                 state.totalElements = action.payload.totalElements;
                 state.totalPages = action.payload.totalPages;
             })
@@ -121,23 +123,6 @@ const logsSlice = createSlice({
             .addCase(getCourseLogStatistics.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error.getCourseLogStatistics = action.payload as string;
-            })
-        //total usage list users
-            .addCase(getUsageTimeUsers.pending,(state)=>{
-                state.isLoading = true;
-                state.error.getUsageTimeUsers=null;
-            })
-            .addCase(getUsageTimeUsers.fulfilled,(state,action)=>{
-                state.isLoading = false;
-                state.usageTimeUsers=action.payload.content;
-                state.page = action.payload.number;
-                state.size = action.payload.size;
-                state.totalElements = action.payload.totalElements;
-                state.totalPages = action.payload.totalPages;
-            })
-            .addCase(getUsageTimeUsers.rejected,(state,action)=>{
-                state.isLoading = false;
-                state.error.getUsageTimeUsers=action.payload as string;
             })
     }
 })

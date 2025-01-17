@@ -7,18 +7,25 @@ import {User} from "../Authentication/Action.ts";
 
 export const getUsers = createAsyncThunk(
     'admin/getUsers',
-    async (params:{page:number,size:number} ,{rejectWithValue}) => {
+    async (params:{page:number,size:number,keyword:string,role:string} ,{rejectWithValue}) => {
         try {
             const response =await api.get<PageResponse<User>>('/admin/users',{
                 params:{
                     page:params.page,
                     size:params.size,
+                    keyword:params.keyword,
+                    role:params.role
+
                 }
             });
             return response.data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -32,8 +39,12 @@ export const createUser = createAsyncThunk(
             const response =await api.post('/admin/users',request);
             return response.data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -47,8 +58,12 @@ export const updateUser = createAsyncThunk(
             const response =await api.put(`/admin/users/${id}`,request);
             return response.data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }
@@ -62,8 +77,12 @@ export const deleteUser = createAsyncThunk(
             const response =await api.delete(`/admin/users/${id}`);
             return response.data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error) && error.response && error.response.data) {
-                return rejectWithValue(error.response.data);
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
             }
             return rejectWithValue('Unknown error');
         }

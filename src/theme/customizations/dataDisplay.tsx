@@ -82,7 +82,7 @@ export const dataDisplayCustomizations: Components<Theme> = {
     MuiListItemIcon: {
         styleOverrides: {
             root: {
-                minWidth: 0,
+                minWidth: 20,
             },
         },
     },

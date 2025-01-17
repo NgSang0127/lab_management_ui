@@ -1,43 +1,101 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { TextField, Button, Box, Snackbar, Alert } from '@mui/material';
-import { useAppDispatch } from "../../state/store"; // Hook để dispatch action
-import { resetPassword } from "../../state/Authentication/Reducer.ts"; // Import action để update password
+import { TextField, Button, Box, Typography } from '@mui/material';
+import { useAppDispatch } from "../../state/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../state/store";
+import { resetPassword } from "../../state/Authentication/Reducer";
+import CustomAlert from "../Support/CustomAlert.tsx";
+import LoadingIndicator from "../Support/LoadingIndicator.tsx";
+
 
 const ResetPassword: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const dispatch = useAppDispatch(); // Khai báo dispatch
+    const dispatch = useAppDispatch();
 
-    const resetCode = location.state?.resetCode; // Nhận mã reset từ state
+    const resetCode = location.state?.resetCode; // Receive reset code from state
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
 
-    const handleSubmit = () => {
-        if (password === confirmPassword) {
-            // Gọi dispatch để gửi mã reset và mật khẩu mới tới backend
-            dispatch(resetPassword({ code: resetCode, newPassword: password }));
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: 'success' | 'error' | 'info';
+    }>({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
 
-            setSnackbarMessage('Password updated successfully!');
-            setSnackbarSeverity('success');
-            setOpenSnackbar(true);
+    const { isLoading, success, error } = useSelector((state: RootState) => state.auth);
 
-            // Điều hướng đến trang login hoặc trang bạn muốn sau khi thành công
+    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
+        setAlert({ open: true, message, severity });
+    };
+
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+
+        if (password.trim() === '' || confirmPassword.trim() === '') {
+            showAlert("Please fill in all fields.", 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showAlert("Passwords do not match.", 'error');
+            return;
+        }
+
+        if (password.length < 8) {
+            showAlert("Password must be at least 8 characters long.", 'error');
+            return;
+        }
+
+        if (!resetCode) {
+            showAlert("Invalid reset code.", 'error');
+            return;
+        }
+
+        try {
+            await dispatch(resetPassword({ code: resetCode, newPassword: password })).unwrap();
+            showAlert(success as string, 'success');
             navigate('/account/signin');
-        } else {
-            setSnackbarMessage('Passwords do not match.');
-            setSnackbarSeverity('error');
-            setOpenSnackbar(true);
+        } catch {
+            showAlert(error || "An error occurred while resetting the password.", 'error');
         }
     };
 
+    const handleCloseAlert = () => {
+        setAlert(prev => ({ ...prev, open: false }));
+    };
+
     return (
-        <Box className="flex flex-col items-center p-8 w-full max-w-md mx-auto border border-gray-300 rounded-lg shadow-lg bg-white mt-10 space-y-6">
-            <h3 className="text-xl font-semibold">Enter New Password</h3>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '32px',
+                margin: '20px auto',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                backgroundColor: '#ffffff',
+                maxWidth: '400px',
+            }}
+        >
+            {/* Loading Indicator */}
+            {isLoading && <LoadingIndicator open={isLoading} />}
+
+            <Typography variant="h5" sx={{ marginBottom: '24px', fontWeight: 'bold' }}>
+                Enter New Password
+            </Typography>
+
             <TextField
                 type="password"
                 label="New Password"
@@ -45,7 +103,9 @@ const ResetPassword: React.FC = () => {
                 fullWidth
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mb-4"
+                sx={{ marginBottom: '16px' }}
+                required
+                aria-label="New Password"
             />
             <TextField
                 type="password"
@@ -54,30 +114,29 @@ const ResetPassword: React.FC = () => {
                 fullWidth
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mb-6"
+                sx={{ marginBottom: '24px' }}
+                required
+                aria-label="Confirm Password"
             />
             <Button
                 variant="contained"
-                className="w-full py-2 text-white font-semibold"
-                onClick={handleSubmit}
+                color="primary"
+                type="submit"
+                fullWidth
+                sx={{ padding: '12px' }}
+                disabled={isLoading}
+                aria-label="Submit New Password"
             >
                 Submit
             </Button>
 
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={6000}
-                onClose={() => setOpenSnackbar(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert
-                    onClose={() => setOpenSnackbar(false)}
-                    severity={snackbarSeverity}
-                    sx={{ width: '100%' }}
-                >
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
+            {/* Custom Alert for Notifications */}
+            <CustomAlert
+                open={alert.open}
+                onClose={handleCloseAlert}
+                message={alert.message}
+                severity={alert.severity}
+            />
         </Box>
     );
 };

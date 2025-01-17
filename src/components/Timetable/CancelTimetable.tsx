@@ -1,135 +1,181 @@
-import { Button, TextField, MenuItem, Select, FormControl, InputLabel, CircularProgress, Typography, Snackbar, Alert } from '@mui/material';
-import { RootState, useAppDispatch } from '../../state/store.ts';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import {
+    Button,
+    TextField,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
+    Typography,
+    Paper, Box,
+
+} from '@mui/material';
 import { useSelector } from "react-redux";
-import { fetchTimetableByDate, cancelTimetable } from "../../state/Timetable/Reducer.ts";
-import {useNavigate} from "react-router-dom"; // API để lấy và hủy timetable
+import { RootState, useAppDispatch } from '../../state/store';
+import { fetchTimetableByDate, cancelTimetable } from "../../state/Timetable/Reducer";
+import { useNavigate } from "react-router-dom";
 import { format } from 'date-fns';
+import CustomAlert from "../Support/CustomAlert";
+import LoadingIndicator from "../Support/LoadingIndicator";
+
 
 const CancelTimetable: React.FC = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { timetables, isLoading, error } = useSelector((state: RootState) => state.timetable);
+    const { timetableDate, isLoading, error } = useSelector((state: RootState) => state.timetable);
     const [cancelDate, setCancelDate] = useState<string>('');
     const [selectedTimetable, setSelectedTimetable] = useState<number | null>(null);
 
-    // Trạng thái cho Snackbar
-    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');  // Loại thông báo
+    // Snackbar state managed by CustomAlert
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error";
+    }>({
+        open: false,
+        message: "",
+        severity: "success",
+    });
 
-    // Khi người dùng thay đổi ngày, sẽ gọi API để lấy các thời khóa biểu của ngày đó
+    // Fetch timetables when cancelDate changes
     useEffect(() => {
-        if (cancelDate) {  // Chỉ gọi API khi có giá trị cancelDate
+        if (cancelDate) {
             dispatch(fetchTimetableByDate({ date: cancelDate }));
         }
     }, [cancelDate, dispatch]);
 
-    // Xử lý hủy lịch học
-    const handleCancel = async () => {
+    // Handle cancellation of timetable
+    const handleCancel = useCallback(async () => {
         if (selectedTimetable) {
-            const selectedTimetableDetails = timetables.find(t => t.id === selectedTimetable);
+            const selectedTimetableDetails = timetableDate.find(t => t.id === selectedTimetable);
 
             if (selectedTimetableDetails) {
                 const formattedCancelDate = format(new Date(cancelDate), 'dd/MM/yyyy');
 
                 const result = await dispatch(cancelTimetable({
-                    cancelDate: formattedCancelDate,  // Sử dụng ngày đã được định dạng
+                    cancelDate: formattedCancelDate,
                     startLesson: selectedTimetableDetails.startLesson,
                     roomName: selectedTimetableDetails.room.name,
                     timetableId: selectedTimetableDetails.id
                 }));
 
                 if (cancelTimetable.fulfilled.match(result)) {
-                    setSnackbarMessage('Hủy thành công!');
-                    setSnackbarSeverity('success');
+                    setAlert({
+                        open: true,
+                        message: 'Cancellation successful!',
+                        severity: 'success',
+                    });
                     navigate("/timetable/by-week");
                 } else {
-                    setSnackbarMessage('Hủy thất bại, vui lòng thử lại!');
-                    setSnackbarSeverity('error');
+                    setAlert({
+                        open: true,
+                        message: 'Cancellation failed. Please try again!',
+                        severity: 'error',
+                    });
                 }
-
-                setSnackbarOpen(true);  // Mở Snackbar để hiển thị thông báo
             }
         } else {
-            setSnackbarMessage('Vui lòng chọn môn học cần hủy');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);  // Mở Snackbar để hiển thị thông báo lỗi
+            setAlert({
+                open: true,
+                message: 'Please select a subject to cancel.',
+                severity: 'error',
+            });
         }
-    };
+    }, [selectedTimetable, timetableDate, cancelDate, dispatch, navigate]);
 
-    // Đóng Snackbar
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
+    // Close alert
+    const handleCloseAlert = useCallback(() => {
+        setAlert(prev => ({ ...prev, open: false }));
+    }, []);
 
     return (
-        <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
-            <Typography variant="h4" gutterBottom>Hủy Lịch Học</Typography>
+        <Box p={3}>
+            {/* Loading Indicator */}
+            <LoadingIndicator open={isLoading} />
 
-            {/* Input để chọn ngày */}
-            <TextField
-                label="Ngày cần hủy"
-                type="date"
-                value={cancelDate}
-                onChange={(e) => setCancelDate(e.target.value)}
-                fullWidth
-                slotProps={{
-                    inputLabel: {
-                        shrink: true,
-                    }}}
-                margin="normal"
+            <Paper elevation={3} sx={{ padding: 4, maxWidth: 600, margin: '0 auto' }}>
+                <Typography variant="h4" gutterBottom align="center">
+                    Cancel Timetable
+                </Typography>
+
+                {/* Date Selection */}
+                <FormControl fullWidth margin="normal">
+                    <TextField
+                        label="Date to Cancel"
+                        type="date"
+                        value={cancelDate}
+                        onChange={(e) => setCancelDate(e.target.value)}
+                        slotProps={{
+                            inputLabel:{
+                            shrink: true,
+                        }}}
+
+                        variant="outlined"
+                    />
+                </FormControl>
+
+                {/* Timetable Selection */}
+                {cancelDate && (
+                    <>
+                        {isLoading ? (
+                            <Typography variant="body1" align="center">
+                                Loading timetables...
+                            </Typography>
+                        ) : error ? (
+                            <Typography variant="body1" color="error" align="center">
+                                {error}
+                            </Typography>
+                        ) : timetableDate.length > 0 ? (
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel id="timetable-select-label">Subject</InputLabel>
+                                <Select
+                                    labelId="timetable-select-label"
+                                    value={selectedTimetable ?? ''}
+                                    label="Subject"
+                                    onChange={(e) => setSelectedTimetable(Number(e.target.value))}
+                                >
+                                    {timetableDate.map((timetable) => (
+                                        <MenuItem key={timetable.id} value={timetable.id}>
+                                            {`Subject: ${timetable.courses[0]?.name || 'N/A'} - Room: ${timetable.room?.name || 'N/A'} - Start Lesson: ${timetable.startLesson}`}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        ) : (
+                            <Typography variant="body1" align="center">
+                                No timetables found for the selected date.
+                            </Typography>
+                        )}
+                    </>
+                )}
+
+                {/* Cancel Button */}
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleCancel}
+                    fullWidth
+                    disabled={!cancelDate}
+                    sx={{ mt: 3,
+                        '&.Mui-disabled': {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            backgroundColor: 'rgba(25, 118, 210, 0.5)',
+                        },}}
+                >
+                    Cancel Timetable
+                </Button>
+            </Paper>
+
+            {/* Custom Alert */}
+            <CustomAlert
+                open={alert.open}
+                message={alert.message}
+                severity={alert.severity}
+                onClose={handleCloseAlert}
             />
-
-            {cancelDate && (
-                <>
-                    {isLoading ? (
-                        <CircularProgress />
-                    ) : error ? (
-                        <p>{error}</p>
-                    ) : (
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Môn học</InputLabel>
-                            <Select
-                                value={selectedTimetable || ''}
-                                onChange={(e) => setSelectedTimetable(Number(e.target.value))}
-                             variant="filled">
-                                {timetables.map((timetable) => (
-                                    <MenuItem key={timetable.id} value={timetable.id}>
-                                        {`Môn: ${timetable.courses[0].name} - Phòng: ${timetable.room.name} - Tiết bắt đầu: ${timetable.startLesson}`}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    )}
-                </>
-            )}
-
-            {/* Nút Hủy Lịch */}
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleCancel}
-                fullWidth
-                style={{ marginTop: '20px' }}
-                disabled={!cancelDate}
-            >
-                Hủy Lịch Học
-            </Button>
-
-            {/* Snackbar thông báo */}
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={4000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </div>
+        </Box>
     );
+
 };
 
 export default CancelTimetable;

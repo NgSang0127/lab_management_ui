@@ -1,30 +1,57 @@
-
-import {useAppDispatch} from "../state/store.ts";
-import {useEffect, useRef} from "react";
-import {endSession} from "../state/User/Reducer.ts";
+// useUserActivityCheck.ts
+import { useAppDispatch } from "../state/store.ts";
+import { useEffect, useRef, useCallback } from "react";
+import { API_URL } from "../config/api.ts";
+import { endSession } from "../state/User/Reducer.ts";
 
 const useUserActivityCheck = () => {
     const dispatch = useAppDispatch();
     const inactivityTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Hàm để reset bộ đếm thời gian khi có hành động từ người dùng
-    const resetInactivityTimer = () => {
-        // Xóa bộ đếm thời gian cũ nếu có
+
+    const sendEndSessionRequest = useCallback(() => {
+        const url = `${API_URL}/user-activity/end-session`;
+
+        // Lấy JWT từ localStorage
+        const token = localStorage.getItem('accessToken');
+        const data = JSON.stringify({ token });
+
+        if (navigator.sendBeacon) {
+            const blob = new Blob([data], { type: 'application/json' });
+            const success = navigator.sendBeacon(url, blob);
+            console.log('sendBeacon success:', success);
+        } else {
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: data,
+                credentials: 'include',
+                keepalive: true,
+            }).then(response => {
+                console.log('Fetch response:', response);
+            }).catch((error) => {
+                console.error('Error ending session:', error);
+            });
+        }
+    }, []);
+
+    const resetInactivityTimer = useCallback(() => {
         if (inactivityTimeout.current) {
             clearTimeout(inactivityTimeout.current);
         }
 
-        // Thiết lập lại bộ đếm thời gian mới (30 phút)
         inactivityTimeout.current = setTimeout(() => {
-            dispatch(endSession()); // Gửi action kết thúc phiên sau 30 phút không hoạt động
-        }, 30 * 60 * 1000); // 30 phút
-    };
+            sendEndSessionRequest();
+            dispatch(endSession());
+        }, 30 * 60 * 1000);
+    }, [dispatch, sendEndSessionRequest]);
 
-    // Hàm để xử lý khi người dùng cố gắng đóng tab
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        dispatch(endSession());
-    };
+    const handlePageHide = useCallback(() => {
+        console.log('Page is being hidden or unloaded.');
+        sendEndSessionRequest();
+    }, [sendEndSessionRequest]);
 
     useEffect(() => {
         const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
@@ -32,24 +59,23 @@ const useUserActivityCheck = () => {
             window.addEventListener(event, resetInactivityTimer);
         });
 
-        window.addEventListener('beforeunload', handleBeforeUnload);
+        window.addEventListener('pagehide', handlePageHide);
 
-        // Cleanup khi component unmount
+        // Đặt bộ đếm thời gian ban đầu
+        resetInactivityTimer();
+
+
         return () => {
             activityEvents.forEach((event) => {
                 window.removeEventListener(event, resetInactivityTimer);
             });
-            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('pagehide', handlePageHide);
 
             if (inactivityTimeout.current) {
-                clearTimeout(inactivityTimeout.current); // Dọn dẹp bộ đếm thời gian khi component unmount
+                clearTimeout(inactivityTimeout.current);
             }
         };
-    }, [dispatch]);
-
-    useEffect(() => {
-        resetInactivityTimer();
-    }, []);
+    }, [resetInactivityTimer, handlePageHide]);
 
 };
 
