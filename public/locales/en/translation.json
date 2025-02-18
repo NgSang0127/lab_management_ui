@@ -1,0 +1,492 @@
+{
+  "signin": {
+    "title": "Sign In",
+    "username": "Username",
+    "password": "Password",
+    "remember_me": "Remember Me",
+    "or": "or",
+    "forgot_password": "Forgot your password?",
+    "button": "Sign in",
+    "not_have_account": "Don't have an account?",
+    "google": "Sign in with Google",
+    "facebook": "Sign in with Facebook",
+    "errors": {
+      "username_required": "Username is required",
+      "password_required": "Password is required"
+    }
+  },
+  "signup": {
+    "title": "Sign Up",
+    "firstName": "FirstName",
+    "lastName": "LastName",
+    "phoneNumber": "PhoneNumber",
+    "username": "Username",
+    "password": "Password",
+    "allow_extra_email": "I want to receive updates via email",
+    "have_account": "Already have an account?",
+    "button": "Sing up",
+    "or": "or",
+    "google": "Sign up with Google",
+    "facebook": "Sign up with Facebook",
+    "errors": {
+      "email": "Please enter a valid email address",
+      "password": "Password must be at least 8 characters long",
+      "firstName": "Firstname is required",
+      "lastName": "Lastname is required",
+      "username": "Username is required",
+      "phoneNumber": "Phone number is not correct format"
+    }
+  },
+  "forgot_password": {
+    "title": "Reset Password",
+    "content": "Enter your account's email address, and we&apos;ll send you a link to reset your password",
+    "email_address": "Email Address",
+    "cancel": "Cancel",
+    "sending": "Sending ...",
+    "continue": "Continue"
+  },
+  "reset_password": {
+    "title": "Enter New Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "button": "Submit",
+    "errors": {
+      "allFields": "Please fill in all fields",
+      "password": "Password do not match",
+      "password_length": "Password must be at least 8 characters long",
+      "navigate": "An error occurred while resetting the password"
+    }
+  },
+  "reset_code": {
+    "title": "Enter Reset Code",
+    "submit": "Submit",
+    "errors": {
+      "code": "Please enter a {{length}}digit code"
+    }
+  },
+  "check_email": {
+    "title": "Check your Email inbox",
+    "content": "We have sent a verification email to your email address.\nPlease check to receive the verification code",
+    "success": {
+      "title": "Account Activated Successfully!",
+      "content": "Your account has been activated. You can now log in and start using the application",
+      "button": "Continue"
+    },
+    "error": {
+      "title": "Account Activation Failed",
+      "button": "Retry"
+    }
+  },
+  "navbar": {
+    "about_us": "About Us",
+    "view_timetable": "View Timetable",
+    "featured": "Featured",
+    "contact_me": "Contact Me",
+    "search": "Search ..."
+  },
+  "home": {
+    "introduction": {
+      "welcome": "Welcome to the International University IT Lab",
+      "introduce": "Our labs provide modern facilities and a professional learning environment to support students and faculty in their research and projects",
+      "learn_more": "Learn More"
+    },
+    "features": {
+      "main_functions": "Main Functions",
+      "device_management": "Device Management",
+      "device_management_introduce": "Monitor and manage lab equipment efficiently and accurately..",
+      "project_management": "Project Management",
+      "project_management_introduce": "Support the management of research and development projects in the laboratory.",
+      "member_management": "Member Management",
+      "member_management_introduce": "Manage information and roles of lab members.",
+      "timetable_management": "Timetable Management",
+      "timetable_management_introduce": "Support viewing and scheduling effective schedules for lab activities."
+    },
+    "image_library": "Image Library",
+    "news_and_events": "News and Events",
+    "read_more": "Read More",
+    "user_feedback": "User Feedback",
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "equipment": "What types of equipment does the lab support?",
+      "equipment_answer": "Our lab supports equipment such as computers, 3D printers, chemical analysis devices, and many other research tools.",
+      "register": "How do I register to use the lab?",
+      "register_answer": "You can register to use the lab through our online management system or by directly contacting the lab administrator.",
+      "research": "Does the lab support research projects?",
+      "research_answer": "Yes, the lab provides technical support and facilities for student and faculty research projects."
+    },
+    "stats": {
+      "label1": "Equipments Modern",
+      "label2": "Research Projects",
+      "label3": "Membership",
+      "label4": "Events"
+
+    },
+    "contact_us": {
+      "title": "Contact Us",
+      "information": "Contact Information",
+      "address": "Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City",
+      "phone": "Phone Number : (028) 37244270"
+    },
+    "contact_form": {
+      "title": "Send Message",
+      "name": "Your Name",
+      "message": "Message"
+    },
+    "footer": {
+      "title": "International University - Vietnam National University HCMC",
+      "address": "Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City",
+      "phone": "Phone Number: (028) 37244270"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "applyButton": "Apply",
+    "errors": {
+      "startDate_big_endDate": "Start Date must not after End Date"
+    },
+    "barchart": {
+      "title": "Usage time users",
+      "date": "Date",
+      "role": "Role",
+      "student": "Student",
+      "teacher": "Teacher",
+      "none": "None",
+      "label1": "Usage Time (minutes)",
+      "label2": "Maximum Allowed Time (4 hours)",
+      "usageTime": "Usage Time: {{time}}",
+      "maximum": "Maximum Allowed: {{time}} minutes",
+      "text1": "Usage Time on {{date}} {{role}}",
+      "text2": "Usage Time (No Date Selected)",
+      "errors": {
+        "error": "Error : {{error}}",
+        "default": "No data available for the selected date and role "
+      }
+    },
+    "logDashboard": {
+      "label": "Visit",
+      "count": "Count",
+      "title": "Daily Course Statistics",
+      "content": "Top 20 Course Statistics"
+    },
+    "detailsTable": {
+      "title": "Details Table",
+      "timestamp": "Timestamp",
+      "endpoint": "Endpoint",
+      "action": "Action",
+      "course": "Course",
+      "user": "User",
+      "ip": "IP Address",
+      "userAgent": "User Agent",
+      "no_data": "No data"
+    }
+  },
+  "sidebar": {
+    "welcome": "Hi",
+    "dashboard": "Dashboard",
+    "manage_asset": "Manage Asset",
+    "booking": "Book Lab Room",
+    "notification": "Notifications",
+    "cancel": "Cancel Booking",
+    "import": "Import Timetable",
+    "user_management": "User Management",
+    "setting": "Setting",
+    "view_timetable": "View Timetable",
+    "logout": "Logout"
+  },
+  "manager_asset": {
+    "asset": {
+      "title": "Asset",
+      "update_title": "Update Asset",
+      "create_title": "Create Asset",
+      "button_create": "Create Asset",
+      "button_search": "Search",
+      "button_upload": "Upload Image",
+      "button_filter": "Filter by Status",
+      "all_status": "All Statuses",
+      "available_status": "Available",
+      "in_use_status": "In Use",
+      "maintenance_status": "Maintenance",
+      "retired_status": "Retired",
+      "image": "Image",
+      "name": "Name",
+      "description": "Description",
+      "serialNumber": "Serial Number",
+      "status": "Status",
+      "purchase_date": "Purchase Date",
+      "price": "Price (VND)",
+      "category": "Category",
+      "category_item": "Select a category",
+      "location": "Location",
+      "location_item": "Select a location",
+      "assigned_user": "Assigned User",
+      "actions": "Actions",
+      "no_asset": "No Asset Found",
+      "button_cancel": "Cancel",
+      "button_save": "Save",
+      "dialog_title": "Confirm Delete",
+      "dialog_content": "Are you sure you want to delete this asset?",
+      "button_delete": "Delete",
+      "errors": {
+        "cloudinary": "An error occurred while uploading photos to Cloudinary",
+        "name": "Name is required",
+        "purchase_date": "Purchase Date is required",
+        "price": "Price must be greater than 0",
+        "category": "Please select a category",
+        "location": "Please select a location",
+        "unexpected": "An unexpected error occurred"
+      },
+      "success": {
+        "update": "Asset updated successfully",
+        "create": "Asset created successfully",
+        "delete": "Asset deleted successfully"
+      }
+    },
+    "asset_select": {
+      "inputValue": "Enter at least 2 characters to search",
+      "defaultValue": "No asset found",
+      "label": "Select asset"
+    },
+    "location": "Location",
+    "category": {
+      "title": "Category",
+      "update_title": "Update Category",
+      "create_title": "Create Category",
+      "button_create": "Create",
+      "name": "Name",
+      "description": "Description",
+      "actions": "Actions",
+      "no_category": "No Category Found",
+      "dialog_title": "Confirm Delete",
+      "dialog_content": "Are you sure you want to delete this category?",
+      "button_cancel": "Cancel",
+      "button_save": "Save",
+      "button_delete": "Delete",
+      "errors": {
+        "unexpected": "An unexpected error occurred",
+        "name": "Name is required"
+      },
+      "success": {
+        "update": "Category updated successfully",
+        "create": "Category created successfully",
+        "delete": "Category deleted successfully"
+      }
+    },
+    "manager": "Manager",
+    "maintenance": "Maintenance",
+    "import_export": "Import-Export"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page:"
+  },
+  "setting": {
+    "changePassword": {
+      "currentPassword": "Current Password",
+      "confirmPassword": "Confirm Password",
+      "newPassword": "New Password",
+      "button_save": "Save Password",
+      "errors": {
+        "mismatch": "The new password and confirmation do not match!",
+        "length": "The new password must be at least {{length}} characters long!",
+        "allFields": "VPlease fill in all fields"
+      }
+    },
+    "userProfile": {
+      "title": "Personal Information Management",
+      "uploading": "Uploading ...",
+      "button_upload": "Upload Image",
+      "firstName": "FirstName",
+      "lastName": "LastName",
+      "phone": "PhoneNumber",
+      "username": "Username",
+      "button_save": "Save",
+      "security": "Security Setting",
+      "tfa": "Two Enabled Factor",
+      "errors": {
+        "upload_image": "An error occurred while uploading the image ",
+        "update_information": "An error occurred while saving information "
+      },
+      "success": {
+        "upload_image": "Image uploaded successfully!",
+        "update_information": "Personal information updated successfully!"
+      }
+    }
+  },
+  "user_management": {
+    "dialog": "Are you sure you want to delete this user?",
+    "title": "User Management",
+    "add_button": "Add User",
+    "search": "Search",
+    "search_placeholder": "Search by name, username...",
+    "filter": "Filter by Role",
+    "filter_placeholder": "Filter by Role",
+    "none": "None",
+    "student": "Student",
+    "teacher": "Teacher",
+    "owner": "Owner",
+    "co_owner": "Co_Owner",
+    "firstName": "FirstName",
+    "lastName": "LastName",
+    "role": "Role",
+    "actions": "Actions",
+    "edit_button": "Edit",
+    "transfer_button": "Transfer Ownership",
+    "promote_button": "Promote Co_Owner",
+    "delete_button": "Delete",
+    "no_data": "No users founded",
+    "editUser": "Edit User",
+    "select_role": "Select Role",
+    "username": "Username",
+    "password": "Password",
+    "phone": "PhoneNumber",
+    "enabled": "Enabled",
+    "accountLocked": "Account Locked",
+    "update_button": "Update User",
+    "create_button": "Create User",
+    "errors": {
+    }
+  },
+  "timetable": {
+    "scheduleTable": {
+      "title": "Timetable Week Range {{startDate}} - {{endDate}}",
+      "defaultTitle": "Timetable",
+      "errors": {
+        "lessonTime": "An error occurred while loading LessonTimes {{error}}",
+        "timetable": "An error occurred while loading Timetables {{error}}"
+      }
+    },
+    "scheduleTableHeader": {
+      "room": "Room",
+      "period": "Period",
+      "daysOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    "scheduleRow": {
+      "tooltip_title": "Time: {{startTime}} - {{endTime}}",
+      "content_tooltip": "Period"
+    },
+    "scheduleHeader": {
+      "room": "Room",
+      "period": "Period"
+    },
+    "toolTip": {
+      "code": "Class Code :",
+      "name": "Course :",
+      "room": "Room :",
+      "dayOfWeek": "DayofWeek :",
+      "startLesson": "Start Lesson:",
+      "numberOfLesson": "Number of Lessons :",
+      "instructor": "Instructor :",
+      "class": "Class :"
+    },
+    "selectWeek": {
+      "title": "Select Week",
+      "no_data": "No week data",
+      "content": "Week {{index}} [From {{startDate}} -- To {{endDate}}]",
+      "errors": {
+        "week": "An error occurred while loading week data"
+      }
+    },
+    "createTimetable": {
+      "title": "Create Timetable",
+      "name": "Timetable Name",
+      "room": "Room",
+      "startLesson": "Start Lesson",
+      "item": "Period",
+      "endLesson": "End Lesson",
+      "date": "Date",
+      "instructorId": "InstructorId",
+      "description": "Description",
+      "submit_button": "Submitting ...",
+      "create_button": "Create Timetable",
+      "errors": {
+        "allFields": "Please fill in all the required fields",
+        "startLesson_big_endLesson": "End lesson must be after start lesson",
+        "create": "Error creating timetable :{{error}}"
+      },
+      "success": {
+        "create": "Timetable created successfully!"
+      }
+    },
+    "cardDetailsCourse": {
+      "title": "Subject Details",
+      "courseId": "Subject Code :",
+      "courseName": "Subject Name :",
+      "totalLessons": "Total Lesson :",
+      "credits": "Credits :",
+      "students": "NumberOfStudents :",
+      "daysOfWeek": "DayOfWeek :",
+      "startLesson": "Start Lesson :",
+      "numberOfLesson": "NumberOfLesson :",
+      "room": "Room :",
+      "studyTime": "StudyTime :",
+      "instructorId": "InstructorId :",
+      "instructor": "Instructor :"
+    },
+    "extracurricular": {
+      "title": "Details of the class schedule can be registered after hours :",
+      "name": "Timetable Name :",
+      "daysOfWeek": "DayOfWeek :",
+      "startLesson": "Start Lesson :",
+      "numberOfLesson": "End Lesson :",
+      "room": "Room :",
+      "instructorId": "InstructorId :",
+      "instructor": "Instructor :",
+      "description": "Description :"
+    },
+    "cancelTimetable": {
+      "title": "Cancel Timetable",
+      "dateCancel": "Cancel Date",
+      "loading": "Loading Timetable ...",
+      "course": "Course",
+      "no_data": " No timetables found for the selected date.",
+      "cancel_button": "Cancel Timetable",
+      "menu_item": "Course : {{name}} - Room : {{room}} - StartLesson : {{startLesson}} ",
+      "errors": {
+        "cancel": "Cancellation failed. Please try again!",
+        "default": "Please select a subject to cancel."
+      },
+      "success": {
+        "cancel": "Cancellation successful!"
+      }
+    },
+    "importTimetable": {
+      "title": "Import Timetable",
+      "title2": "Drag and drop an Excel file here, or click to select a file",
+      "choose_button": "Choose File",
+      "upload_button": "Upload File",
+      "errors": {
+        "file": "Please select a file first!",
+        "format": "Please select a valid Excel file (.xlsx or .xls)",
+        "upload": "Error uploading file. Please try again.",
+        "unexpected": "An unknown error occurred"
+      },
+      "success": {
+        "import": "File imported successfully!"
+      }
+    }
+  },
+  "attendance": {
+    "title": "Attendance Check",
+    "body": "Please allow location access to check your attendance",
+    "check_button": "Check Attendance"
+  },
+  "days": {
+    "MONDAY": "Monday",
+    "TUESDAY": "Tuesday",
+    "WEDNESDAY": "Wednesday",
+    "THURSDAY": "Thursday",
+    "FRIDAY": "Friday",
+    "SATURDAY": "Saturday",
+    "SUNDAY": "Sunday"
+  },
+  "language": "Language"
+}

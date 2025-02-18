@@ -14,6 +14,7 @@ export interface UpdateInformationRequest {
     image: string | null;
     phoneNumber: string;
     username: string;
+
 }
 
 

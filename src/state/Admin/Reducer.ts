@@ -4,6 +4,7 @@ import axios from "axios";
 import {CreateUserRequestByAdmin} from "./Action.ts";
 import {PageResponse} from "../Page/ActionType.ts";
 import {User} from "../Authentication/Action.ts";
+import {useAppDispatch} from "../store.ts";
 
 export const getUsers = createAsyncThunk(
     'admin/getUsers',
@@ -60,7 +61,7 @@ export const updateUser = createAsyncThunk(
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    const backendError = error.response.data.error || error.response.data || 'Unknown backend error';
                     return rejectWithValue(backendError);
                 }
                 return rejectWithValue('No response from server');
@@ -75,6 +76,49 @@ export const deleteUser = createAsyncThunk(
     async (id:number, {rejectWithValue}) => {
         try {
             const response =await api.delete(`/admin/users/${id}`);
+            return response.data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+
+)
+
+export const transferOwnership = createAsyncThunk(
+    'admin/transferOwnership',
+    async (newOwnerId:number, {rejectWithValue}) => {
+        try {
+            const response =await api.post(`/owner/transfer-ownership/${newOwnerId}`);
+            const dispatch=useAppDispatch();
+            dispatch(getUsers({ page: 0, size: 10, keyword: "", role: "" }));
+            return response.data;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const promoteUser = createAsyncThunk(
+    'admin/promoteUser',
+    async (userId:number, {rejectWithValue}) => {
+        try {
+            const response =await api.post(`/owner/promote/${userId}`);
+            const dispatch=useAppDispatch();
+            dispatch(getUsers({ page: 0, size: 10, keyword: "", role: "" }));
             return response.data;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {

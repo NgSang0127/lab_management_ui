@@ -17,9 +17,11 @@ import { useNavigate } from "react-router-dom";
 import { format } from 'date-fns';
 import CustomAlert from "../Support/CustomAlert";
 import LoadingIndicator from "../Support/LoadingIndicator";
+import {useTranslation} from "react-i18next";
 
 
 const CancelTimetable: React.FC = () => {
+    const {t}=useTranslation();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const { timetableDate, isLoading, error } = useSelector((state: RootState) => state.timetable);
@@ -62,14 +64,14 @@ const CancelTimetable: React.FC = () => {
                 if (cancelTimetable.fulfilled.match(result)) {
                     setAlert({
                         open: true,
-                        message: 'Cancellation successful!',
+                        message: t('timetable.cancelTimetable.success.cancel'),
                         severity: 'success',
                     });
                     navigate("/timetable/by-week");
                 } else {
                     setAlert({
                         open: true,
-                        message: 'Cancellation failed. Please try again!',
+                        message: t('timetable.cancelTimetable.errors.cancel'),
                         severity: 'error',
                     });
                 }
@@ -77,7 +79,7 @@ const CancelTimetable: React.FC = () => {
         } else {
             setAlert({
                 open: true,
-                message: 'Please select a subject to cancel.',
+                message: t('timetable.cancelTimetable.errors.default'),
                 severity: 'error',
             });
         }
@@ -95,13 +97,13 @@ const CancelTimetable: React.FC = () => {
 
             <Paper elevation={3} sx={{ padding: 4, maxWidth: 600, margin: '0 auto' }}>
                 <Typography variant="h4" gutterBottom align="center">
-                    Cancel Timetable
+                    {t('timetable.cancelTimetable.title')}
                 </Typography>
 
                 {/* Date Selection */}
                 <FormControl fullWidth margin="normal">
                     <TextField
-                        label="Date to Cancel"
+                        label={t('timetable.cancelTimetable.dateCancel')}
                         type="date"
                         value={cancelDate}
                         onChange={(e) => setCancelDate(e.target.value)}
@@ -119,7 +121,7 @@ const CancelTimetable: React.FC = () => {
                     <>
                         {isLoading ? (
                             <Typography variant="body1" align="center">
-                                Loading timetables...
+                                {t('timetable.cancelTimetable.loading')}
                             </Typography>
                         ) : error ? (
                             <Typography variant="body1" color="error" align="center">
@@ -127,23 +129,23 @@ const CancelTimetable: React.FC = () => {
                             </Typography>
                         ) : timetableDate.length > 0 ? (
                             <FormControl fullWidth margin="normal">
-                                <InputLabel id="timetable-select-label">Subject</InputLabel>
+                                <InputLabel id="timetable-select-label">{t('timetable.cancelTimetable.course')}</InputLabel>
                                 <Select
                                     labelId="timetable-select-label"
                                     value={selectedTimetable ?? ''}
-                                    label="Subject"
+                                    label={t('timetable.cancelTimetable.course')}
                                     onChange={(e) => setSelectedTimetable(Number(e.target.value))}
                                 >
                                     {timetableDate.map((timetable) => (
                                         <MenuItem key={timetable.id} value={timetable.id}>
-                                            {`Subject: ${timetable.courses[0]?.name || 'N/A'} - Room: ${timetable.room?.name || 'N/A'} - Start Lesson: ${timetable.startLesson}`}
+                                            {t('timetable.cancelTimetable.menu_item',{name:timetable.courses[0]?.name || 'NA',room:timetable.room?.name || 'N/A',startLesson:timetable.startLesson })}
                                         </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                         ) : (
                             <Typography variant="body1" align="center">
-                                No timetables found for the selected date.
+                                {t('timetable.cancelTimetable.no_data')}
                             </Typography>
                         )}
                     </>
@@ -162,7 +164,7 @@ const CancelTimetable: React.FC = () => {
                             backgroundColor: 'rgba(25, 118, 210, 0.5)',
                         },}}
                 >
-                    Cancel Timetable
+                    {t('timetable.cancelTimetable.cancel_button')}
                 </Button>
             </Paper>
 

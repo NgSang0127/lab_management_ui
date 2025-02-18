@@ -45,8 +45,10 @@ import UserSelect from './UserSelect';
 import debounce from 'lodash.debounce';
 import {RootState} from "../../state/store.ts";
 import {useSelector} from "react-redux";
+import {useTranslation} from "react-i18next";
 
 const AssetPage: React.FC = () => {
+    const {t}=useTranslation();
 
     const {user} = useSelector(
         (state: RootState) => state.admin
@@ -123,7 +125,7 @@ const AssetPage: React.FC = () => {
                 setError(err.response?.data?.message || err.error);
                 console.error('Error fetching assets:', err.response?.data?.message || err.error);
             } else {
-                setError('An unexpected error occurred.');
+                setError(t('manager_asset.errors.unexpected'));
                 console.error('Error fetching assets:', err);
             }
         } finally {
@@ -260,7 +262,7 @@ function handleInputChange(e: any): void {
                 console.log('Uploaded image URL:', uploadedUrl);
             } catch (error) {
                 console.error('Error uploading image to Cloudinary:', error);
-                setError('Có lỗi xảy ra khi tải ảnh lên Cloudinary.');
+                setError(t('manager_asset.asset.errors.cloudinary'));
             } finally {
                 setLoading(false);
             }
@@ -271,26 +273,26 @@ function handleInputChange(e: any): void {
 const handleSave = async () => {
     // Validation
     if (form.name.trim() === '') {
-        setError('Name is required.');
+        setError(t('manager_asset.asset.errors.name'));
         return;
     }
     if (!form.serialNumber) {
         form.serialNumber = generateSerialNumber();
     }
     if (!form.purchaseDate) {
-        setError('Purchase Date is required.');
+        setError(t('manager_asset.asset.errors.purchase_date'));
         return;
     }
     if (form.price <= 0) {
-        setError('Price must be greater than 0.');
+        setError(t('manager_asset.asset.errors.price'));
         return;
     }
     if (form.categoryId === 0) {
-        setError('Please select a category.');
+        setError(t('manager_asset.asset.errors.category'));
         return;
     }
     if (form.locationId === 0) {
-        setError('Please select a location.');
+        setError(t('manager_asset.asset.errors.location'));
         return;
     }
 
@@ -320,11 +322,11 @@ const handleSave = async () => {
 
         if (editAsset) {
             await putUpdateAssetById(editAsset.id, assetToSave);
-            setSuccess('Asset updated successfully.');
+            setSuccess(t('manager_asset.asset.success.update'));
             console.log('Updated Asset:', assetToSave);
         } else {
             await postCreateAsset(assetToSave);
-            setSuccess('Asset created successfully.');
+            setSuccess(t('manager_asset.asset.success.create'));
             console.log('Created Asset:', assetToSave);
         }
         await fetchData(page, rowsPerPage, keyword, statusFilter);
@@ -334,7 +336,7 @@ const handleSave = async () => {
             console.error('Error response data:', err.response?.data);
             setError(err.response?.data?.message || err.error);
         } else {
-            setError('An unexpected error occurred.');
+            setError(t('manager_asset.asset.errors.unexpected'));
             console.error('Unexpected error:', err);
         }
     } finally {
@@ -360,14 +362,14 @@ const handleConfirmDelete = async () => {
             setLoading(true);
             setError(null);
             await deleteAssetById(deleteId);
-            setSuccess('Asset deleted successfully.');
+            setSuccess(t('manager_asset.asset.success.delete'));
             await fetchData(page, rowsPerPage, keyword, statusFilter);
         } catch (err : any) {
             if (err  ) {
                 setError(err.response?.data?.message || err.error);
                 console.error('Error deleting asset:', err.response?.data?.message || err.error);
             } else {
-                setError('An unexpected error occurred.');
+                setError(t('manager_asset.asset.errors.unexpected'));
                 console.error('Error deleting asset:', err);
             }
         } finally {
@@ -397,10 +399,10 @@ const handleStatusFilterChange = (e: SelectChangeEvent<string>) => {
 
 return (
     <div className="p-4">
-        <h2 className="text-2xl font-bold mb-4">Assets</h2>
+        <h2 className="text-2xl font-bold mb-4">{t('manager_asset.asset.title')}</h2>
 
         <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
-            Create Asset
+            {t('manager_asset.asset.button_create')}
         </Button>
 
         {/* Loading Indicator */}
@@ -429,7 +431,7 @@ return (
                     <Grid container spacing={2}>
                         <Grid size={{xs: 12, md: 6}}>
                             <TextField
-                                label="Search"
+                                label={t('manager_asset.asset.button_search')}
                                 value={keyword}
                                 onChange={handleKeywordChange}
                                 variant="outlined"
@@ -439,21 +441,21 @@ return (
                         </Grid>
                         <Grid size={{xs: 12, md: 6}}>
                             <FormControl fullWidth variant="outlined">
-                                <InputLabel id="status-filter-label">Filter by Status</InputLabel>
+                                <InputLabel id="status-filter-label">{t('manager_asset.asset.button_filter')}</InputLabel>
                                 <Select
                                     labelId="status-filter-label"
                                     id="status-filter"
                                     value={statusFilter}
                                     onChange={handleStatusFilterChange}
-                                    label="Filter by Status"
+                                    label={t('manager_asset.asset.button_filter')}
                                 >
                                     <MenuItem value="">
-                                        <em>All Statuses</em>
+                                        <em>{t('manager_asset.asset.all_status')}</em>
                                     </MenuItem>
-                                    <MenuItem value={Status.AVAILABLE}>Available</MenuItem>
-                                    <MenuItem value={Status.IN_USE}>In Use</MenuItem>
-                                    <MenuItem value={Status.MAINTENANCE}>Maintenance</MenuItem>
-                                    <MenuItem value={Status.RETIRED}>Retired</MenuItem>
+                                    <MenuItem value={Status.AVAILABLE}>{t('manager_asset.asset.available_status')}</MenuItem>
+                                    <MenuItem value={Status.IN_USE}>{t('manager_asset.asset.in_use_status')}</MenuItem>
+                                    <MenuItem value={Status.MAINTENANCE}>{t('manager_asset.asset.maintenance_status')}</MenuItem>
+                                    <MenuItem value={Status.RETIRED}>{t('manager_asset.asset.retired_status')}</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
@@ -465,17 +467,17 @@ return (
                         <TableHead>
                             <TableRow>
                                 <TableCell>No.</TableCell>
-                                <TableCell>Image</TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Description</TableCell>
-                                <TableCell>Serial Number</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Purchase Date</TableCell>
-                                <TableCell>Price (VND)</TableCell>
-                                <TableCell>Category</TableCell>
-                                <TableCell>Location</TableCell>
-                                <TableCell sx={{width: '1%'}}>Assigned User</TableCell>
-                                <TableCell sx={{width: '10%'}}>Actions</TableCell>
+                                <TableCell>{t('manager_asset.asset.image')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.name')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.description')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.serialNumber')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.status')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.purchase_date')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.price')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.category')}</TableCell>
+                                <TableCell>{t('manager_asset.asset.location')}</TableCell>
+                                <TableCell sx={{width: '1%'}}>{t('manager_asset.asset.assigned_user')}</TableCell>
+                                <TableCell sx={{width: '10%'}}>{t('manager_asset.asset.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -543,7 +545,7 @@ return (
                             {data.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={12} align="center">
-                                        No assets found
+                                        {t('manager_asset.asset.no_asset')}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -562,6 +564,7 @@ return (
                         onRowsPerPageChange={handleChangeRowsPerPage}
                         showFirstButton
                         showLastButton
+                        labelRowsPerPage={t("pagination.rowsPerPage")}
                     />
                 </Box>
             </div>
@@ -569,12 +572,12 @@ return (
 
         {/* Dialog Create/Update */}
         <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-            <DialogTitle>{editAsset ? 'Update Asset' : 'Create Asset'}</DialogTitle>
+            <DialogTitle>{editAsset ? t('manager_asset.asset.update_title') : t('manager_asset.asset.create_title')}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid size={{xs: 12, md: 6}}>
                         <TextField
-                            label="Name"
+                            label={t('manager_asset.asset.name')}
                             name="name"
                             value={form.name}
                             onChange={handleInputChange}
@@ -584,7 +587,7 @@ return (
                             sx={{mt: 2}}
                         />
                         <TextField
-                            label="Description"
+                            label={t('manager_asset.asset.description')}
                             name="description"
                             value={form.description}
                             onChange={handleInputChange}
@@ -594,7 +597,7 @@ return (
                             sx={{marginTop: 2}}
                         />
                         <TextField
-                            label="Serial Number"
+                            label={t('manager_asset.asset.serialNumber')}
                             name="serialNumber"
                             value={form.serialNumber || generateSerialNumber()}
                             onChange={handleInputChange}
@@ -604,7 +607,7 @@ return (
                             sx={{marginTop: 2}}
                         />
                         <FormControl fullWidth required sx={{marginTop: 2}}>
-                            <InputLabel id="status-label">Status</InputLabel>
+                            <InputLabel id="status-label">{t('manager_asset.asset.status')}</InputLabel>
                             <Select
                                 labelId="status-label"
                                 label="Status"
@@ -612,14 +615,14 @@ return (
                                 value={form.status}
                                 onChange={handleInputChange}
                             >
-                                <MenuItem value={Status.IN_USE}>In Use</MenuItem>
-                                <MenuItem value={Status.AVAILABLE}>Available</MenuItem>
-                                <MenuItem value={Status.MAINTENANCE}>Maintenance</MenuItem>
-                                <MenuItem value={Status.RETIRED}>Retired</MenuItem>
+                                <MenuItem value={Status.AVAILABLE}>{t('manager_asset.asset.available_status')}</MenuItem>
+                                <MenuItem value={Status.IN_USE}>{t('manager_asset.asset.in_use_status')}</MenuItem>
+                                <MenuItem value={Status.MAINTENANCE}>{t('manager_asset.asset.maintenance_status')}</MenuItem>
+                                <MenuItem value={Status.RETIRED}>{t('manager_asset.asset.retired_status')}</MenuItem>
                             </Select>
                         </FormControl>
                         <TextField
-                            label="Purchase Date"
+                            label={t('manager_asset.asset.purchase_date')}
                             name="purchaseDate"
                             type="datetime-local"
                             value={form.purchaseDate}
@@ -632,7 +635,7 @@ return (
                             sx={{marginTop: 2}}
                         />
                         <TextField
-                            label="Price (VND)"
+                            label={t('manager_asset.asset.price')}
                             name="price"
                             type="number"
                             value={form.price}
@@ -645,7 +648,7 @@ return (
                             }}
                         />
                         <FormControl fullWidth required sx={{marginTop: 2}}>
-                            <InputLabel id="category-label">Category</InputLabel>
+                            <InputLabel id="category-label">{t('manager_asset.asset.category')}</InputLabel>
                             <Select
                                 labelId="category-label"
                                 label="Category"
@@ -654,7 +657,7 @@ return (
                                 onChange={handleInputChange}
                             >
                                 <MenuItem value="0">
-                                    <em>Select a category</em>
+                                    <em>{t('manager_asset.asset.category_item')}</em>
                                 </MenuItem>
                                 {categories.map(cat => (
                                     <MenuItem key={cat.id} value={cat.id}>
@@ -664,7 +667,7 @@ return (
                             </Select>
                         </FormControl>
                         <FormControl fullWidth required sx={{marginTop: 2}}>
-                            <InputLabel id="location-label">Location</InputLabel>
+                            <InputLabel id="location-label">{t('manager_asset.asset.location')}</InputLabel>
                             <Select
                                 labelId="location-label"
                                 label="Location"
@@ -673,7 +676,7 @@ return (
                                 onChange={handleInputChange}
                             >
                                 <MenuItem value="0">
-                                    <em>Select a location</em>
+                                    <em>{t('manager_asset.asset.location_item')}</em>
                                 </MenuItem>
                                 {locations.map(loc => (
                                     <MenuItem key={loc.id} value={loc.id}>
@@ -704,7 +707,7 @@ return (
                                 component="label"
                                 color="primary"
                             >
-                                Upload Image
+                                {t('manager_asset.asset.button_upload')}
                                 <input
                                     type="file"
                                     hidden
@@ -732,26 +735,26 @@ return (
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleCloseDialog} variant="outlined">
-                    Cancel
+                    {t('manager_asset.asset.button_cancel')}
                 </Button>
                 <Button onClick={handleSave} variant="contained" color="primary">
-                    Save
+                    {t('manager_asset.asset.button_save')}
                 </Button>
             </DialogActions>
         </Dialog>
 
         {/* Dialog Delete Confirmation */}
         <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-            <DialogTitle>Confirm Delete</DialogTitle>
+            <DialogTitle>{t('manager_asset.asset.dialog_title')}</DialogTitle>
             <DialogContent>
-                <div>Are you sure you want to delete this asset?</div>
+                <div>{t('manager_asset.asset.dialog_content')}</div>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleCloseDeleteDialog} variant="outlined">
-                    Cancel
+                    {t('manager_asset.asset.button_cancel')}
                 </Button>
                 <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                    Delete
+                    {t('manager_asset.asset.button_delete')}
                 </Button>
             </DialogActions>
         </Dialog>

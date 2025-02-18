@@ -3,6 +3,7 @@ import { Box, Container, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
+import {useTranslation} from "react-i18next";
 
 
 const galleryImages = [
@@ -26,11 +27,12 @@ const galleryImages = [
 ];
 
 const Gallery: React.FC = () => {
+    const {t}=useTranslation();
     return (
         <Box py={8}>
             <Container maxWidth="lg">
                 <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    Image library
+                    {t('home.image_library')}
                 </Typography>
                 <Grid container spacing={4} mt={4} justifyContent="center">
                     <ImageList variant="masonry" cols={3} gap={8}>

@@ -1,23 +1,25 @@
-import LogTable from './Chart/LogTable';
+import DetailsTable from './Chart/DetailsTable.tsx';
 import BarChart from "./Chart/BarChart";
 import {TextField, Button, Container, Typography, Box} from '@mui/material';
 import CustomAlert from "../Support/CustomAlert.tsx";
 import Grid from '@mui/material/Grid2';
 import {useState} from "react";
-import LogDashboard from "./Chart/LogDashboard.tsx";
+import DailyCourseStatistic from "./Chart/DailyCourseStatistic.tsx";
+import {useTranslation} from "react-i18next";
 
 
 
 const DashboardContent = () => {
-    const [startDate, setStartDate] = useState<string>('2024-11-01');
-    const [endDate, setEndDate] = useState<string>('2024-12-02');
+    const {t}=useTranslation();
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
 
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
     const handleApplyDates = () => {
         if (new Date(startDate) > new Date(endDate)) {
-            setErrorMessage('Start Date cannot be after End Date.');
+            setErrorMessage(t('dashboard.errors.startDate_big_endDate'));
             setErrorOpen(true);
             return;
         }
@@ -32,7 +34,7 @@ const DashboardContent = () => {
     return (
         <Box className="mx-auto ">
             <Typography variant="h4" gutterBottom className="pb-5 pl-5">
-                Dashboard
+                {t('dashboard.title')}
             </Typography>
             <CustomAlert
                 open={errorOpen}
@@ -44,7 +46,7 @@ const DashboardContent = () => {
             <Grid container spacing={2} alignItems="center" className="mb-8 ml-5 ">
                 <Grid >
                     <TextField
-                        label="Start Date"
+                        label={t('dashboard.startDate')}
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
@@ -57,7 +59,7 @@ const DashboardContent = () => {
                 </Grid>
                 <Grid >
                     <TextField
-                        label="End Date"
+                        label={t('dashboard.endDate')}
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
@@ -70,16 +72,16 @@ const DashboardContent = () => {
                 </Grid>
                 <Grid >
                     <Button variant="contained" color="primary" onClick={handleApplyDates}>
-                        Apply Dates
+                        {t('dashboard.applyButton')}
                     </Button>
                 </Grid>
             </Grid>
             {/* Các component con nhận startDate và endDate qua props */}
             <div className="mb-8">
-                <LogDashboard startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
+                <DailyCourseStatistic startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
             </div>
             <div className="mb-8">
-                <LogTable startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
+                <DetailsTable startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
             </div>
             <div>
                 <BarChart />

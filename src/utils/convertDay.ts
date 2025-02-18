@@ -1,15 +1,14 @@
-// Hàm chuyển đổi dayOfWeek từ tiếng Anh sang tiếng Việt
-const convertDayOfWeekToVietnamese = (dayOfWeek: string): string => {
-    const daysMap: { [key: string]: string } = {
-        MONDAY: 'Thứ Hai',
-        TUESDAY: 'Thứ Ba',
-        WEDNESDAY: 'Thứ Tư',
-        THURSDAY: 'Thứ Năm',
-        FRIDAY: 'Thứ Sáu',
-        SATURDAY: 'Thứ Bảy',
-        SUNDAY: 'Chủ Nhật',
+
+import { useTranslation } from "react-i18next";
+
+const useConvertDayOfWeek = () => {
+    const { t } = useTranslation();
+
+    const convertDayOfWeek = (dayOfWeek: string): string => {
+        return t(`days.${dayOfWeek}`, { defaultValue: dayOfWeek });
     };
-    return daysMap[dayOfWeek] || dayOfWeek;
+
+    return { convertDayOfWeek };
 };
 
-export default  convertDayOfWeekToVietnamese;
+export default useConvertDayOfWeek;

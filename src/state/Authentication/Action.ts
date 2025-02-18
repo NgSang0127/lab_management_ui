@@ -1,5 +1,14 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {forgotPassword, getUser, loginUser, logout, registerUser, resetPassword, validateResetCode} from "./Reducer.ts";
+import {
+    forgotPassword,
+    getUser,
+    loginUser,
+    logout,
+    registerUser,
+    resetPassword, sendTFAEmail, toggleTfaFactor,
+    validateResetCode,
+    verifyOtp, verifyTFAEmail
+} from "./Reducer.ts";
 
 
 export interface Auth {
@@ -7,6 +16,8 @@ export interface Auth {
     refresh_token: string;
     role: string;
     message: string;
+    secretImageUri:string ;
+    tfaEnabled: boolean;
 }
 
 export interface User {
@@ -19,6 +30,7 @@ export interface User {
     email: string;
     image:string;
     role: Role;
+    twoFactorEnabled:boolean;
     accountLocked: boolean;
     enabled: boolean;
     createdDate: string;
@@ -29,7 +41,9 @@ export interface User {
 export enum Role {
     STUDENT = "STUDENT",
     TEACHER = "TEACHER",
-    ADMIN = "ADMIN"
+    ADMIN = "ADMIN",
+    OWNER="OWNER",
+    CO_OWNER="CO_OWNER"
 }
 
 interface AuthState {
@@ -52,7 +66,12 @@ const initialState: AuthState = {
 export const authSlice = createSlice({
     name: "auth",
     initialState,
-    reducers: {},
+    reducers: {
+        clearStatus: (state) => {
+            state.success = null;
+            state.error = null;
+        },
+    },
     extraReducers: (builder) => {
         builder
             // Register user
@@ -62,7 +81,7 @@ export const authSlice = createSlice({
             })
             .addCase(registerUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.auth = action.payload;
+                state.success = action.payload.message;
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -76,8 +95,10 @@ export const authSlice = createSlice({
             })
             .addCase(loginUser.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.auth = action.payload;
-
+                state.auth = action.payload.tfaEnabled ? null : action.payload;
+                state.success = action.payload.tfaEnabled
+                    ? "Please enter the OTP code after scanning the QR code."
+                    : null;
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.isLoading = false;
@@ -117,13 +138,13 @@ export const authSlice = createSlice({
             })
             .addCase(forgotPassword.fulfilled,(state,action)=>{
                 state.isLoading = false;
-                state.success=action.payload;
-                state.error=null;
+                // state.success=action.payload;
+                // state.error=null;
             })
             .addCase(forgotPassword.rejected,(state,action)=>{
                 state.isLoading = false;
-                state.success='';
-                state.error=action.payload as string;
+                // state.success='';
+                // state.error=action.payload as string;
             })
         //validate reset code
             .addCase(validateResetCode.pending,(state)=>{
@@ -132,12 +153,12 @@ export const authSlice = createSlice({
             })
             .addCase(validateResetCode.fulfilled,(state, action)=>{
                 state.isLoading = false;
-                state.success=action.payload;
-                state.error=null;
+                // state.success=action.payload;
+                // state.error=null;
             })
             .addCase(validateResetCode.rejected,(state, action)=>{
                 state.isLoading = false;
-                state.success='';
+                // state.success='';
                 state.error=action.payload as string;
             })
         //reset password
@@ -147,15 +168,80 @@ export const authSlice = createSlice({
             })
             .addCase(resetPassword.fulfilled,(state, action)=>{
                 state.isLoading = false;
-                state.success=action.payload;
+                // state.success=action.payload;
                 state.error=null;
             })
             .addCase(resetPassword.rejected,(state, action)=>{
+                state.isLoading = false;
+                // state.success='';
+                state.error=action.payload as string;
+            })
+            //verify otp
+            .addCase(verifyOtp.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(verifyOtp.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.auth = action.payload;
+                state.success = 'OTP Verified Successfully';
+            })
+            .addCase(verifyOtp.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+                state.success = '';
+            })
+            //toggle tfa
+            .addCase(toggleTfaFactor.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(toggleTfaFactor.fulfilled, (state, action) => {
+                state.isLoading = false;
+                if (state.auth) {
+                    state.auth.tfaEnabled = action.payload.tfaEnabled;
+                    state.auth.secretImageUri = action.payload.secretImageUri;
+                }
+                state.success = action.payload.message;
+            })
+            .addCase(toggleTfaFactor.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+                state.success = '';
+            })
+            //tfa email
+            .addCase(sendTFAEmail.pending,(state)=>{
+                state.isLoading = true;
+                state.error=null;
+            })
+            .addCase(sendTFAEmail.fulfilled,(state,action)=>{
+                state.isLoading = false;
+                state.success=action.payload;
+                state.error=null;
+            })
+            .addCase(sendTFAEmail.rejected,(state,action)=>{
+                state.isLoading = false;
+                state.success='';
+                state.error=action.payload as string;
+            })
+            //verifyTFAEmail
+            .addCase(verifyTFAEmail.pending,(state)=>{
+                state.isLoading = true;
+                state.error=null;
+            })
+            .addCase(verifyTFAEmail.fulfilled,(state,action)=>{
+                state.isLoading = false;
+                state.success=action.payload;
+                state.error=null;
+            })
+            .addCase(verifyTFAEmail.rejected,(state,action)=>{
                 state.isLoading = false;
                 state.success='';
                 state.error=action.payload as string;
             })
 
+
     },
 });
+export const { clearStatus } = authSlice.actions;
 export default authSlice.reducer;

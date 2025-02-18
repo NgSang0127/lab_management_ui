@@ -8,8 +8,8 @@ const UserProfile = () => {
     const navigate=useNavigate();
     const dispatch=useAppDispatch();
     const handleLogout = () => {
-        navigate("/");
         dispatch(logout());
+        navigate("/");
     }
 
     return (

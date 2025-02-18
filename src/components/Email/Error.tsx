@@ -1,8 +1,10 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {useTranslation} from "react-i18next";
 
 const Error: React.FC = () => {
+    const {t}=useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -25,13 +27,13 @@ const Error: React.FC = () => {
             p={3}
         >
             <Typography variant="h4" gutterBottom color="error">
-                Activation Failed
+                {t('check_email.error.title')}
             </Typography>
             <Typography variant="body1" color="textSecondary" paragraph>
                 {errorMessage}
             </Typography>
             <Button variant="contained" color="primary" onClick={handleRetry}>
-                Retry
+                {t('check_email.error.button')}
             </Button>
         </Box>
     );

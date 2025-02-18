@@ -6,7 +6,8 @@ import {getRangeWeek} from '../../state/Timetable/Reducer';
 import {SelectChangeEvent} from "@mui/material/Select";
 import calculateWeeks from "../../utils/calculateWeeks";
 import {setSelectedWeek} from "../../state/Timetable/Action.ts";
-import {endOfDay, isWithinInterval, parse, startOfDay} from 'date-fns'; // Import từ date-fns
+import {endOfDay, isWithinInterval, parse, startOfDay} from 'date-fns';
+import {useTranslation} from "react-i18next"; // Import từ date-fns
 
 interface SelectWeekProps {
     onWeekChange: (week: { startDate: string, endDate: string }) => void;
@@ -14,6 +15,7 @@ interface SelectWeekProps {
 }
 
 const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
     const { weekRange, selectedWeek, isLoading, error } = useSelector((state: RootState) => state.timetable);
     const [weeks, setWeeks] = React.useState<Array<{ startDate: string, endDate: string }>>([]);
@@ -87,12 +89,12 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
     }
 
     if (error) {
-        return <p>Có lỗi xảy ra khi tải dữ liệu tuần: {error}</p>;
+        return <p>{t('timetable.selectWeek.errors.week')} {error}</p>;
     }
 
     return (
         <FormControl size="small">
-            <InputLabel id="select-week-label">Select Week</InputLabel>
+            <InputLabel id="select-week-label">{t('timetable.selectWeek.title')}</InputLabel>
             <Select
                 labelId="select-week-label"
                 id="select-week"
@@ -118,11 +120,11 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
                                 fontWeight: selectedWeek?.startDate === week.startDate ? 'bold' : 'normal',
                             }}
                         >
-                            {`Week ${index + 1} [From ${week.startDate} -- To ${week.endDate}]`}
+                            {t('timetable.selectWeek.content',{index:index+1,startDate:week.startDate,endDate:week.endDate})}
                         </MenuItem>
                     ))
                 ) : (
-                    <MenuItem disabled>Không có dữ liệu tuần</MenuItem>
+                    <MenuItem disabled>{t('timetable.selectWeek.no_data')}</MenuItem>
                 )}
             </Select>
         </FormControl>

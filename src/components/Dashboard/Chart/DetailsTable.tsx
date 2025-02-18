@@ -16,15 +16,17 @@ import {
 import { RootState, useAppDispatch } from "../../../state/store";
 import { getLogsBetween } from "../../../state/Dashboard/Reducer";
 import CustomAlert from "../../Support/CustomAlert";
+import {useTranslation} from "react-i18next";
 
-interface LogTableProps {
+interface DetailsTableProps {
     startDate: string;
     endDate: string;
     setError: (msg: string) => void;
     setErrorOpen: (open: boolean) => void;
 }
 
-const LogTable: React.FC<LogTableProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
+const DetailsTable: React.FC<DetailsTableProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
 
     const { logs, isLoading, error, totalElements } = useSelector(
@@ -65,7 +67,7 @@ const LogTable: React.FC<LogTableProps> = ({ startDate, endDate, setError, setEr
     return (
         <div className="h-full px-7">
             <Typography variant="h5" className="pb-7">
-                Log Details
+                {t('dashboard.detailsTable.title')}
             </Typography>
             <CustomAlert
                 open={error.getLogsBetween ? true : false}
@@ -87,13 +89,13 @@ const LogTable: React.FC<LogTableProps> = ({ startDate, endDate, setError, setEr
                     <Table sx={{ minWidth: 650 }} aria-label="logs table">
                         <TableHead>
                             <TableRow>
-                                <TableCell>Timestamp</TableCell>
-                                <TableCell>Endpoint</TableCell>
-                                <TableCell>Action</TableCell>
-                                <TableCell>User</TableCell>
-                                <TableCell>Course</TableCell>
-                                <TableCell>IP Address</TableCell>
-                                <TableCell>User Agent</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.timestamp')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.endpoint')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.action')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.user')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.course')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.ip')}</TableCell>
+                                <TableCell>{t('dashboard.detailsTable.userAgent')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -112,13 +114,14 @@ const LogTable: React.FC<LogTableProps> = ({ startDate, endDate, setError, setEr
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={7} align="center">
-                                        No logs found
+                                        {t('dashboard.detailsTable.no_data')}
                                     </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
                     <TablePagination
+                        labelRowsPerPage={t("pagination.rowsPerPage")}
                         className="pr-5"
                         rowsPerPageOptions={[5, 10, 25]}
                         component="div"
@@ -137,4 +140,4 @@ const LogTable: React.FC<LogTableProps> = ({ startDate, endDate, setError, setEr
     );
 };
 
-export default LogTable;
+export default DetailsTable;

@@ -3,6 +3,7 @@ import { Autocomplete, TextField, CircularProgress, Paper } from '@mui/material'
 import { AssetResponse, fetchAssets } from '../../api/asset/assetApi.ts';
 import debounce from 'lodash.debounce';
 import { styled } from '@mui/material/styles';
+import {useTranslation} from "react-i18next";
 
 // Tùy chỉnh màu sắc của Paper (dropdown)
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -15,6 +16,7 @@ interface AssetSelectProps {
 }
 
 const AssetSelect: React.FC<AssetSelectProps> = ({ selectedAssetId, setSelectedAssetId }) => {
+    const {t}=useTranslation();
     const [inputValue, setInputValue] = useState<string>('');
     const [options, setOptions] = useState<AssetResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -89,13 +91,13 @@ const AssetSelect: React.FC<AssetSelectProps> = ({ selectedAssetId, setSelectedA
             }}
 
             noOptionsText={
-                inputValue.length < 2 ? 'Nhập ít nhất 2 ký tự để tìm kiếm' : 'Không tìm thấy tài sản'
+                inputValue.length < 2 ? t('manager_asset.asset_select.inputValue') : t('manager_asset.asset_select.defaultValue')
             }
             PaperComponent={(props) => <StyledPaper {...props} />}
             renderInput={(params) => (
                 <TextField
                     {...params}
-                    label="Select Asset"
+                    label={t('manager_asset.asset_select.label')}
                     variant="outlined"
                     fullWidth
                     InputProps={{

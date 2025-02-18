@@ -1,9 +1,11 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import {useTranslation} from "react-i18next";
 
 const Success: React.FC = () => {
     const navigate = useNavigate();
+    const {t}=useTranslation();
 
     const handleContinue = () => {
         navigate('/account/signin');
@@ -20,13 +22,13 @@ const Success: React.FC = () => {
             p={3}
         >
             <Typography variant="h4" gutterBottom>
-                Account Activated Successfully!
+                {t('check_email.success.title')}
             </Typography>
             <Typography variant="body1" color="textSecondary" paragraph>
-                Your account has been activated. You can now log in and start using the application.
+                {t('check_email.success.content')}
             </Typography>
             <Button variant="contained" color="primary" onClick={handleContinue}>
-                Continue
+                {t('check_email.success.button')}
             </Button>
         </Box>
     );

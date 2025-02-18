@@ -14,9 +14,11 @@ import { createTimetable } from '../../state/Timetable/Reducer';
 import { periods, rooms } from "../../utils/utilsTimetable";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
+import {useTranslation} from "react-i18next";
 
 
 const CreateTimetable: React.FC = () => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
     const { isLoading, error } = useSelector((state: RootState) => state.timetable);
 
@@ -49,12 +51,12 @@ const CreateTimetable: React.FC = () => {
         e.preventDefault();
 
         if (!timetableName || !roomName || startLesson === '' || endLesson === '' || !date || !instructorId || !description) {
-            handleAlert('Please fill in all the required fields.', 'error');
+            handleAlert(t('timetable.createTimetable.errors.allFields'), 'error');
             return;
         }
 
         if (Number(startLesson) >= Number(endLesson)) {
-            handleAlert('End lesson must be after start lesson.', 'error');
+            handleAlert(t('timetable.createTimetable.errors.startLesson_big_endLesson'), 'error');
             return;
         }
 
@@ -71,7 +73,7 @@ const CreateTimetable: React.FC = () => {
 
         try {
             await dispatch(createTimetable(timetableData)).unwrap();
-            handleAlert('Timetable created successfully!', 'success');
+            handleAlert(t('timetable.createTimetable.success.create'), 'success');
             // Reset form
             setTimetableName('');
             setRoomName('');
@@ -81,14 +83,14 @@ const CreateTimetable: React.FC = () => {
             setInstructorId('');
             setDescription('');
         } catch (err: any) {
-            handleAlert(`Error creating timetable: ${err.message || err}`, 'error');
+            handleAlert((t('timetable.createTimetable.errors.allFields',{error: (err.message || err)})), 'error');
         }
     };
 
     // Handle end lesson change with validation
     const handleEndLessonChange = (value: number) => {
         if (startLesson !== '' && value <= Number(startLesson)) {
-            handleAlert('End lesson must be greater than start lesson.', 'error');
+            handleAlert(t('timetable.createTimetable.errors.startLesson_big_endLesson'), 'error');
             setEndLesson('');
         } else {
             setEndLesson(value);
@@ -98,11 +100,11 @@ const CreateTimetable: React.FC = () => {
     return (
         <div style={{ maxWidth: '700px', margin: '0 auto', padding: '40px 20px' }}>
             <Typography variant="h4" align="center" gutterBottom color="primary">
-                Create Timetable
+                {t('timetable.createTimetable.title')}
             </Typography>
             <form onSubmit={handleSubmit} style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
                 <TextField
-                    label="Timetable Name"
+                    label={t('timetable.createTimetable.name')}
                     value={timetableName}
                     onChange={(e) => setTimetableName(e.target.value)}
                     fullWidth
@@ -112,11 +114,11 @@ const CreateTimetable: React.FC = () => {
 
                 {/* Room Selection */}
                 <FormControl fullWidth required margin="normal">
-                    <InputLabel>Room</InputLabel>
+                    <InputLabel>{t('timetable.createTimetable.room')}</InputLabel>
                     <Select
                         value={roomName}
                         onChange={(e) => setRoomName(e.target.value as string)}
-                        label="Room"
+                        label={t('timetable.createTimetable.room')}
                     >
                         {rooms.map((room, index) => (
                             <MenuItem key={index} value={room}>
@@ -128,15 +130,15 @@ const CreateTimetable: React.FC = () => {
 
                 {/* Start Lesson Selection */}
                 <FormControl fullWidth required margin="normal">
-                    <InputLabel>Start Lesson</InputLabel>
+                    <InputLabel>{t('timetable.createTimetable.startLesson')}</InputLabel>
                     <Select
                         value={startLesson}
                         onChange={(e) => setStartLesson(e.target.value as number)}
-                        label="Start Lesson"
+                        label={t('timetable.createTimetable.startLesson')}
                     >
                         {periods.map((period, index) => (
                             <MenuItem key={index} value={period}>
-                                {`Lesson ${period}`}
+                                {t('timetable.createTimetable.period')} {period}
                             </MenuItem>
                         ))}
                     </Select>
@@ -144,15 +146,15 @@ const CreateTimetable: React.FC = () => {
 
                 {/* End Lesson Selection */}
                 <FormControl fullWidth required margin="normal">
-                    <InputLabel>End Lesson</InputLabel>
+                    <InputLabel>{t('timetable.createTimetable.endLesson')}</InputLabel>
                     <Select
                         value={endLesson}
                         onChange={(e) => handleEndLessonChange(e.target.value as number)}
-                        label="End Lesson"
+                        label={t('timetable.createTimetable.endLesson')}
                     >
                         {periods.map((period, index) => (
                             <MenuItem key={index} value={period}>
-                                {`Lesson ${period}`}
+                                {t('timetable.createTimetable.period')} {period}
                             </MenuItem>
                         ))}
                     </Select>
@@ -160,7 +162,7 @@ const CreateTimetable: React.FC = () => {
 
                 {/* Date Selection */}
                 <TextField
-                    label="Date"
+                    label={t('timetable.createTimetable.date')}
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
@@ -175,7 +177,7 @@ const CreateTimetable: React.FC = () => {
 
                 {/* Instructor ID */}
                 <TextField
-                    label="Instructor ID"
+                    label={t('timetable.createTimetable.instructorId')}
                     value={instructorId}
                     onChange={(e) => setInstructorId(e.target.value)}
                     fullWidth
@@ -185,7 +187,7 @@ const CreateTimetable: React.FC = () => {
 
                 {/* Description */}
                 <TextField
-                    label="Description"
+                    label={t('timetable.createTimetable.description')}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     fullWidth
@@ -214,7 +216,7 @@ const CreateTimetable: React.FC = () => {
                     disabled={isLoading}
                     style={{ marginTop: '20px' }}
                 >
-                    {isLoading ? 'Submitting...' : 'Create Timetable'}
+                    {isLoading ? t('timetable.createTimetable.submit_button'): t('timetable.createTimetable.create_button')}
                 </Button>
             </form>
 

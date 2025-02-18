@@ -28,6 +28,7 @@ import {logout} from "../../state/Authentication/Reducer.ts";
 import {endSession} from "../../state/User/Reducer.ts";
 import {snipeItPath} from "../../route/SnipeItRoute.tsx";
 import {SidebarContext} from "../../context/SidebarContext.tsx";
+import {useTranslation} from "react-i18next";
 const SIDEBAR_WIDTH = 250;
 const COLLAPSED_WIDTH = 80;
 const HOVER_COLOR = '#35dae3';
@@ -35,6 +36,7 @@ const ACTIVE_COLOR = '#73f8e7';
 const SIDEBAR_BG_COLOR = '#12171d';
 const TEXT_COLOR = '#f1f6f9';
 const Sidebar: FC= ( ) => {
+    const{t}=useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {user} = useSelector((state: RootState) => state.auth);
@@ -43,15 +45,15 @@ const Sidebar: FC= ( ) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const menuItems = [
-        {text: 'Dashboard', icon: <Dashboard/>, link: ''},
-        {text: 'View Timetable', icon: <DateRange/>, link: 'by-week'},
-        {text: 'Bookings', icon: <ManageSearch/>, link: 'book'},
-        {text: 'Notifications', icon: <Notifications/>, link: 'notification'},
-        {text: 'Settings', icon: <Settings/>, link: 'setting'},
+        {text: t('sidebar.dashboard'), icon: <Dashboard/>, link: ''},
+        {text: t('sidebar.view_timetable'), icon: <DateRange/>, link: 'by-week'},
+        {text: t('sidebar.booking'), icon: <ManageSearch/>, link: 'book'},
+        {text: t('sidebar.notification'), icon: <Notifications/>, link: 'notification'},
+        {text: t('sidebar.setting'), icon: <Settings/>, link: 'setting'},
     ];
-    const handleLogout = () => {
+    const handleLogout = async () => {
         dispatch(endSession());
-        dispatch(logout() as never);
+        await dispatch(logout()).unwrap();
         navigate("/account/signin");
         if (isMobile) toggleSidebar();
     };

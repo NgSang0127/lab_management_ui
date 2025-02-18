@@ -31,6 +31,8 @@ import {logout} from "../../state/Authentication/Reducer.ts";
 import {endSession} from "../../state/User/Reducer.ts";
 import {snipeItPath} from "../../route/SnipeItRoute.tsx";
 import {SidebarContext} from "../../context/SidebarContext.tsx";
+import {useTranslation} from "react-i18next";
+import {clearStatus} from "../../state/Authentication/Action.ts";
 
 const SIDEBAR_WIDTH = 250;
 const COLLAPSED_WIDTH = 80;
@@ -40,6 +42,7 @@ const SIDEBAR_BG_COLOR = '#12171d';
 const TEXT_COLOR = '#f1f6f9';
 
 const SidebarAdmin: FC= ( ) => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {user} = useSelector((state: RootState) => state.auth);
@@ -49,9 +52,9 @@ const SidebarAdmin: FC= ( ) => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const menuItems = [
-        {text: 'Dashboard', icon: <Dashboard/>, link: ''},
+        {text: t('sidebar.dashboard'), icon: <Dashboard/>, link: ''},
         {
-            text: 'Manage Assets', icon: <AccountBalance/>, link: 'asset-management',
+            text: t('sidebar.manage_asset'), icon: <AccountBalance/>, link: 'asset-management',
             subMenu: [
                 {
                     link: 'asset',
@@ -73,19 +76,20 @@ const SidebarAdmin: FC= ( ) => {
                 }
             ]
         },
-        {text: 'Bookings', icon: <ManageSearch/>, link: 'book'},
-        {text: 'Notifications', icon: <Notifications/>, link: 'notification'},
-        {text: 'Cancel', icon: <SearchOff/>, link: 'timetable/cancel'},
-        {text: 'Import Timetable', icon: <ImportExport/>, link: 'timetable/import'},
-        {text: 'User Management', icon: <People/>, link: 'user-management'},
-        {text: 'Settings', icon: <Settings/>, link: 'setting'},
+        {text: t('sidebar.booking'), icon: <ManageSearch/>, link: 'book'},
+        {text: t('sidebar.notification'), icon: <Notifications/>, link: 'notification'},
+        {text: t('sidebar.cancel'), icon: <SearchOff/>, link: 'timetable/cancel'},
+        {text: t('sidebar.import'), icon: <ImportExport/>, link: 'timetable/import'},
+        {text: t('sidebar.user_management'), icon: <People/>, link: 'user-management'},
+        {text: t('sidebar.setting'), icon: <Settings/>, link: 'setting'},
     ];
 
 
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         dispatch(endSession());
-        dispatch(logout() as never);
+        await dispatch(logout()).unwrap();
+        dispatch(clearStatus())
         navigate("/account/signin");
         if (isMobile) toggleSidebar();
     };
@@ -187,7 +191,7 @@ const SidebarAdmin: FC= ( ) => {
                         height: '64px',
                     }}
                 >
-                    {isSidebarOpen && <Typography variant="h6">Hi ! {user?.username}</Typography>}
+                    {isSidebarOpen && <Typography variant="h6">{t('sidebar.welcome')} ! {user?.username}</Typography>}
                     <IconButton onClick={toggleSidebar}
                                 sx={{color: 'white', border: 'none', outline: 'none', boxShadow: 'none'}}>
                         {isSidebarOpen ? <Close/> : <Menu/>}
@@ -222,7 +226,7 @@ const SidebarAdmin: FC= ( ) => {
                             >
                                 <ExitToApp/>
                             </ListItemIcon>
-                            <ListItemText primary="Logout" sx={{opacity: isSidebarOpen ? 1 : 0}}/>
+                            <ListItemText primary={t('sidebar.logout')} sx={{opacity: isSidebarOpen ? 1 : 0}}/>
                         </ListItemButton>
                     </ListItem>
                 </List>

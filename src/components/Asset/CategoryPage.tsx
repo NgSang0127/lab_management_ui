@@ -27,6 +27,7 @@ import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {useTranslation} from "react-i18next";
 
 interface Category {
     id: number;
@@ -35,6 +36,7 @@ interface Category {
 }
 
 const CategoryPage: React.FC = () => {
+    const {t}=useTranslation();
     const [data, setData] = useState<CategoryResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,7 @@ const CategoryPage: React.FC = () => {
             if (err ) {
                 setError(err.response?.data?.message || err.error);
             } else {
-                setError('An unexpected error occurred.');
+                setError(t('manager_asset.category.errors.unexpected'));
             }
         } finally {
             setLoading(false);
@@ -120,7 +122,7 @@ const CategoryPage: React.FC = () => {
     const handleSave = async () => {
         // Kiểm tra các trường bắt buộc
         if (name.trim() === '') {
-            setError('Name is required.');
+            setError(t('manager_asset.category.name'));
             return;
         }
         try {
@@ -128,10 +130,10 @@ const CategoryPage: React.FC = () => {
             setError(null);
             if (editCategory) {
                 await putUpdateCategoryById(editCategory.id, { id: editCategory.id, name, description });
-                setSuccess('Category updated successfully.');
+                setSuccess(t('manager_asset.category.success.update'));
             } else {
                 await postCreateCategory({ id: 0, name, description });
-                setSuccess('Category created successfully.');
+                setSuccess(t('manager_asset.category.success.create'));
             }
             await fetchData();
             handleCloseDialog();
@@ -139,7 +141,7 @@ const CategoryPage: React.FC = () => {
             if (err) {
                 setError(err.error || err.response?.data?.message);
             } else {
-                setError('An unexpected error occurred.');
+                setError(t('manager_asset.category.errors.unexpected'));
             }
         } finally {
             setLoading(false);
@@ -163,13 +165,13 @@ const CategoryPage: React.FC = () => {
                 setLoading(true);
                 setError(null);
                 await deleteCategoryById(deleteId);
-                setSuccess('Category deleted successfully.');
+                setSuccess(t('manager_asset.category.success.delete'));
                 await fetchData();
             } catch (err : any) {
                 if (err) {
                     setError(err.response?.data?.message || err.error);
                 } else {
-                    setError('An unexpected error occurred.');
+                    setError(t('manager_asset.category.errors.unexpected'));
                 }
             } finally {
                 setLoading(false);
@@ -180,10 +182,10 @@ const CategoryPage: React.FC = () => {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">Categories</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('manager_asset.category.title')}</h2>
 
             <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
-                Create Category
+                {t('manager_asset.category.button_create')}
             </Button>
 
             {/* Loading Indicator */}
@@ -213,9 +215,9 @@ const CategoryPage: React.FC = () => {
                                 <TableRow>
                                     <TableCell>No.</TableCell>
                                     <TableCell>ID</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Description</TableCell>
-                                    <TableCell>Actions</TableCell>
+                                    <TableCell>{t('manager_asset.category.name')}</TableCell>
+                                    <TableCell>{t('manager_asset.category.description')}</TableCell>
+                                    <TableCell>{t('manager_asset.category.actions')}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -249,7 +251,7 @@ const CategoryPage: React.FC = () => {
                                 {data.length === 0 && (
                                     <TableRow>
                                         <TableCell colSpan={5} align="center">
-                                            No categories found
+                                            {t('manager_asset.category.no_category')}
                                         </TableCell>
                                     </TableRow>
                                 )}
@@ -268,6 +270,7 @@ const CategoryPage: React.FC = () => {
                             onRowsPerPageChange={handleChangeRowsPerPage}
                             showFirstButton
                             showLastButton
+                            labelRowsPerPage={t("pagination.rowsPerPage")}
                         />
                     </Box>
                 </div>
@@ -275,10 +278,10 @@ const CategoryPage: React.FC = () => {
 
             {/* Dialog Create/Update */}
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>{editCategory ? 'Update Category' : 'Create Category'}</DialogTitle>
+                <DialogTitle>{editCategory ? t('manager_asset.category.update_title') : t('manager_asset.category.create_title')}</DialogTitle>
                 <DialogContent className="space-y-4">
                     <TextField
-                        label="Name"
+                        label={t('manager_asset.category.name')}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         variant="outlined"
@@ -287,7 +290,7 @@ const CategoryPage: React.FC = () => {
                         sx={{ marginTop: 2 }}
                     />
                     <TextField
-                        label="Description"
+                        label={t('manager_asset.category.name')}
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         fullWidth
@@ -297,26 +300,26 @@ const CategoryPage: React.FC = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} variant="outlined">
-                        Cancel
+                        {t('manager_asset.category.button_cancel')}
                     </Button>
                     <Button onClick={handleSave} variant="contained" color="primary">
-                        Save
+                        {t('manager_asset.category.button_save')}
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Dialog Xác nhận Xóa */}
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>Confirm Delete</DialogTitle>
+                <DialogTitle>{t('manager_asset.category.dialog_title')}</DialogTitle>
                 <DialogContent>
-                    <div>Are you sure you want to delete this category?</div>
+                    <div>{t('manager_asset.category.dialog_content')}</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog} variant="outlined">
-                        Cancel
+                        {t('manager_asset.category.button_cancel')}
                     </Button>
                     <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                        Delete
+                        {t('manager_asset.category.button_delete')}
                     </Button>
                 </DialogActions>
             </Dialog>

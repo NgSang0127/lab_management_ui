@@ -8,6 +8,7 @@ import {store} from "./state/store.ts";
 import router from "./route/Routes.tsx";
 import '@fontsource/roboto/400.css';
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import "./locales/i18n.ts"
 
 const queryClient = new QueryClient();
 

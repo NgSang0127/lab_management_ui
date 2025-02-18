@@ -24,10 +24,19 @@ import {
 import Grid from '@mui/material/Grid2';
 import { RootState, useAppDispatch } from "../../../state/store.ts";
 import { useSelector } from "react-redux";
-import { createUser, deleteUser, getUsers, updateUser } from "../../../state/Admin/Reducer.ts";
+import {
+    createUser,
+    deleteUser,
+    getUsers,
+    promoteUser,
+    transferOwnership,
+    updateUser
+} from "../../../state/Admin/Reducer.ts";
 import { CreateUserRequestByAdmin } from "../../../state/Admin/Action.ts";
 import { SelectChangeEvent } from "@mui/material/Select";
 import debounce from 'lodash.debounce';
+import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
+import {useTranslation} from "react-i18next";
 
 
 const modalStyle = {
@@ -58,14 +67,21 @@ interface FormData {
 }
 
 const UserManagement: React.FC = () => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
     const { user, isLoading, error, success, totalElements } = useSelector(
         (state: RootState) => state.admin
     );
+    const currentUser = useSelector((state: RootState) => state.auth.user);
+
+    console.log("userr",user);
+
+    console.log("Role:", currentUser?.role, typeof currentUser?.role); // Kiểm tra role và kiểu dữ liệu
 
     // State for modal visibility
     const [open, setOpen] = useState(false);
     const [editUser, setEditUser] = useState<(CreateUserRequestByAdmin & { id: number }) | null>(null);
+
 
     // Form state with all required fields
     const [formData, setFormData] = useState<FormData>({
@@ -150,18 +166,19 @@ const UserManagement: React.FC = () => {
         handleClose();
     };
 
-    // Handle input changes
     const handleChange = (
-        event: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }> | SelectChangeEvent<"student" | "teacher">
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<"student" | "teacher">
     ) => {
         const { name, value } = event.target;
-        if (name && typeof value === "string") {
-            setFormData({
-                ...formData,
-                [name]: value,
-            });
-        }
+
+        if (!name) return; // Đảm bảo có `name` trước khi cập nhật
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value, // Chấp nhận cả string từ TextField và Select
+        }));
     };
+
 
     // Handle toggle changes for switches
     const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,7 +191,7 @@ const UserManagement: React.FC = () => {
 
     // Delete user
     const handleDelete = (id: number) => {
-        if (window.confirm("Are you sure you want to delete this user?")) {
+        if (window.confirm(t('user_management.dialog'))) {
             dispatch(deleteUser(id));
         }
     };
@@ -205,7 +222,7 @@ const UserManagement: React.FC = () => {
     return (
         <div className="p-6">
             <Typography variant="h4" className="mb-6">
-                User Management
+                {t('user_management.title')}
             </Typography>
             <Button
                 variant="contained"
@@ -213,7 +230,7 @@ const UserManagement: React.FC = () => {
                 onClick={() => handleOpen()}
                 className="mb-6"
             >
-                Add User
+                {t('user_management.add_button')}
             </Button>
 
             {/* Filter Controls */}
@@ -221,29 +238,31 @@ const UserManagement: React.FC = () => {
                 <Grid container spacing={2}>
                     <Grid size={{ xs:12, sm:6}}>
                         <TextField
-                            label="Search"
+                            label={t('user_management.search')}
                             value={keyword}
                             onChange={handleKeywordChange}
                             variant="outlined"
                             fullWidth
-                            placeholder="Search by name, username..."
+                            placeholder={t('user_management.search_placeholder')}
                         />
                     </Grid>
                     <Grid size={{ xs:12, sm:6}}>
                         <FormControl fullWidth variant="outlined">
-                            <InputLabel id="role-filter-label">Filter by Role</InputLabel>
+                            <InputLabel id="role-filter-label">{t('user_management.filter')}</InputLabel>
                             <Select
                                 labelId="role-filter-label"
                                 id="role-filter"
                                 value={roleFilter}
                                 onChange={handleRoleFilterChange}
-                                label="Filter by Role"
+                                label={t('user_management.filter_placeholder')}
                             >
                                 <MenuItem value="">
-                                    <em>All Roles</em>
+                                    <em>{t('user_management.none')}</em>
                                 </MenuItem>
-                                <MenuItem value="student">Student</MenuItem>
-                                <MenuItem value="teacher">Teacher</MenuItem>
+                                <MenuItem value="student">{t('user_management.student')}</MenuItem>
+                                <MenuItem value="teacher">{t('user_management.teacher')}</MenuItem>
+                                <MenuItem value="owner">{t('user_management.owner')}</MenuItem>
+                                <MenuItem value="co_owner">{t('user_management.co_owner')}</MenuItem>
                                 {/* Thêm các role khác nếu có */}
                             </Select>
                         </FormControl>
@@ -252,11 +271,7 @@ const UserManagement: React.FC = () => {
             </Box>
 
             {/* Feedback Messages */}
-            {isLoading && (
-                <div className="flex justify-center items-center mb-4">
-                    <CircularProgress />
-                </div>
-            )}
+            {isLoading && <LoadingIndicator open={isLoading}/>}
             {error && (
                 <Typography variant="body2" color="error" className="mb-4">
                     {typeof error === "string" ? error : JSON.stringify(error)}
@@ -269,12 +284,12 @@ const UserManagement: React.FC = () => {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ minWidth: 50 }}><strong>ID</strong></TableCell>
-                            <TableCell sx={{ minWidth: 100 }}><strong>First Name</strong></TableCell>
-                            <TableCell sx={{ minWidth: 100 }}><strong>Last Name</strong></TableCell>
+                            <TableCell sx={{ minWidth: 50 }}><strong>No.</strong></TableCell>
+                            <TableCell sx={{ minWidth: 100 }}><strong>{t('user_management.firstName')}</strong></TableCell>
+                            <TableCell sx={{ minWidth: 100 }}><strong>{t('user_management.lastName')}</strong></TableCell>
                             <TableCell sx={{ minWidth: 200 }}><strong>Email</strong></TableCell>
-                            <TableCell sx={{ minWidth: 120 }}><strong>Role</strong></TableCell>
-                            <TableCell sx={{ minWidth: 150 }} align="center"><strong>Actions</strong></TableCell>
+                            <TableCell sx={{ minWidth: 120 }}><strong>{t('user_management.role')}</strong></TableCell>
+                            <TableCell sx={{ minWidth: 150 }} align="center"><strong>{t('user_management.actions')}</strong></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -285,37 +300,72 @@ const UserManagement: React.FC = () => {
                                     <TableCell>{u.firstName}</TableCell>
                                     <TableCell>{u.lastName}</TableCell>
                                     <TableCell>{u.email}</TableCell>
-                                    <TableCell>{u.role.charAt(0).toUpperCase() + u.role.slice(1)}</TableCell>
+                                    <TableCell>{u.role ? (typeof u.role === 'object' ? u.role.name : u.role) : "N/A"}</TableCell>
                                     <TableCell align="center">
                                         <Button
                                             variant="contained"
                                             color="secondary"
                                             size="small"
                                             onClick={() => handleOpen({
-                                                ...u,
-                                                password: "",
+                                                id: u.id,
+                                                firstName: u.firstName,
+                                                lastName: u.lastName,
+                                                email: u.email,
+                                                role: u.role, // Đảm bảo role là string
+                                                enabled: u.enabled,
+                                                username: u.username,
+                                                password: "", // Mặc định để trống vì lý do bảo mật
+                                                phoneNumber: u.phoneNumber || "",
+                                                accountLocked: u.accountLocked,
                                             })}
                                             sx={{
                                                 marginRight: 1,
                                             }}
                                         >
-                                            Edit
+                                            {t('user_management.edit_button')}
                                         </Button>
+                                        {/* Nếu là owner hoặc co_owner, hiển thị các nút đặc biệt */}
+                                        {((currentUser?.role === "OWNER" || currentUser?.role === "CO_OWNER") && (u?.role!== 'OWNER' && u?.role !== 'CO_OWNER')) && (
+                                            <>
+                                                <Button
+                                                    variant="contained"
+                                                    color="warning"
+                                                    size="small"
+                                                    onClick={() => dispatch(transferOwnership(u.id))}
+                                                    sx={{ marginRight: 1 }}
+                                                >
+                                                    {t('user_management.transfer_button')}
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="primary"
+                                                    size="small"
+                                                    sx={{
+                                                        marginRight: 1,
+                                                    }}
+                                                    onClick={() => dispatch(promoteUser(u.id ))}
+                                                >
+                                                    {t('user_management.promote_button')}
+                                                </Button>
+                                            </>
+                                        )}
+
                                         <Button
                                             variant="contained"
                                             color="error"
                                             size="small"
                                             onClick={() => handleDelete(u.id)}
                                         >
-                                            Delete
+                                            {t('user_management.delete_button')}
                                         </Button>
+
                                     </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={6} align="center">
-                                    No users found.
+                                    {t('user_management.no_data')}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -327,6 +377,7 @@ const UserManagement: React.FC = () => {
                     count={totalElements}
                     rowsPerPage={rowsPerPage}
                     page={page}
+                    labelRowsPerPage={t("pagination.rowsPerPage")}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                     showFirstButton
@@ -339,10 +390,10 @@ const UserManagement: React.FC = () => {
             <Modal open={open} onClose={handleClose}>
                 <Box sx={modalStyle}>
                     <Typography variant="h6" className="mb-4">
-                        {editUser ? "Edit User" : "Add User"}
+                        {editUser ? t('user_management.editUser') : t('user_management.add_button')}
                     </Typography>
                     <TextField
-                        label="First Name"
+                        label={t('user_management.firstName')}
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleChange}
@@ -350,7 +401,7 @@ const UserManagement: React.FC = () => {
                         required
                     />
                     <TextField
-                        label="Last Name"
+                        label={t('user_management.lastName')}
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
@@ -367,23 +418,23 @@ const UserManagement: React.FC = () => {
                         required
                     />
                     <FormControl fullWidth required>
-                        <InputLabel id="role-label">Role</InputLabel>
+                        <InputLabel id="role-label">{t('user_management.role')}</InputLabel>
                         <Select
                             labelId="role-label"
-                            label="Role"
+                            label={t('user_management.role')}
                             name="role"
                             value={formData.role}
                             onChange={handleChange}
                         >
                             <MenuItem value="" disabled>
-                                Select Role
+                                {t('user_management.select_role')}
                             </MenuItem>
-                            <MenuItem value="student">Student</MenuItem>
-                            <MenuItem value="teacher">Teacher</MenuItem>
+                            <MenuItem value="student">{t('user_management.student')}</MenuItem>
+                            <MenuItem value="teacher">{t('user_management.teacher')}</MenuItem>
                         </Select>
                     </FormControl>
                     <TextField
-                        label="Username"
+                        label={t('user_management.username')}
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
@@ -391,7 +442,7 @@ const UserManagement: React.FC = () => {
                         required
                     />
                     <TextField
-                        label="Password"
+                        label={t('user_management.password')}
                         name="password"
                         type="password"
                         value={formData.password}
@@ -400,7 +451,7 @@ const UserManagement: React.FC = () => {
                         required={!editUser} // Password required only for new users
                     />
                     <TextField
-                        label="Phone Number"
+                        label={t('user_management.phone')}
                         name="phoneNumber"
                         value={formData.phoneNumber}
                         onChange={handleChange}
@@ -415,7 +466,7 @@ const UserManagement: React.FC = () => {
                                 color="primary"
                             />
                         }
-                        label="Enabled"
+                        label={t('user_management.enabled')}
                     />
                     <FormControlLabel
                         control={
@@ -426,7 +477,7 @@ const UserManagement: React.FC = () => {
                                 color="secondary"
                             />
                         }
-                        label="Account Locked"
+                        label={t('user_management.accountLocked')}
                     />
                     <Button
                         variant="contained"
@@ -435,7 +486,7 @@ const UserManagement: React.FC = () => {
                         fullWidth
                         disabled={isLoading}
                     >
-                        {editUser ? "Update User" : "Create User"}
+                        {editUser ? t('user_management.update_button') : t('user_management.create_button')}
                     </Button>
                 </Box>
             </Modal>

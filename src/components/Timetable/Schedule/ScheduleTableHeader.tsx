@@ -1,9 +1,11 @@
 import React from 'react';
 import { TableHead, TableRow, TableCell } from '@mui/material';
-import {daysOfWeek} from "../../../utils/utilsTimetable.ts";
+import {useTranslation} from "react-i18next";
 
 
 const ScheduleHeader: React.FC = () => {
+    const {t}=useTranslation();
+    const translatedDaysOfWeek = t("timetable.daysOfWeek", { returnObjects: true }) as string [];
     return (
         <TableHead>
             <TableRow>
@@ -20,9 +22,9 @@ const ScheduleHeader: React.FC = () => {
                         width: { xs: '50px', sm: '80px' }
                     }}
                 >
-                    Room
+                    {t('timetable.scheduleTableHeader.room')}
                 </TableCell>
-                {daysOfWeek.map((day) => (
+                {translatedDaysOfWeek.map((day) => (
                     <TableCell
                         key={day}
                         sx={{
@@ -53,7 +55,7 @@ const ScheduleHeader: React.FC = () => {
                     }}
 
                 >
-                    Period
+                    {t('timetable.scheduleTableHeader.period')}
                 </TableCell>
             </TableRow>
         </TableHead>

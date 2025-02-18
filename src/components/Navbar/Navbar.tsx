@@ -10,7 +10,7 @@ import {
     Button,
     Drawer,
     useTheme,
-    useMediaQuery,
+    useMediaQuery, ToggleButtonGroup, ToggleButton,
 } from '@mui/material';
 import {
     Search as SearchIcon,
@@ -25,14 +25,31 @@ import { logout } from "../../state/Authentication/Reducer";
 import logo from "@images/logo.png";
 import SidebarAdmin from "../Dashboard/SidebarAdmin.tsx";
 import {SidebarContext} from "../../context/SidebarContext.tsx";
+import {useTranslation} from "react-i18next";
+import {styled} from "@mui/material/styles";
 
-// Define navigation items
-const navItems = [
-    { text: 'About Us', path: '/about' },
-    { text: 'View Timetable', path: '/timetable/by-week' },
-    { text: 'Featured', path: '/featured' },
-    { text: 'Contact Me', path: '/contact' },
-];
+// eslint-disable-next-line no-empty-pattern
+const CustomToggleButtonGroup = styled(ToggleButtonGroup)(({ }) => ({
+    borderRadius: "20px",
+    marginRight: "30px",
+    overflow: "hidden",
+    backgroundColor: "#c4dfdf",
+    "& .MuiToggleButton-root": {
+        border: "none",
+        padding: "8px 16px",
+        minWidth: "50px",
+        color: "#555",
+        fontWeight: "bold",
+        transition: "all 0.3s",
+    },
+    "& .MuiToggleButton-root.Mui-selected": {
+        backgroundColor: "#004e7f",
+        color: "#fff",
+    },
+    "& .MuiToggleButton-root:hover": {
+        backgroundColor: "#20e3ca",
+    },
+}));
 
 const Navbar: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -44,6 +61,30 @@ const Navbar: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+    const {t,i18n}=useTranslation();
+    const [language, setLanguage] = useState(i18n.language || "vn");
+
+    useEffect(() => {
+        i18n.changeLanguage(language);  // Ensure i18n is updated with the initial language
+    }, [language, i18n]);
+
+    const handleLanguageChange = (_event: React.MouseEvent<HTMLElement>, newLanguage: string | null) => {
+        if (newLanguage) {
+            setLanguage(newLanguage);
+            i18n.changeLanguage(newLanguage);
+        }
+    };
+
+    // Define navigation items
+    const navItems = [
+        { text: t("navbar.about_us"), path: "/about" },
+        { text: t("navbar.view_timetable"), path: "/timetable/by-week" },
+        { text: t("navbar.featured"), path: "/featured" },
+        { text: t("navbar.contact_me"), path: "/contact" },
+        { text: t('attendance.title'), path: "/attendance/checkAttendance" },
+    ];
+
+
     // Handle opening and closing of mobile drawer
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -51,7 +92,7 @@ const Navbar: React.FC = () => {
 
     // Handle avatar/menu clicks based on user role
     const handleAvatarClick = useCallback(() => {
-        if (user?.role === "ADMIN") {
+        if (user?.role === "ADMIN" || user?.role === "OWNER" || user?.role === "CO_OWNER") {
             navigate("/admin/hcmiu");
         } else if (user?.role === "TEACHER" || user?.role === "STUDENT") {
             navigate("/profile/dashboard");
@@ -172,7 +213,7 @@ const Navbar: React.FC = () => {
                         >
                             <SearchIcon />
                             <InputBase
-                                placeholder="Search…"
+                                placeholder={t('navbar.search')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={(e) => {
@@ -191,6 +232,16 @@ const Navbar: React.FC = () => {
                 )}
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CustomToggleButtonGroup
+                        value={language}
+                        exclusive
+                        onChange={handleLanguageChange}
+                        size="small"
+                    >
+                        <ToggleButton value="en">EN</ToggleButton>
+                        <ToggleButton value="vn">VN</ToggleButton>
+                    </CustomToggleButtonGroup>
+
                     {user?.enabled ? (
                         <>
                             <IconButton

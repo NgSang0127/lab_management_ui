@@ -25,5 +25,10 @@ export interface LoginRequestData {
     refresh_token: string;
     role: string;
     message: string;
-
+    secretImageUri:string ;
+    tfaEnabled: boolean;
+}
+export interface VerificationCodeRequest {
+    code:string;
+    username:string;
 }

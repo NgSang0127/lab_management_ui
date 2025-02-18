@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Button, Link } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import {useTranslation} from "react-i18next";
 
 interface CarouselItemProps {
     image: string;
@@ -26,6 +27,7 @@ const TextContainer = styled(Box)(({ theme }) => ({
 }));
 
 const CarouselItem: React.FC<CarouselItemProps> = ({ image, title, description, link }) => {
+    const {t}=useTranslation();
     return (
         <Box position="relative" width="100%" height={{ xs: '200px', sm: '400px', md: '500px' }}>
             <img
@@ -47,7 +49,7 @@ const CarouselItem: React.FC<CarouselItemProps> = ({ image, title, description, 
                 </Typography>
                 {link && (
                     <Button variant="contained" color="primary" component={Link} href={link}>
-                        Read More
+                        {t('home.read_more')}
                     </Button>
                 )}
             </TextContainer>

@@ -11,7 +11,7 @@ import {
     Avatar,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';
 import EventIcon from '@mui/icons-material/Event';
@@ -22,10 +22,11 @@ import ContactForm from "./ContactForm.tsx";
 import Stats from "./Stats.tsx";
 import Gallery from "./Gallery.tsx";
 import FAQ from "./FAQ.tsx";
+import {useTranslation} from "react-i18next";
 
 
 // Styled components
-const FeatureCard = styled(Card)(({ theme }) => ({
+const FeatureCard = styled(Card)(({theme}) => ({
     maxWidth: 345,
     textAlign: 'center',
     padding: theme.spacing(3),
@@ -36,7 +37,7 @@ const FeatureCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const NewsCard = styled(Card)(({ theme }) => ({
+const NewsCard = styled(Card)(({theme}) => ({
     display: 'flex',
     flexDirection: 'row',
     marginBottom: theme.spacing(3),
@@ -50,7 +51,7 @@ const NewsCard = styled(Card)(({ theme }) => ({
     },
 }));
 
-const TestimonialCard = styled(Card)(({ theme }) => ({
+const TestimonialCard = styled(Card)(({theme}) => ({
     padding: theme.spacing(4),
     textAlign: 'center',
     backgroundColor: theme.palette.grey[100],
@@ -64,21 +65,22 @@ const TestimonialCard = styled(Card)(({ theme }) => ({
 }));
 
 const Home: React.FC = () => {
+    const {t} = useTranslation();
     return (
         <Box>
             {/* Introduction Section */}
             <Box py={8} bgcolor="#f9f9f9">
                 <Container maxWidth="md">
                     <Typography variant="h3" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
-                        Welcome to the International University IT Lab
+                        {t('home.introduction.welcome')}
                     </Typography>
                     <Typography variant="h6" align="center" color="textSecondary" paragraph>
-                        Our labs provide modern facilities and a professional learning environment to support students and faculty in their research and projects.
+                        {t('home.introduction.introduce')}
                     </Typography>
                     <Box textAlign="center" mt={4}>
                         <Button variant="contained" color="primary" size="large" href="#features"
                                 startIcon={<ScienceIcon/>}>
-                            Learn More
+                            {t('home.introduction.learn_more')}
                         </Button>
                     </Box>
                 </Container>
@@ -91,7 +93,7 @@ const Home: React.FC = () => {
             <Box py={8} id="features" bgcolor="#ffffff">
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
-                        Main Functions
+                        {t('home.features.main_functions')}
                     </Typography>
                     <Grid container spacing={4} mt={4} justifyContent="center">
                         <Grid size={{xs: 12, md: 3, sm: 6}}>
@@ -101,10 +103,10 @@ const Home: React.FC = () => {
                                 </Box>
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
-                                        Device Management
+                                        {t('home.features.device_management')}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
-                                        Monitor and manage lab equipment efficiently and accurately.
+                                        {t('home.features.device_management_introduce')}
                                     </Typography>
                                 </CardContent>
                             </FeatureCard>
@@ -116,10 +118,10 @@ const Home: React.FC = () => {
                                 </Box>
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
-                                        Project Management
+                                        {t('home.features.project_management')}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
-                                        Support the management of research and development projects in the laboratory.
+                                        {t('home.features.project_management_introduce')}
                                     </Typography>
                                 </CardContent>
                             </FeatureCard>
@@ -131,10 +133,10 @@ const Home: React.FC = () => {
                                 </Box>
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
-                                        Member Management
+                                        {t('home.features.member_management')}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
-                                        Manage information and roles of lab members.
+                                        {t('home.features.member_management_introduce')}
                                     </Typography>
                                 </CardContent>
                             </FeatureCard>
@@ -146,11 +148,10 @@ const Home: React.FC = () => {
                                 </Box>
                                 <CardContent>
                                     <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
-                                        Timetable Management
+                                        {t('home.features.timetable_management')}
                                     </Typography>
                                     <Typography variant="body2" color="textSecondary">
-                                        Support viewing and scheduling effective schedules for lab activities.
-                                    </Typography>
+                                        {t('home.features.timetable_management_introduce')}                                    </Typography>
                                 </CardContent>
                             </FeatureCard>
                         </Grid>
@@ -165,7 +166,7 @@ const Home: React.FC = () => {
             <Box py={8} bgcolor="#f9f9f9">
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
-                        News and Events
+                        {t('home.news_and_events')}
                     </Typography>
                     <Grid container spacing={4} mt={4}>
                         {topNews.map((news, index) => (
@@ -187,7 +188,7 @@ const Home: React.FC = () => {
                                             </Typography>
                                             <Box mt={2}>
                                                 <Button size="small" color="primary" href="#">
-                                                    Read More
+                                                    {t('home.read_more')}
                                                 </Button>
                                             </Box>
                                         </CardContent>
@@ -203,7 +204,7 @@ const Home: React.FC = () => {
             <Box py={8}>
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
-                        User Feedback
+                        {t('home.user_feedback')}
                     </Typography>
                     <Grid container spacing={4} mt={4} justifyContent="center">
                         {testimonials.map((testimonial, index) => (
@@ -231,25 +232,25 @@ const Home: React.FC = () => {
             </Box>
 
             {/* FAQ Section */}
-            <FAQ />
+            <FAQ/>
             {/* Contact Section */}
             <Box py={8} bgcolor="#ffffff">
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
-                        Contact Us
+                        {t('home.contact_us.title')}
                     </Typography>
                     <Grid container spacing={4} mt={4}>
                         <Grid size={{xs: 12, md: 6}}>
                             <Box display="flex" flexDirection="column" alignItems="center" textAlign="center">
                                 <ContactMailIcon fontSize="large" color="primary"/>
                                 <Typography variant="h6" gutterBottom mt={2} sx={{fontWeight: 'medium'}}>
-                                    Contact Information
+                                    {t('home.contact_us.information')}
                                 </Typography>
                                 <Typography variant="body1" color="textSecondary" paragraph>
-                                    Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City
+                                    {t('home.contact_us.address')}
                                 </Typography>
                                 <Typography variant="body1" color="textSecondary">
-                                    Phone Number: (028) 37244270
+                                    {t('home.contact_us.phone')}
                                 </Typography>
                                 <Typography variant="body1" color="textSecondary">
                                     Email: <Link href="mailto:info@hcmiu.edu.vn" color="primary.light"
@@ -260,7 +261,7 @@ const Home: React.FC = () => {
                         <Grid size={{xs: 12, md: 6}}>
                             <Box>
                                 <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
-                                    Send Message
+                                    {t('home.contact_form.title')}
                                 </Typography>
                                 <ContactForm/>
                             </Box>

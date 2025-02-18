@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
     TextField,
     Button,
@@ -9,21 +9,25 @@ import {
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from '../../../state/store.ts';
-import { ChangePasswordRequest } from '../../../state/User/Action.ts';
-import { changePassword } from '../../../state/User/Reducer.ts';
+import {useSelector} from 'react-redux';
+import {RootState, useAppDispatch} from '../../../state/store.ts';
+import {ChangePasswordRequest} from '../../../state/User/Action.ts';
+import {changePassword} from '../../../state/User/Reducer.ts';
 import CustomAlert from "../../Support/CustomAlert.tsx";
 import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
-import { AlertColor } from '@mui/material/Alert';
+import {AlertColor} from '@mui/material/Alert';
+import {useTranslation} from "react-i18next";
 
 const PASSWORD_MIN_LENGTH = 8;
-const MISMATCH_ERROR = 'The new password and confirmation do not match!';
-const LENGTH_ERROR = `The new password must be at least ${PASSWORD_MIN_LENGTH} characters long!`;
 
 const ChangePassword: React.FC = () => {
+    const {t} = useTranslation();
+    const MISMATCH_ERROR = t('setting.errors.mismatch');
+    const LENGTH_ERROR = t('setting.errors.length',{length:PASSWORD_MIN_LENGTH});
+
+
     const dispatch = useAppDispatch();
-    const { isLoading, successMessage, errorMessage } = useSelector(
+    const {isLoading, successMessage, errorMessage} = useSelector(
         (state: RootState) => state.user
     );
 
@@ -51,12 +55,12 @@ const ChangePassword: React.FC = () => {
 
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
-        setAlert({ open: true, message, severity });
+        setAlert({open: true, message, severity});
     };
 
 
     const handleCloseAlert = useCallback(() => {
-        setAlert((prev) => ({ ...prev, open: false }));
+        setAlert((prev) => ({...prev, open: false}));
     }, []);
 
 
@@ -80,21 +84,21 @@ const ChangePassword: React.FC = () => {
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
-        const { name, value } = e.target;
-        setPasswordState((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setPasswordState((prev) => ({...prev, [name]: value}));
     };
 
 
     const togglePasswordVisibility = (field: keyof typeof visibilityState) => {
-        setVisibilityState((prev) => ({ ...prev, [field]: !prev[field] }));
+        setVisibilityState((prev) => ({...prev, [field]: !prev[field]}));
     };
 
 
     const handleSave = () => {
-        const { newPassword, confirmPassword, currentPassword } = passwordState;
+        const {newPassword, confirmPassword, currentPassword} = passwordState;
 
         if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
-            showAlert("Please fill in all fields.", 'error');
+            showAlert(t('setting.changePassword.errors.allFields'), 'error');
             return;
         }
 
@@ -127,7 +131,7 @@ const ChangePassword: React.FC = () => {
             }}
         >
             {/* Loading Indicator */}
-            {isLoading && <LoadingIndicator open={isLoading} />}
+            {isLoading && <LoadingIndicator open={isLoading}/>}
 
             <Typography
                 variant="h5"
@@ -137,20 +141,20 @@ const ChangePassword: React.FC = () => {
                     textAlign: 'center',
                 }}
             >
-                Security Settings
+                {t('setting.userProfile.security')}
             </Typography>
 
             {/* Password Fields */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                 {['currentPassword', 'newPassword', 'confirmPassword'].map((field) => (
                     <TextField
                         key={field}
                         label={
                             field === 'currentPassword'
-                                ? 'Current Password'
+                                ? t('setting.changePassword.currentPassword')
                                 : field === 'newPassword'
-                                    ? 'New Password'
-                                    : 'Confirm New Password'
+                                    ? t('setting.changePassword.newPassword')
+                                    : t('setting.changePassword.confirmPassword')
                         }
                         name={field}
                         type={visibilityState[field as keyof typeof visibilityState] ? 'text' : 'password'}
@@ -159,31 +163,33 @@ const ChangePassword: React.FC = () => {
                         fullWidth
                         required
                         slotProps={{
-                            input:{
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        onClick={() => togglePasswordVisibility(field as keyof typeof visibilityState)}
-                                        edge="end"
-                                        aria-label={`Toggle ${
-                                            field === 'currentPassword'
-                                                ? 'current password'
-                                                : field === 'newPassword'
-                                                    ? 'new password'
-                                                    : 'confirm password'
-                                        } visibility`}
-                                    >
-                                        {visibilityState[field as keyof typeof visibilityState] ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
-                            )},
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            onClick={() => togglePasswordVisibility(field as keyof typeof visibilityState)}
+                                            edge="end"
+                                            aria-label={`Toggle ${
+                                                field === 'currentPassword'
+                                                    ? 'current password'
+                                                    : field === 'newPassword'
+                                                        ? 'new password'
+                                                        : 'confirm password'
+                                            } visibility`}
+                                        >
+                                            {visibilityState[field as keyof typeof visibilityState] ? <VisibilityOff/> :
+                                                <Visibility/>}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            },
                         }}
                         aria-label={
                             field === 'currentPassword'
-                                ? 'Current Password'
+                                ? t('setting.changePassword.currentPassword')
                                 : field === 'newPassword'
-                                    ? 'New Password'
-                                    : 'Confirm Password'
+                                    ? t('setting.changePassword.newPassword')
+                                    : t('setting.changePassword.confirmPassword')
                         }
                     />
                 ))}
@@ -195,11 +201,11 @@ const ChangePassword: React.FC = () => {
                 color="primary"
                 size="large"
                 onClick={handleSave}
-                sx={{ width: '100%', padding: '12px', marginTop: '24px' }}
+                sx={{width: '100%', padding: '12px', marginTop: '24px'}}
                 disabled={isLoading}
                 aria-label="Save Password"
             >
-                Save Password
+                {t('setting.changePassword.button_save')}
             </Button>
 
             {/* Custom Alert for Notifications */}

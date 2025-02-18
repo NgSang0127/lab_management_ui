@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, Button, TextField, Typography } from '@mui/material';
+import {Avatar, Box, Button, TextField, Typography} from '@mui/material';
 import UploadIcon from '@mui/icons-material/Upload';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from "../../../state/store.ts";
@@ -7,9 +7,11 @@ import { uploadImageToCloudinary } from "../../../utils/uploadCloudinary.ts";
 import { updateInformationUser } from "../../../state/User/Reducer.ts";
 import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
 import CustomAlert from "../../Support/CustomAlert.tsx";
+import {useTranslation} from "react-i18next";
 
 
 const UserProfile: React.FC = () => {
+    const {t}=useTranslation()
     const dispatch = useAppDispatch();
     const {user} = useSelector((state: RootState) => state.auth);
 
@@ -77,9 +79,9 @@ const UserProfile: React.FC = () => {
             try {
                 const uploadedUrl = await uploadImageToCloudinary(e.target.files[0]);
                 updateUserState('image', uploadedUrl);
-                showAlert('Image uploaded successfully!', 'success');
+                showAlert(t('setting.userProfile.success.upload_image'), 'success');
             } catch (error) {
-                showAlert('An error occurred while uploading the image.', 'error');
+                showAlert(t('setting.userProfile.errors.upload_image'), 'error');
             } finally {
                 setIsUploading(false);
             }
@@ -91,9 +93,9 @@ const UserProfile: React.FC = () => {
         setLoading(true);
         try {
             await dispatch(updateInformationUser(userForm)).unwrap();
-            showAlert('Personal information updated successfully!', 'success');
+            showAlert(t('setting.userProfile.success.update_information'), 'success');
         } catch (error: any) {
-            showAlert('An error occurred while saving information.', 'error');
+            showAlert(t('setting.userProfile.errors.update_information'), 'error');
         } finally {
             setLoading(false);
         }
@@ -121,7 +123,7 @@ const UserProfile: React.FC = () => {
                     textAlign: 'center',
                 }}
             >
-                Personal Information Management
+                {t('setting.userProfile.title')}
             </Typography>
 
             <Box
@@ -158,7 +160,7 @@ const UserProfile: React.FC = () => {
                     disabled={isUploading}
                     aria-label="Upload Image"
                 >
-                    {isUploading ? 'Uploading...' : 'Upload Image'}
+                    {isUploading ? t('setting.userProfile.uploading') : t('setting.userProfile.button_upload')}
                     <input hidden accept="image/*" type="file" onChange={handleFileChange}/>
                 </Button>
             </Box>
@@ -172,7 +174,7 @@ const UserProfile: React.FC = () => {
                 }}
             >
                 <TextField
-                    label="First Name"
+                    label={t('setting.userProfile.firstName')}
                     name="firstName"
                     value={userForm.firstName}
                     onChange={handleInputChange}
@@ -181,7 +183,7 @@ const UserProfile: React.FC = () => {
                     aria-label="First Name"
                 />
                 <TextField
-                    label="Last Name"
+                    label={t('setting.userProfile.lastName')}
                     name="lastName"
                     value={userForm.lastName}
                     onChange={handleInputChange}
@@ -203,7 +205,7 @@ const UserProfile: React.FC = () => {
             />
 
             <TextField
-                label="Phone Number"
+                label={t('setting.userProfile.phone')}
                 name="phoneNumber"
                 value={userForm.phoneNumber}
                 onChange={handleInputChange}
@@ -213,7 +215,7 @@ const UserProfile: React.FC = () => {
             />
 
             <TextField
-                label="Username"
+                label={t('setting.userProfile.username')}
                 name="username"
                 value={userForm.username}
                 onChange={handleInputChange}
@@ -231,7 +233,7 @@ const UserProfile: React.FC = () => {
                 disabled={loading || isUploading}
                 aria-label="Save Personal Information"
             >
-                {loading ? <LoadingIndicator open={loading}/> : 'Save Personal Information'}
+                {loading ? <LoadingIndicator open={loading}/> : t('setting.userProfile.button_save')}
             </Button>
 
             {/* Alert for Notifications */}

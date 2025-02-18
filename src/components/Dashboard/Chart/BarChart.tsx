@@ -30,6 +30,7 @@ import {
     Legend,
     Title,
 } from "chart.js";
+import {useTranslation} from "react-i18next";
 
 ChartJS.register(
     CategoryScale,
@@ -64,6 +65,7 @@ interface FilterParams {
 }
 
 const BarChart: React.FC = () => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
     const { usageTimeUsers, isLoading, error, page, totalElements } = useSelector(
         (state: RootState) => state.usage
@@ -110,12 +112,12 @@ const BarChart: React.FC = () => {
             labels: usageTimeUsers.map((user) => user.username),
             datasets: [
                 {
-                    label: "Usage Time (minutes)",
+                    label: t('dashboard.barchart.label1'),
                     data: usageTimeUsers.map((user) => Math.floor(user.totalUsageTime / 60)),
                     backgroundColor: CHART_BACKGROUND_COLOR,
                 },
                 {
-                    label: "Maximum Allowed Time (4 hours)",
+                    label: t('dashboard.barchart.label2'),
                     data: usageTimeUsers.map(() => MAX_USAGE_TIME),
                     backgroundColor: MAX_USAGE_TIME_COLOR,
                     type: "line",
@@ -143,10 +145,10 @@ const BarChart: React.FC = () => {
                             const { datasetIndex, dataIndex } = context;
                             if (datasetIndex === 0) {
                                 const totalSeconds = usageTimeUsers[dataIndex]?.totalUsageTime || 0;
-                                return `Usage Time: ${formatTime(totalSeconds)}`;
+                                return (t('dashboard.barchart.usageTime',{time:formatTime(totalSeconds)}));
                             }
                             if (datasetIndex === 1) {
-                                return `Maximum Allowed: ${MAX_USAGE_TIME} minutes`;
+                                return (t('dashboard.barchart.maximum',{time:MAX_USAGE_TIME}));
                             }
                             return "";
                         },
@@ -158,8 +160,8 @@ const BarChart: React.FC = () => {
                 title: {
                     display: true,
                     text: formattedDate
-                        ? `Usage Time on ${formattedDate} (${filters.role})`
-                        : "Usage Time (No Date Selected)",
+                        ? (t('dashboard.barchart.text1',{date:formattedDate,role:filters.role}))
+                        : t('dashboard.barchart.text2'),
                 },
             },
             scales: {
@@ -169,7 +171,7 @@ const BarChart: React.FC = () => {
                     },
                     title: {
                         display: true,
-                        text: "Usage Time (minutes)",
+                        text: t('dashboard.barchart.label1'),
                     },
                     suggestedMax: MAX_USAGE_TIME + 60,
                 },
@@ -184,11 +186,11 @@ const BarChart: React.FC = () => {
         <Box ml={3}>
             {/* Filters */}
             <Typography variant="h5" className="pb-7">
-                Usage time users
+                {t('dashboard.barchart.title')}
             </Typography>
             <Box mb={2} display="flex" flexWrap="wrap" gap={2}>
                 <TextField
-                    label="Date"
+                    label={t('dashboard.barchart.date')}
                     type="date"
                     value={filters.date}
                     onChange={handleDateChange}
@@ -199,18 +201,18 @@ const BarChart: React.FC = () => {
                     sx={{ minWidth: 200 }}
                 />
                 <FormControl sx={{ minWidth: 150 }}>
-                    <InputLabel id="role-label">Role</InputLabel>
+                    <InputLabel id="role-label">{t('dashboard.barchart.role')}</InputLabel>
                     <Select
                         labelId="role-label"
                         value={filters.role}
-                        label="Role"
+                        label={t('dashboard.barchart.role')}
                         onChange={handleRoleChange}
                     >
                         <MenuItem value="">
-                            <em>None</em>
+                            <em>{t('dashboard.barchart.none')}</em>
                         </MenuItem>
-                        <MenuItem value="STUDENT">STUDENT</MenuItem>
-                        <MenuItem value="TEACHER">TEACHER</MenuItem>
+                        <MenuItem value="STUDENT">{t('dashboard.barchart.student')}</MenuItem>
+                        <MenuItem value="TEACHER">{t('dashboard.barchart.teacher')}</MenuItem>
                     </Select>
                 </FormControl>
             </Box>
@@ -227,8 +229,8 @@ const BarChart: React.FC = () => {
                 <Box textAlign="center" mt={2}>
                     <Typography color="textSecondary" variant="h6">
                         {error
-                            ? `Error: ${error}`
-                            : "No data available for the selected date and role."}
+                            ? t('dashboard.barchart.errors.error')
+                            : t('dashboard.barchart.errors.default')}
                     </Typography>
                 </Box>
             )}
@@ -249,7 +251,7 @@ const BarChart: React.FC = () => {
                         page={filters.page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}
-                        labelRowsPerPage="Rows per page:"
+                        labelRowsPerPage={t("pagination.rowsPerPage")}
                         showFirstButton
                         showLastButton
                     />

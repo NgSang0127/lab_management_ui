@@ -1,6 +1,6 @@
 import {User} from "../Authentication/Action.ts";
 import {createSlice} from "@reduxjs/toolkit";
-import {createUser, deleteUser, getUsers, updateUser} from "./Reducer.ts";
+import {createUser, deleteUser, getUsers, promoteUser, transferOwnership, updateUser} from "./Reducer.ts";
 
 export interface CreateUserRequestByAdmin{
     firstName: string;
@@ -12,7 +12,6 @@ export interface CreateUserRequestByAdmin{
     enabled: boolean;
     role:string;
     accountLocked: boolean;
-
 }
 
 interface AdminState{
@@ -71,7 +70,12 @@ export const adminSlice=createSlice({
             })
             .addCase(updateUser.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.success=action.payload;
+                state.success = "User updated successfully";
+
+                state.user = state.user.map(u =>
+                    u.id === action.payload.id ? { ...u, ...action.payload } : u
+                );
+
             })
             .addCase(updateUser.rejected,(state,action)=>{
                 state.isLoading=false;
@@ -84,7 +88,8 @@ export const adminSlice=createSlice({
             })
             .addCase(createUser.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.success=action.payload;
+                state.success = "User created successfully";
+                state.user.push(action.payload); // Thêm vào danh sách
             })
             .addCase(createUser.rejected,(state,action)=>{
                 state.isLoading=false;
@@ -97,9 +102,36 @@ export const adminSlice=createSlice({
             })
             .addCase(deleteUser.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.success=action.payload;
+                state.success = "User deleted successfully";
+                state.user = state.user.filter(u => u.id !== action.payload.id);
             })
             .addCase(deleteUser.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+            //transfer Ownership
+            .addCase(transferOwnership.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(transferOwnership.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.success=action.payload;
+            })
+            .addCase(transferOwnership.rejected,(state,action)=>{
+                state.isLoading=false;
+                state.error=action.payload as string;
+            })
+            //promote User co owner
+            .addCase(promoteUser.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(promoteUser.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.success=action.payload;
+            })
+            .addCase(promoteUser.rejected,(state,action)=>{
                 state.isLoading=false;
                 state.error=action.payload as string;
             })

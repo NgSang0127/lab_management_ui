@@ -1,21 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {TextField, Button, Box, Typography} from '@mui/material';
-import { useAppDispatch } from "../../state/store";
-import { useSelector } from "react-redux";
-import { RootState } from "../../state/store";
-import { validateResetCode } from "../../state/Authentication/Reducer";
-import { useNavigate } from "react-router-dom";
+import {useAppDispatch} from "../../state/store";
+import {useSelector} from "react-redux";
+import {RootState} from "../../state/store";
+import {forgotPassword, validateResetCode} from "../../state/Authentication/Reducer";
+import {useNavigate} from "react-router-dom";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
-
+import {useTranslation} from "react-i18next";
 
 
 const RESET_CODE_LENGTH = 6;
 
 const ResetCodeInput: React.FC = () => {
+    const {t} = useTranslation();
+
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { isLoading, success, error } = useSelector((state: RootState) => state.auth);
+    const {isLoading} = useSelector((state: RootState) => state.auth);
 
     const [code, setCode] = useState<string>('');
     const [alert, setAlert] = useState<{
@@ -29,24 +31,25 @@ const ResetCodeInput: React.FC = () => {
     });
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
-        setAlert({ open: true, message, severity });
+        setAlert({open: true, message, severity});
     };
 
     // Handle input value changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const value = e.target.value;
         if (/^\d$/.test(value) || value === '') {
-            const newCode = code.split('');
-            newCode[index] = value;
-            setCode(newCode.join(''));
+            setCode((prevCode) => {
+                const newCode = prevCode.split('');
+                newCode[index] = value;
+                return newCode.join('');
+            });
 
-            // Auto-focus on the next input if valid input and not the last field
             if (value && index < RESET_CODE_LENGTH - 1) {
-                const nextInput = document.getElementById(`code-input-${index + 1}`);
-                nextInput?.focus();
+                document.getElementById(`code-input-${index + 1}`)?.focus();
             }
         }
     };
+
 
     // Handle backspace key for navigation
     const handleBackspaceNavigation = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
@@ -57,33 +60,30 @@ const ResetCodeInput: React.FC = () => {
     };
 
     const handleSubmit = async () => {
+        if (isLoading) return; // Tránh gọi API khi đang loading
+
         if (code.length !== RESET_CODE_LENGTH) {
-            showAlert(`Please enter a ${RESET_CODE_LENGTH}-digit code.`, 'error');
+            showAlert(t('reset_code.errors.code', {length: RESET_CODE_LENGTH}), 'error');
             return;
         }
 
-        dispatch(validateResetCode({ code, newPassword: null }));
+        try {
+            const result = await dispatch(validateResetCode({code, newPassword: null})).unwrap();
+            showAlert(result, 'success');
+            setTimeout(() => {
 
-        if (isLoading) {
-            showAlert('Validating code...', 'info');
+                navigate('/account/reset-password', {state: {resetCode: code}});
+            }, 1000);
+            setCode('');
+        } catch (error) {
+            showAlert(error as string, 'error');
         }
+
     };
-
-    useEffect(() => {
-        if (success) {
-            showAlert(success, 'success');
-            // Navigate to reset password page with code as state
-            navigate('/account/reset-password', { state: { resetCode: code } });
-        }
-
-        if (error) {
-            showAlert(error, 'error');
-        }
-    }, [success, error, navigate, code]);
 
 
     const handleCloseAlert = () => {
-        setAlert(prev => ({ ...prev, open: false }));
+        setAlert(prev => ({...prev, open: false}));
     };
 
     // @ts-ignore
@@ -100,14 +100,14 @@ const ResetCodeInput: React.FC = () => {
                 borderRadius: '8px',
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                 backgroundColor: '#ffffff',
-                maxWidth: '400px',
+                maxWidth: '700px',
             }}
         >
-            <Typography variant="h5" sx={{ marginBottom: '24px', fontWeight: 'bold' }}>
-                Enter Reset Code
+            <Typography variant="h5" sx={{marginBottom: '24px', fontWeight: 'bold'}}>
+                {t('reset_code.title')}
             </Typography>
-            <Box sx={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
-                {Array.from({ length: RESET_CODE_LENGTH }).map((_, index) => (
+            <Box sx={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
+                {Array.from({length: RESET_CODE_LENGTH}).map((_, index) => (
                     <TextField
                         key={index}
                         variant="outlined"
@@ -115,7 +115,7 @@ const ResetCodeInput: React.FC = () => {
                         name={`code-${index}`}
                         inputProps={{
                             maxLength: 1,
-                            style: { textAlign: 'center', fontSize: '1.5rem', width: '50px' },
+                            style: {textAlign: 'center', fontSize: '1.5rem', width: '50px'},
                         }}
                         value={code[index] || ''}
                         onChange={(e) => handleInputChange(e, index)}
@@ -131,10 +131,16 @@ const ResetCodeInput: React.FC = () => {
                 size="large"
                 onClick={handleSubmit}
                 disabled={code.length !== RESET_CODE_LENGTH || isLoading}
-                sx={{ width: '100%', padding: '12px' }}
+                sx={{
+                    width: '100%', padding: '12px',
+                    "&:disabled": {
+                        backgroundColor: "#bdbdbd", // Màu nền khi disabled
+                        color: "#757575" // Màu chữ khi disabled
+                    }
+                }}
                 aria-label="Submit Reset Code"
             >
-                {isLoading ? <LoadingIndicator open={isLoading} /> : 'Submit'}
+                {isLoading ? <LoadingIndicator open={isLoading}/> : t('reset_code.submit')}
             </Button>
             {/* Custom Alert for Notifications */}
             <CustomAlert

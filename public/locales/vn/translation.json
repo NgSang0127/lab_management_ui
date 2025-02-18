@@ -1,0 +1,492 @@
+{
+  "signin": {
+    "title": "Đăng nhập",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "remember_me": "Ghi nhớ đăng nhập",
+    "or": "hoặc",
+    "forgot_password": "Quên mật khẩu?",
+    "button": "Đăng nhập",
+    "not_have_account": "Bạn không có tài khoản?",
+    "google": "Đăng nhập với Google",
+    "facebook": "Đăng nhập với Facebook",
+    "errors": {
+      "username_required": "Vui lòng nhập tên đăng nhập",
+      "password_required": "Vui lòng nhập mật khẩu"
+    }
+  },
+  "signup": {
+    "title": "Đăng ký",
+    "firstName": "Tên",
+    "lastName": "Họ",
+    "phoneNumber": "Số điện thoại",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "allow_extra_email": "Tôi muốn nhận thông tin cập nhật qua email",
+    "have_account": "Bạn đã có tài khoản ?",
+    "button": "Đăng ký",
+    "or": "hoặc",
+    "google": "Đăng nhập với Google",
+    "facebook": "Đăng nhập với Facebook",
+    "errors": {
+      "email": "Vui lòng nhập đúng địa chỉ Email hợp lệ",
+      "password": "Mật khẩu phải tối thiểu 8 ký tự",
+      "firstName": "Vui lòng nhập tên",
+      "lastName": "Vui lòng nhập họ",
+      "username": "Vui lòng nhập tên đăng nhập",
+      "phoneNumber": "Số điện thoại thì không hợp lệ"
+    }
+  },
+  "forgot_password": {
+    "title": "Đặt lại mật khẩu",
+    "content": "Nhập địa chỉ email tài khoản của bạn và chúng tôi sẽ gửi cho bạn một đường dẫn truy cập để đặt lại mật khẩu của bạn",
+    "email_address": "Địa chi Email",
+    "cancel": "Hủy",
+    "sending": "Đang gửi ...",
+    "continue": "Tiếp tục"
+  },
+  "reset_password": {
+    "title": "Nhập mật khẩu mới",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Nhập lại mật khẩu mới",
+    "button": "Yêu cầu",
+    "errors": {
+      "allFields": "Vui lòng điền tất cả các input",
+      "password": "Mật khẩu không khớp",
+      "password_length": "Mật khẩu phải tối thiểu tối đa 8 ký tự",
+      "navigate": "Một lỗi xảy ra trong khi đặt lại mật khẩu"
+    }
+  },
+  "check_email": {
+    "title": "Kiểm tra hộp thư Email của bạn",
+    "content": "Chúng tôi đã gửi một email xác thực tới địa chỉ email của bạn.\nVui lòng kiểm tra để nhận mã xác thực",
+    "success": {
+      "title": "Kích hoạt tài khoản thành công!",
+      "content": "Tài khoản của bạn đã được kích hoạt. Bây giờ bạn có thể đăng nhập và bắt đầu dịch vụ của chúng tôi ",
+      "button": "Tiếp tục"
+    },
+    "error": {
+      "title": "Kích hoạt tài khoản thất bại",
+      "button": "Thử lại"
+    }
+  },
+  "reset_code": {
+    "title": "Nhập mã code đặt lại mật khẩu",
+    "submit": "Yêu cầu",
+    "errors": {
+      "code": "Vui lòng nhập mã gồm {{length}} chữ số "
+    }
+  },
+  "navbar": {
+    "about_us": "Về Chúng Tôi",
+    "view_timetable": "Xem Thời Khóa Biểu",
+    "featured": "Tính Năng",
+    "contact_me": "Liên Hệ Chúng Tôi",
+    "search": "Tìm kiếm ..."
+  },
+  "home": {
+    "introduction": {
+      "welcome": "Chào mừng đến với Hệ thống Quản lý Phòng Lab Trường Đại Học Quốc Tế",
+      "introduce": "Các phòng thí nghiệm của chúng tôi cung cấp cơ sở vật chất hiện đại và môi trường học tập chuyên nghiệp để hỗ trợ sinh viên và giảng viên trong nghiên cứu và dự án của họ.",
+      "learn_more": "Học thêm"
+    },
+    "features": {
+      "main_functions": "Các chức năng chính",
+      "device_management": "Quản lý thiết bị",
+      "device_management_introduce": "Giám sát và quản lý thiết bị phòng thí nghiệm một cách hiệu quả và chính xác.",
+      "project_management": "Quản lý dự án",
+      "project_management_introduce": "Hỗ trợ quản lý các dự án nghiên cứu và phát triển trong phòng thí nghiệm.",
+      "member_management": "Quản lý thành viên",
+      "member_management_introduce": "Quản lý thông tin và vai trò của các thành viên trong phòng thí nghiệm.",
+      "timetable_management": "Quản lý thời khóa biểu",
+      "timetable_management_introduce": "Hỗ trợ xem và lên lịch trình hiệu quả cho các hoạt động của lab."
+    },
+    "image_library": "Ảnh thư viện",
+    "news_and_events": "Tin tức và Sự kiện",
+    "read_more": "Đọc thêm",
+    "user_feedback": "Nhận xét người dùng",
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "equipment": "Phòng thí nghiệm hỗ trợ những loại thiết bị nào?",
+      "equipment_answer": "Phòng thí nghiệm hỗ trợ các thiết bị như máy tính, máy in 3D, thiết bị phân tích hóa học và nhiều công cụ nghiên cứu khác.",
+      "register": "Làm cách nào để đăng ký sử dụng phòng thí nghiệm?",
+      "register_answer": "Bạn có thể đăng ký sử dụng phòng thí nghiệm thông qua hệ thống quản lý trực tuyến hoặc liên hệ trực tiếp với quản trị viên.",
+      "research": "Phòng thí nghiệm có hỗ trợ các dự án nghiên cứu không?",
+      "research_answer": "Có, phòng thí nghiệm cung cấp hỗ trợ kỹ thuật và cơ sở vật chất cho các dự án nghiên cứu của sinh viên và giảng viên."
+    },
+    "stats": {
+      "label1": "Thiết bị hiện đại",
+      "label2": "Dự án nghiên cứu",
+      "label3": "Thành viên",
+      "label4": "Sự kiện"
+    },
+    "contact_us": {
+      "title": "Liên hệ chúng tôi",
+      "information": "Thông tin liên hệ",
+      "address": "Địa chỉ: Khu phố 6, P. Linh Trung, TP. Thủ Đức, TP.HCM",
+      "phone": "Số Điện Thoại : (028) 37244270"
+    },
+    "contact_form": {
+      "title": "Gửi tin nhắn",
+      "name": "Tên của bạn",
+      "message": "Tin nhắn",
+      "sending": "Đang gửi ..."
+    },
+    "footer": {
+      "title": "Đại học Quốc tế - Đại học Quốc gia TP.HCM",
+      "address": "Địa chỉ: Khu phố 6, P. Linh Trung, TP. Thủ Đức, TP.HCM",
+      "phone": "Số điện thoại: (028) 37244270"
+    }
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "applyButton": "Áp dụng",
+    "errors": {
+      "startDate_big_endDate": "Ngày bắt đầu không thể sau ngày kết thúc"
+    },
+    "barchart": {
+      "title": "Thời gian sử dụng người dùng",
+      "date": "Ngày",
+      "role": "Vai trò",
+      "student": "Sinh viên",
+      "teacher": "Giáo viên",
+      "none": "Không",
+      "label1": "Thời gian sử dụng (phút)",
+      "label2": "Thời gian tối đa (4 giờ)",
+      "usageTime": "Thời gian sử dụng {{time}}",
+      "maximum": "Thời gian tối đa {{time}} phút",
+      "text1": "Thời gian sử dụng vào {{date}} {{role}}",
+      "text2": "Thời gian sử dụng (Không có ngày được chọn)",
+      "errors": {
+        "error": "Có lỗi : {{error}}",
+        "default": "Không có dữ liệu có sẵn cho ngày và vai trò được chọn "
+      }
+    },
+    "logDashboard": {
+      "label": "Lượt truy cập",
+      "count": "Lượt",
+      "title": "Thống kê lượt truy cập môn học theo ngày",
+      "content": "Top 20 môn học có lượt truy cập cao nhất"
+    },
+    "detailsTable": {
+      "title": "Chi tiết lượt truy cập",
+      "timestamp": "Thời gian",
+      "endpoint": "Điểm cuối",
+      "action": "Hành động",
+      "course": "Môn học",
+      "user": "Người dùng",
+      "ip": "Địa chỉ IP",
+      "userAgent": "Trình duyệt",
+      "no_data": "Không có dữ liệu"
+    }
+  },
+  "sidebar": {
+    "welcome": "Xin chào",
+    "dashboard": "Bảng điều khiển",
+    "manage_asset": "Quản lý tài sản",
+    "booking": "Đặt phòng lab",
+    "notification": "Thông báo",
+    "cancel": "Hủy lịch phòng lab",
+    "import": "Nhập thời khóa biểu",
+    "user_management": "Quản lý người dùng",
+    "view_timetable": "Xem thời khóa biểu",
+    "setting": "Cài đặt",
+    "logout": "Đăng xuất"
+  },
+  "manager_asset": {
+    "asset": {
+      "title": "Tài sản",
+      "update_title": "Cập nhật tài sản",
+      "create_title": "Tạo tài sản",
+      "button_create": "Tạo tài sản",
+      "button_search": "Tìm kiếm",
+      "button_upload": "Tải ảnh lên",
+      "button_filter": "Lọc bởi trạng thái",
+      "all_status": "Tất cả vài trò",
+      "available_status": "Có sẵn",
+      "in_use_status": "Đang được sử dụng",
+      "maintenance_status": "Bảo trì",
+      "retired_status": "Không còn",
+      "image": "Ảnh",
+      "name": "Tên",
+      "description": "Mô tả",
+      "serialNumber": "Số seri",
+      "status": "Trạng thái",
+      "purchase_date": "Ngày mua",
+      "price": "Gía (VND)",
+      "category": "Danh mục",
+      "category_item": "Chọn một danh mục",
+      "location": "Vị trí",
+      "location_item": "Chọn một vị trí",
+      "assigned_user": "Người dùng chỉ định",
+      "actions": "Hành động",
+      "no_asset": "Không có tài sản được tìm thấy",
+      "button_cancel": "Hủy",
+      "button_save": "Lưu",
+      "dialog_title": "Xác nhận xóa",
+      "dialog_content": "Bạn có chắc muốn xóa tài sản này",
+      "button_delete": "Xóa",
+      "errors": {
+        "cloudinary": "Có lỗi xảy ra khi tải ảnh lên Cloudinary",
+        "name": "Vui lòng nhập tên tài sản",
+        "purchase_date": "Vui lòng nhập ngày mua ",
+        "price": "Gía chắc chắn phải lớn hơn 0",
+        "category": "Vui lòng chọn một danh mục",
+        "location": "Vui lòng chọn một vị trí",
+        "unexpected": "Một lỗi không mong đợi đã xảy ra"
+      },
+      "success": {
+        "update": "Tài sản đã được cập nhật thành công",
+        "create": "Tài sản đã được tạo thành công",
+        "delete": "Tài sản đã được xóa thành công"
+      }
+    },
+    "asset_select": {
+      "inputValue": "Nhập ít nhất 2 ký tự để tìm kiếm",
+      "defaultValue": "Không tìm thấy tài sản",
+      "label": "Chọn tài sản"
+    },
+    "location": "Vị trí",
+    "category": {
+      "title": "Danh mục",
+      "update_title": "Cập nhật danh mục",
+      "create_title": "Tạo danh mục",
+      "button_create": "Tạo danh mục",
+      "name": "Tên",
+      "description": "Mô tả",
+      "actions": "Hành động",
+      "no_category": "Không có danh mục nào được tìm thấy",
+      "dialog_title": "Xác nhận xóa",
+      "dialog_content": "Bạn có chắc muốn xóa danh mục này",
+      "button_cancel": "Hủy",
+      "button_save": "Lưu",
+      "button_delete": "Xóa",
+      "errors": {
+        "unexpected": "Một lỗi không mong đợi đã xảy ra",
+        "name": "Vui lòng nhập tên danh mục"
+      },
+      "success": {
+        "update": "Danh mục đã được cập nhật thành công",
+        "create": "Danh mục đã được tạo thành công",
+        "delete": "Danh mục đã được xóa thành công"
+      }
+    },
+    "manager": "Quản lý",
+    "maintenance": "Bảo trì",
+    "import_export": "Nhập-Xuất"
+  },
+  "pagination": {
+    "rowsPerPage": "Số hàng mỗi trang:"
+  },
+  "setting": {
+    "changePassword": {
+      "currentPassword": "Mật khẩu hiện tại",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "newPassword": "Mật khẩu mới",
+      "button_save": "Lưu mật khẩu",
+      "errors": {
+        "mismatch": "Mật khẩu mới và mật khẩu xác nhận không khớp nhau !",
+        "length": "Mật khẩu mới chắc chắn phải tối thiểu tối đa {{length}} ký tự",
+        "allFields": "Vui lòng điền tất cả các ô"
+      }
+    },
+    "userProfile": {
+      "title": "Quản lý thông tin cá nhân",
+      "uploading": "Đang tải ...",
+      "button_upload": "Tải ảnh lên",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "phone": "Số điện thoại",
+      "username": "Tên đăng nhập",
+      "button_save": "Lưu thông tin",
+      "security": "Cài đặt bảo mật",
+      "tfa": "Xác thực 2 yếu tố",
+      "errors": {
+        "upload_image": "Một lỗi xảy ra trong khi ta ảnh lên ",
+        "update_information": "Một lỗi xảy ra trong khi lưu thông tin cá nhân "
+      },
+      "success": {
+        "upload_image": "Ảnh đã được tải lên thành công!",
+        "update_information": "Thông tin cá nhân đã được cập nhật thành công!"
+      }
+    }
+  },
+  "user_management": {
+    "dialog": "Bạn có chắc chắn muốn xóa người dùng này ?",
+    "title": "Quản lý người dùng",
+    "add_button": "Thêm người dùng",
+    "search": "Tìm kiếm",
+    "search_placeholder": "Tìm kiếm dựa vào tên, tên người dùng ...",
+    "filter": "Lọc dựa vào vai trò",
+    "filter_placeholder": "Lọc dựa vào vai trò",
+    "none":"Không",
+    "student": "Sinh viên",
+    "teacher": "Giảng viên",
+    "owner": "Chủ sở hữu",
+    "co_owner": "Đồng sở hữu",
+    "firstName": "Tên",
+    "lastName": "Họ",
+    "role": "Vai trò",
+    "actions": "Hành động",
+    "edit_button": "Chỉnh sửa",
+    "transfer_button": "Chuyển giao chủ sở hữu",
+    "promote_button": "Thăng tiến đồng sở hữu",
+    "delete_button": "Xóa",
+    "no_data": "Không có người dùng được tìm thấy",
+    "editUser": "Chỉnh sửa người dùng",
+    "select_role": "Chọn vai trò",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "phone": "Số điện thoại",
+    "enabled": "Cho phép",
+    "accountLocked": "Khóa tài khoản",
+    "update_button": "Cập nhật người dùng",
+    "create_button": "Tạo người dùng",
+    "errors": {
+    }
+  },
+  "timetable": {
+    "scheduleTable": {
+      "title": "Thời khóa biểu theo tuần từ {{startDate}} đến {{endDate}}",
+      "defaultTitle": "Thời khóa biểu",
+      "errors": {
+        "lessonTime": "Có lỗi xảy ra khi tải Tiết {{error}}",
+        "timetable": "Có lỗi xảy ra khi tải thời khóa biểu {{error}}"
+      }
+    },
+    "scheduleTableHeader": {
+      "room": "Phòng",
+      "period": "Tiết",
+      "daysOfWeek": [
+        "Thứ Hai",
+        "Thứ Ba",
+        "Thứ Tư",
+        "Thứ Năm",
+        "Thứ Sáu",
+        "Thứ Bảy",
+        "Chủ Nhật"
+      ]
+    },
+    "scheduleRow": {
+      "tooltip_title": "Giờ: {{startTime}} - {{endTime}}",
+      "content_tooltip": "Tiết"
+    },
+    "scheduleHeader": {
+      "room": "Phòng",
+      "period": "Tiết"
+    },
+    "toolTip": {
+      "code": "Mã Môn Học :",
+      "name": "Tên Môn Học :",
+      "room": "Phòng Học :",
+      "dayOfWeek": "Thứ :",
+      "startLesson": "Tiết Bắt Đầu :",
+      "numberOfLesson": "Số Tiết :",
+      "instructor": "Giảng Viên :",
+      "class": "Lớp :"
+    },
+    "selectWeek": {
+      "title": "Chọn tuần",
+      "no_data": "Không có dữ liệu tuần",
+      "content": "Tuần {{index}} [Từ {{startDate}} -- Đến {{endDate}}]",
+      "errors": {
+        "week": "Có lỗi xảy ra khi tải dữ liệu tuần"
+      }
+    },
+    "createTimetable": {
+      "title": "Tạo thời khóa biểu",
+      "name": "Tên thời khóa biểu",
+      "room": "Phòng",
+      "startLesson": "Tiết bắt đầu",
+      "item": "Tiết",
+      "endLesson": "Tiết kết thúc",
+      "date": "Ngày",
+      "instructorId": "Mã giảng viên",
+      "description": "Mô tả",
+      "submit_button": "Đang gửi ...",
+      "create_button": "Tạo thời khóa biểu",
+      "errors": {
+        "allFields": "Vui lòng điền tất cả các trường yêu cầu",
+        "startLesson_big_endLesson": "Tiết kết thúc phải lớn hơn tiết bắt đầu",
+        "create": "Có lỗi xảy ra khi tạo thời khóa biểu :{{error}}"
+      },
+      "success": {
+        "create": "Thời khóa biểu được tạo thành công"
+      }
+    },
+    "cardDetailsCourse": {
+      "title": "Chi tiết môn học",
+      "courseId": "Mã môn học :",
+      "courseName": "Tên môn học :",
+      "totalLessons": "Tổng số tiết :",
+      "credits": "Số tín chỉ :",
+      "students": "Số sinh viên :",
+      "daysOfWeek": "Thứ :",
+      "startLesson": "Tiết bắt đầu :",
+      "numberOfLesson": "Số tiết :",
+      "room": "Phòng :",
+      "studyTime": "Thời gian học :",
+      "instructorId": "Mã giảng viên :",
+      "instructor": "Giảng viên :"
+    },
+    "extracurricular": {
+      "title": "Chi tiết lịch học được đăng ký thêm ngoài giờ :",
+      "name": "Tên sự kiện :",
+      "daysOfWeek": "Thứ :",
+      "startLesson": "Tiết bắt đầu :",
+      "numberOfLesson": "Số tiết :",
+      "room": "Phòng :",
+      "instructorId": "Mã giảng viên",
+      "instructor": "Giảng viên",
+      "description": "Mô tả"
+    },
+    "cancelTimetable": {
+      "title": "Hủy thời khóa biểu",
+      "dateCancel": "Ngày cần hủy",
+      "loading": "Đang tải thời khóa biểu ...",
+      "course": "Môn học",
+      "no_data": "Không có thời khóa biểu được tìm thấy với ngày được chọn",
+      "cancel_button": "Hủy thời khóa biểu",
+      "menu_item": "Môn học : {{name}} - Phòng : {{room}} - Tiết bắt đầu : {{startLesson}} ",
+      "errors": {
+        "cancel": "Hủy thời khóa biểu thất bại .Vui lòng thử lại !",
+        "default": "Vui lòng chọn một môn học để hủy"
+      },
+      "success": {
+        "cancel": "Hủy thời khóa biểu thành công !"
+      }
+    },
+    "importTimetable": {
+      "title": "Nhập thời khóa biểu",
+      "title2": "Kéo thả file Excel vào đây hoặc click chọn file",
+      "choose_button": "Chọn file",
+      "upload_button": "Tải file",
+      "errors": {
+        "file": "Vui lòng chọn một file !",
+        "format": "Vui lòng chọn một file Excel có đuôi (.xlsx hoặc .xls)",
+        "upload": "Có lỗi trong việc tải file lên .Vui lòng thử lại lần nữa",
+        "unexpected": "Có một lỗi không xác định xảy ra"
+      },
+      "success": {
+        "import": "File đã được nhập thành công!"
+      }
+    }
+  },
+  "attendance": {
+    "title": "Điểm danh",
+    "body": "Vui lòng cho phép truy cập vị trí để kiểm tra sự tham dự của bạn",
+    "check_button": "Điểm danh"
+  },
+  "days": {
+    "MONDAY": "Thứ Hai",
+    "TUESDAY": "Thứ Ba",
+    "WEDNESDAY": "Thứ Tư",
+    "THURSDAY": "Thứ Năm",
+    "FRIDAY": "Thứ Sáu",
+    "SATURDAY": "Thứ Bảy",
+    "SUNDAY": "Chủ Nhật"
+  },
+  "language": "Ngôn ngữ"
+}

@@ -1,9 +1,9 @@
 .MuiTooltip-tooltip {
-    background-color: #EDEEEF!important;
+    background-color: #d0d6d9 !important;
     color: #2f343D!important;
 }
 .tooltip-content {
-    max-width: 300px;
+    max-width: 400px;
     border: 1px solid #011f31;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

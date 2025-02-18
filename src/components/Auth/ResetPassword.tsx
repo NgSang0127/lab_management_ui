@@ -7,9 +7,12 @@ import { RootState } from "../../state/store";
 import { resetPassword } from "../../state/Authentication/Reducer";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
+import {useTranslation} from "react-i18next";
 
 
 const ResetPassword: React.FC = () => {
+    const {t}=useTranslation();
+
     const location = useLocation();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -40,31 +43,27 @@ const ResetPassword: React.FC = () => {
         event.preventDefault();
 
         if (password.trim() === '' || confirmPassword.trim() === '') {
-            showAlert("Please fill in all fields.", 'error');
+            showAlert(t('reset_password.errors.allFields'), 'error');
             return;
         }
 
         if (password !== confirmPassword) {
-            showAlert("Passwords do not match.", 'error');
+            showAlert(t('reset_password.errors.password'), 'error');
             return;
         }
 
         if (password.length < 8) {
-            showAlert("Password must be at least 8 characters long.", 'error');
+            showAlert(t('reset_password.errors.password_length'), 'error');
             return;
         }
 
-        if (!resetCode) {
-            showAlert("Invalid reset code.", 'error');
-            return;
-        }
 
         try {
             await dispatch(resetPassword({ code: resetCode, newPassword: password })).unwrap();
             showAlert(success as string, 'success');
             navigate('/account/signin');
         } catch {
-            showAlert(error || "An error occurred while resetting the password.", 'error');
+            showAlert(error || t('reset_password.errors.navigate'), 'error');
         }
     };
 
@@ -93,12 +92,12 @@ const ResetPassword: React.FC = () => {
             {isLoading && <LoadingIndicator open={isLoading} />}
 
             <Typography variant="h5" sx={{ marginBottom: '24px', fontWeight: 'bold' }}>
-                Enter New Password
+                {t('reset_password.title')}
             </Typography>
 
             <TextField
                 type="password"
-                label="New Password"
+                label={t('reset_password.newPassword')}
                 variant="outlined"
                 fullWidth
                 value={password}
@@ -109,7 +108,7 @@ const ResetPassword: React.FC = () => {
             />
             <TextField
                 type="password"
-                label="Confirm Password"
+                label={t('reset_password.confirmPassword')}
                 variant="outlined"
                 fullWidth
                 value={confirmPassword}
@@ -127,7 +126,8 @@ const ResetPassword: React.FC = () => {
                 disabled={isLoading}
                 aria-label="Submit New Password"
             >
-                Submit
+
+                {t('reset_password.button')}
             </Button>
 
             {/* Custom Alert for Notifications */}

@@ -15,7 +15,8 @@ import { styled } from '@mui/material/styles';
 import { importTimetable } from '../../state/Timetable/Reducer.ts';
 import { useAppDispatch } from "../../state/store.ts";
 import LoadingIndicator from "../Support/LoadingIndicator"; // Nếu bạn có component này
-import CustomAlert from "../Support/CustomAlert"; // Nếu bạn có component này
+import CustomAlert from "../Support/CustomAlert";
+import {useTranslation} from "react-i18next"; // Nếu bạn có component này
 
 // Styled input for file selection
 const Input = styled('input')({
@@ -36,6 +37,7 @@ const DragAndDropBox = styled(Box)(({ theme }) => ({
 }));
 
 const ImportTimetable: React.FC = () => {
+    const {t}=useTranslation();
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [alert, setAlert] = useState<{
@@ -66,7 +68,7 @@ const ImportTimetable: React.FC = () => {
         } else {
             setAlert({
                 open: true,
-                message: 'Please select a valid Excel file (.xlsx or .xls).',
+                message: t('timetable.importTimetable.errors.format'),
                 severity: 'warning',
             });
         }
@@ -97,7 +99,7 @@ const ImportTimetable: React.FC = () => {
         if (!selectedFile) {
             setAlert({
                 open: true,
-                message: 'Please select a file first!',
+                message: t('timetable.importTimetable.errors.file'),
                 severity: 'error',
             });
             return;
@@ -115,21 +117,21 @@ const ImportTimetable: React.FC = () => {
             if (importTimetable.fulfilled.match(resultAction)) {
                 setAlert({
                     open: true,
-                    message: 'File imported successfully!',
+                    message: t('timetable.importTimetable.success.import'),
                     severity: 'success',
                 });
                 setSelectedFile(null); // Reset file input
             } else if (importTimetable.rejected.match(resultAction)) {
                 setAlert({
                     open: true,
-                    message: 'Error uploading file. Please try again.',
+                    message: t('timetable.importTimetable.errors.upload'),
                     severity: 'error',
                 });
             }
         } catch (err) {
             setAlert({
                 open: true,
-                message: 'An unknown error occurred.',
+                message: t('timetable.importTimetable.errors.unexpected'),
                 severity: 'error',
             });
         } finally {
@@ -144,7 +146,7 @@ const ImportTimetable: React.FC = () => {
 
             <Paper elevation={3} sx={{ padding: 4, borderRadius: 2 }}>
                 <Typography variant="h4" align="center" gutterBottom>
-                    Import Timetable
+                    {t('timetable.importTimetable.title')}
                 </Typography>
 
                 <Box
@@ -155,7 +157,7 @@ const ImportTimetable: React.FC = () => {
                     <DragAndDropBox>
                         <UploadIcon sx={{ fontSize: 50, color: 'primary.main' }} />
                         <Typography variant="h6" color="textSecondary" sx={{ mt: 2 }}>
-                            Drag and drop an Excel file here, or click to select a file
+                            {t('timetable.importTimetable.title2')}
                         </Typography>
                         <label htmlFor="file-input">
                             <Input
@@ -171,7 +173,7 @@ const ImportTimetable: React.FC = () => {
                                 startIcon={<UploadIcon />}
                                 sx={{ mt: 2 }}
                             >
-                                Choose File
+                                {t('timetable.importTimetable.choose_button')}
                             </Button>
                         </label>
                     </DragAndDropBox>
@@ -201,7 +203,7 @@ const ImportTimetable: React.FC = () => {
                             fullWidth
                             sx={{ maxWidth: 200,mt:5}}
                         >
-                            Upload Timetable
+                            {t('timetable.importTimetable.upload_button')}
                         </Button>
                     )}
                 </Box>

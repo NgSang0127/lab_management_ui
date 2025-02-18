@@ -1,13 +1,14 @@
 import { Typography, Box } from '@mui/material';
 import React from "react";
+import {useTranslation} from "react-i18next";
 
 const CheckEmail: React.FC = () => {
+    const {t}=useTranslation();
     return (
         <Box sx={{ textAlign: 'center', marginTop: '50px' }}>
-            <Typography variant="h4">Kiểm tra email của bạn</Typography>
+            <Typography variant="h4">{t('check_email.title')}</Typography>
             <Typography variant="body1">
-                Chúng tôi đã gửi một email xác thực tới địa chỉ email của bạn.
-                Vui lòng kiểm tra để nhận mã xác thực.
+                {t('check_email.content')}
             </Typography>
         </Box>
     );

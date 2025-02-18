@@ -21,6 +21,9 @@ import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
 import NotificationCenter from "../components/Notification/NotificationCenter.tsx";
 import SettingPage from "../components/Dashboard/Setting/SettingPage.tsx";
 import Dashboard from "../components/Dashboard/Dashboard.tsx";
+import AttendanceCheck from "../components/Attendance/AttendanceCheck.tsx";
+import VerifyOtp from "../components/Auth/VerifyOtp.tsx";
+import VerifyEmailOTP from "../components/Auth/VerifyEmailOTP.tsx";
 
 
 const router = createBrowserRouter([
@@ -53,6 +56,15 @@ const router = createBrowserRouter([
             {
                 path: 'account/reset-password',
                 element: <ResetPassword/>
+            },
+
+            {
+                path: 'account/verify',
+                element: <VerifyOtp/>
+            },
+            {
+                path: 'account/verify-email',
+                element: <VerifyEmailOTP/>
             },
             {
                 path:'profile/dashboard',
@@ -91,6 +103,16 @@ const router = createBrowserRouter([
                         path:':timetableName',
                         element: <Extracurricular/>
                     }
+                ]
+
+            },
+            {
+                path: 'attendance',
+                children:[
+                    {
+                        path:':checkAttendance',
+                        element: <AttendanceCheck/>
+                    },
                 ]
 
             },

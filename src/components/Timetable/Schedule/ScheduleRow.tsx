@@ -4,6 +4,7 @@ import {Timetable} from "../../../state/Timetable/Action.ts";
 import ScheduleCell from "./ScheduleCell.tsx";
 import {getCourseColor} from "../../../utils/courseColors.ts";
 import Tooltip from "@mui/material/Tooltip";
+import {useTranslation} from "react-i18next";
 
 
 interface ScheduleRowProps {
@@ -38,12 +39,13 @@ const ScheduleRow: React.FC<ScheduleRowProps> = ({
                                                      handleCourseClick,
                                                      periods,
                                                  }) => {
+    const {t}=useTranslation();
     const isFirstPeriod = period === periods[0];
     const isLastPeriod = period === periods[periods.length - 1];
     return (
         <TableRow
             sx={{
-                borderBottom: isLastPeriod ? '2px solid #000' : '1px solid rgb(175, 175, 175)',
+                borderBottom: isLastPeriod ? '3px solid #000' : '1px solid rgb(175, 175, 175)',
                 height: {
                     xs: '25px', // Thiết bị nhỏ
                     sm: '30px', // Thiết bị trung bình
@@ -126,10 +128,20 @@ const ScheduleRow: React.FC<ScheduleRowProps> = ({
                 }}
             >
                 <Tooltip
-                    title={`Giờ: ${getLessonTime(period)?.startTime} - ${getLessonTime(period)?.endTime}`}
+                    title={t('timetable.scheduleRow.tooltip_title',{startTime:getLessonTime(period)?.startTime,endTime:getLessonTime(period)?.endTime})}
                     arrow
+                    PopperProps={{
+                        modifiers: [
+                            {
+                                name: 'offset',
+                                options: {
+                                    offset: [50, 10], // Dịch tooltip sang trái 10px
+                                },
+                            },
+                        ],
+                    }}
                 >
-                    <span className="cursor-pointer">Tiết {period}</span>
+                    <span className="cursor-pointer">{t('timetable.scheduleRow.content_tooltip')} {period}</span>
                 </Tooltip>
             </TableCell>
         </TableRow>

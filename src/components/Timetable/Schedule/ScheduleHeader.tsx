@@ -1,5 +1,6 @@
 import React from 'react';
 import { TableHead, TableRow, TableCell } from '@mui/material';
+import {useTranslation} from "react-i18next";
 
 interface ScheduleHeaderProps {
     daysOfWeek: string[];
@@ -7,6 +8,7 @@ interface ScheduleHeaderProps {
 }
 
 const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ daysOfWeek }) => {
+    const {t}=useTranslation();
     return (
         <TableHead>
             <TableRow>
@@ -33,7 +35,7 @@ const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ daysOfWeek }) => {
                         },
                     }}
                 >
-                    Room
+                    {t('timetable.scheduleHeader.room')}
                 </TableCell>
                 {daysOfWeek.map((day) => (
                     <TableCell
@@ -81,7 +83,7 @@ const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ daysOfWeek }) => {
                         },
                     }}
                 >
-                    Period
+                    {t('timetable.scheduleHeader.period')}
                 </TableCell>
             </TableRow>
         </TableHead>

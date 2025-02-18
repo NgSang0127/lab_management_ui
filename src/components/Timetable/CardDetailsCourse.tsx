@@ -3,7 +3,7 @@ import {useEffect, useRef} from "react";
 import {RootState, useAppDispatch} from "../../state/store.ts";
 import {fetchCourseDetails} from "../../state/Timetable/Reducer.ts";
 import {useSelector} from "react-redux";
-import convertDayOfWeekToVietnamese from "../../utils/convertDay.ts";
+
 import {Card, CardContent, Typography} from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import ClassIcon from '@mui/icons-material/Class';
@@ -18,13 +18,17 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import BuildIcon from '@mui/icons-material/Build';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
+import useConvertDayOfWeek from "../../utils/convertDay.ts";
+import {useTranslation} from "react-i18next";
 
 const CardDetailsCourse = () => {
+    const {t}=useTranslation();
     const {courseId, NH, TH,studyTime} = useParams<{ courseId: string, NH: string, TH: string,studyTime: string,timetableName: string;}>();
     const decodeStudyTime=decodeURIComponent(studyTime);
     const dispatch = useAppDispatch();
     const {course} = useSelector((state: RootState) => state.timetable);
     const previousParams = useRef<string | null>(null);
+    const { convertDayOfWeek} = useConvertDayOfWeek();
     useEffect(() => {
         if (
             courseId &&
@@ -43,12 +47,12 @@ const CardDetailsCourse = () => {
 
     return (
         <div className="container mx-auto px-6 py-10">
-            <Typography variant="h4" className="text-center font-bold mb-8 text-blue-700">Chi tiết môn học</Typography>
+            <Typography variant="h4" className="text-center font-bold mb-8 text-blue-700">{t('timetable.cardDetailsCourse.title')}</Typography>
             <Card className="max-w-2xl mx-auto shadow-xl rounded-lg overflow-hidden bg-blue-50">
                 <CardContent className="p-6">
                     <div className="mb-4">
                         <Typography variant="body1" className="text-blue-700 flex items-center">
-                            <SchoolIcon className="mr-2"/> <span className="font-bold text-black">Mã môn học:</span>
+                            <SchoolIcon className="mr-2"/> <span className="font-bold text-black">{t('timetable.cardDetailsCourse.courseId')}</span>
                             <span className="ml-2 text-emerald-400">{courseId}</span>
                         </Typography>
                     </div>
@@ -56,7 +60,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <ClassIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Tên môn học:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.courseName')}</span>
                             <span className="ml-2 text-emerald-400">{course?.courses[0].name}</span>
                         </Typography>
                     </div>
@@ -64,7 +68,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <FormatListNumberedIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Tổng số tiết:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.totalLessons')}</span>
                             <span className="ml-2 text-emerald-400">{course?.totalLessonSemester}</span>
                         </Typography>
                     </div>
@@ -72,7 +76,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <CreditCardIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Số tín chỉ:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.credits')}</span>
                             <span className="ml-2 text-emerald-400">{course?.courses[0].credits}</span>
                         </Typography>
                     </div>
@@ -96,7 +100,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <PeopleIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Số sinh viên:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.students')}</span>
                             <span className="ml-2 text-emerald-400">{course?.numberOfStudents}</span>
                         </Typography>
                     </div>
@@ -104,16 +108,16 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <CalendarTodayIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Thứ:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.daysOfWeek')}</span>
                             <span
-                                className="ml-2 text-emerald-400">{convertDayOfWeekToVietnamese(course?.dayOfWeek ||"Undefined")}</span>
+                                className="ml-2 text-emerald-400">{convertDayOfWeek(course?.dayOfWeek ||"Undefined")}</span>
                         </Typography>
                     </div>
 
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <AccessTimeIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Tiết bắt đầu:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.startLesson')}</span>
                             <span className="ml-2 text-emerald-400">{course?.startLesson}</span>
                         </Typography>
                     </div>
@@ -121,7 +125,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <FormatListNumberedIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Số tiết:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.numberOfLesson')}</span>
                             <span className="ml-2 text-emerald-400">{course?.totalLessonDay}</span>
                         </Typography>
                     </div>
@@ -129,7 +133,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <RoomIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Phòng học:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.room')}</span>
                             <span className="ml-2 text-emerald-400">{course?.room.name}</span>
                         </Typography>
                     </div>
@@ -137,7 +141,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <HourglassBottomIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Thời gian học:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.studyTime')}</span>
                             <span className="ml-2 text-emerald-400">
                                 {course?.studyTime?.split('\n').map((timeRange, index) => (
                                     <span key={index}>{timeRange}
@@ -152,7 +156,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <PersonSearchIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Mã viên chức:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.instructorId')}</span>
                             <span className="ml-2 text-emerald-400">{course?.instructor.instructorId}</span>
                         </Typography>
                     </div>
@@ -160,7 +164,7 @@ const CardDetailsCourse = () => {
                     <div className="mb-4">
                         <Typography variant="body1" className="flex items-center">
                             <AccountBoxIcon className="mr-2 text-blue-600"/>
-                            <span className="font-bold text-black">Giang viên:</span>
+                            <span className="font-bold text-black">{t('timetable.cardDetailsCourse.instructor')}</span>
                             <span className="ml-2 text-emerald-400">{course?.instructor.user.fullName}</span>
                         </Typography>
                     </div>

@@ -26,6 +26,8 @@ import logo from '@images/logo.png';
 import getThemeSignInSignUp from '../../theme/getThemeSignInSignUp.ts';
 import Divider from "@mui/material/Divider";
 import {FacebookIcon, GoogleIcon} from "../../theme/CustomIcons.tsx";
+import {useTranslation} from "react-i18next";
+import {clearStatus} from "../../state/Authentication/Action.ts";
 
 // Extract common styles
 const cardStyles = (theme: any) => ({
@@ -67,6 +69,8 @@ const SignInContainer = styled(Stack)(({theme}) => ({
 
 // Refactored component
 export default function SignIn() {
+    const {t}=useTranslation();
+
     const {isDarkMode, showCustomTheme} = useContext(ThemeContext);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -101,8 +105,8 @@ export default function SignIn() {
 
     const validateInputs = () => {
         const validationErrors = {
-            username: formData.username ? '' : 'Username is required',
-            password: formData.password ? '' : 'Password is required',
+            username: formData.username ? '' : t('signin.errors.username_required'),
+            password: formData.password ? '' : t('signin.errors.password_required'),
         };
         setErrors(validationErrors);
 
@@ -114,9 +118,18 @@ export default function SignIn() {
 
         if (validateInputs()) {
             try {
-                await dispatch(loginUser(formData)).unwrap();
-                await dispatch(getUser()).unwrap();
-                navigate('/');
+                const loginResponse = await dispatch(loginUser(formData)).unwrap();
+
+                if (loginResponse.tfaEnabled) {
+                    // Nếu bật TFA, chuyển đến trang QR Code
+                    dispatch(clearStatus())
+                    navigate('/account/verify', { state: { username: formData.username } });
+                } else {
+                    // Nếu không bật TFA, chuyển đến trang chủ
+                    dispatch(clearStatus())
+                    await dispatch(getUser()).unwrap();
+                    navigate('/');
+                }
             } catch (error) {
                 console.error('Failed to login:', error);
             }
@@ -132,11 +145,11 @@ export default function SignIn() {
                         <Box component="img" src={logo} alt="Logo" sx={{width: 60, height: 60}}/>
                         <Typography component="h1" variant="h4"
                                     sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}>
-                            Sign in
+                            {t('signin.title')}
                         </Typography>
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={formContainerStyles}>
                             <FormControl>
-                                <FormLabel htmlFor="username">Username</FormLabel>
+                                <FormLabel htmlFor="username">{t('signin.username')}</FormLabel>
                                 <TextField
                                     name="username"
                                     id="username"
@@ -151,11 +164,11 @@ export default function SignIn() {
                             </FormControl>
                             <FormControl>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <FormLabel htmlFor="password">Password</FormLabel>
+                                    <FormLabel htmlFor="password">{t('signin.password')}</FormLabel>
                                     <Link component="button" onClick={handleForgotPasswordOpen} variant="body2"
                                           sx={{alignSelf: 'baseline'}}
                                     >
-                                        Forgot your password?
+                                        {t('signin.forgot_password')}
                                     </Link>
                                 </Box>
                                 <TextField
@@ -185,22 +198,22 @@ export default function SignIn() {
                                               label="Remember me"/>
                             <ForgotPassword open={open} handleClose={handleForgotPasswordClose}/>
                             <Button type="submit" fullWidth variant="contained">
-                                Sign in
+                                {t('signin.button')}
                             </Button>
                             <Typography sx={{textAlign: 'center'}}>
-                                Don&apos;t have an account?{' '}
+                                {t('signin.not_have_account')}{' '}
                                 <span>
                   <Link
                       href="/account/signup"
                       variant="body2"
                       sx={{alignSelf: 'center'}}
                   >
-                    Sign up
+                    {t('signup.title')}
                   </Link>
                 </span>
                             </Typography>
                         </Box>
-                        <Divider>or</Divider>
+                        <Divider>{t('signin.or')}</Divider>
                         <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
                             <Button
                                 type="submit"
@@ -209,7 +222,7 @@ export default function SignIn() {
                                 onClick={() => alert('Sign in with Google')}
                                 startIcon={<GoogleIcon/>}
                             >
-                                Sign in with Google
+                                {t('signin.google')}
                             </Button>
                             <Button
                                 type="submit"
@@ -218,7 +231,7 @@ export default function SignIn() {
                                 onClick={() => alert('Sign in with Facebook')}
                                 startIcon={<FacebookIcon/>}
                             >
-                                Sign in with Facebook
+                                {t('signin.facebook')}
                             </Button>
                         </Box>
                     </Card>

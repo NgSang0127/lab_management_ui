@@ -9,10 +9,11 @@ import { RootState, useAppDispatch } from "../../state/store.ts";
 import { useSelector } from "react-redux";
 import {forgotPassword} from "../../state/Authentication/Reducer.ts";
 import {useNavigate} from "react-router-dom";
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useState} from "react";
 import {AlertColor, TextField} from "@mui/material";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
+import {useTranslation} from "react-i18next";
 
 
 interface ForgotPasswordProps {
@@ -21,9 +22,11 @@ interface ForgotPasswordProps {
 }
 
 export default function ForgotPassword({ open, handleClose }: ForgotPasswordProps) {
+    const {t}=useTranslation();
+
     const dispatch = useAppDispatch();
     const navigate=useNavigate();
-    const { isLoading, success, error } = useSelector((state: RootState) => state.auth);
+    const { isLoading } = useSelector((state: RootState) => state.auth);
     const [email, setEmail] = useState('');
 
     const [alert, setAlert] = useState<{
@@ -52,23 +55,18 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            await dispatch(forgotPassword({ email }));
+            const result = await dispatch(forgotPassword({ email })).unwrap();
+            console.log("result",result)
+            showAlert(result, 'success');
+            setTimeout(() => {
+                navigate('/account/reset-code');
+            }, 1000);
         } catch (error) {
-            showAlert(error as string,'error')
+            // Nếu thất bại, hiển thị lỗi
+            showAlert(error as string, 'error');
         }
     };
 
-
-    useEffect(() => {
-        if (success) {
-            showAlert(success,'success')
-            navigate('/account/reset-code')
-        }
-
-        if (error) {
-            showAlert(error,'error')
-        }
-    }, [success, error]);
 
     return (
         <>
@@ -81,10 +79,10 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
                     onSubmit: handleSubmit,
                 }}
             >
-                <DialogTitle>Reset password</DialogTitle>
+                <DialogTitle>{t('forgot_password.title')}</DialogTitle>
                 <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
                     <DialogContentText>
-                        Enter your account&apos;s email address, and we&apos;ll send you a link to reset your password.
+                        {t('forgot_password.content')}
                     </DialogContentText>
                     <TextField
                         autoFocus
@@ -93,7 +91,7 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
                         margin="dense"
                         id="email"
                         name="email"
-                        label="Email address"
+                        label={t('forgot_password.email_address')}
                         type="email"
                         fullWidth
                         value={email}
@@ -101,9 +99,9 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
                     />
                 </DialogContent>
                 <DialogActions sx={{ pb: 3, px: 3 }}>
-                    <Button onClick={handleClose}>Cancel</Button>
+                    <Button onClick={handleClose}>{t('forgot_password.cancel')}</Button>
                     <Button variant="contained" type="submit" disabled={isLoading}>
-                        {isLoading ? 'Sending...' : 'Continue'}
+                        {isLoading ? t('forgot_password.sending') : t('forgot_password.continue')}
                     </Button>
                 </DialogActions>
             </Dialog>

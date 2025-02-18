@@ -6,6 +6,7 @@ import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
+import {useTranslation} from "react-i18next";
 
 const StatCard = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(4),
@@ -22,26 +23,27 @@ const statsData = [
     {
         icon: <ComputerIcon fontSize="large" color="primary" />,
         number: '50+',
-        label: 'Modern Equipment',
+        label: 'home.stats.label1',
     },
     {
         icon: <ScienceIcon fontSize="large" color="primary" />,
         number: '20+',
-        label: 'Research Projects',
+        label: 'home.stats.label2',
     },
     {
         icon: <PeopleIcon fontSize="large" color="primary" />,
         number: '100+',
-        label: 'Membership',
+        label: 'home.stats.label3',
     },
     {
         icon: <EventIcon fontSize="large" color="primary" />,
         number: '30+',
-        label: 'Events',
+        label: 'home.stats.label4',
     },
 ];
 
 const Stats: React.FC = () => {
+    const {t}=useTranslation();
     return (
         <Box py={8} bgcolor="#ffffff">
             <Container maxWidth="lg">
@@ -54,7 +56,7 @@ const Stats: React.FC = () => {
                                     {stat.number}
                                 </Typography>
                                 <Typography variant="subtitle1" color="textSecondary">
-                                    {stat.label}
+                                    {t(`${stat.label}`)}
                                 </Typography>
                             </StatCard>
                         </Grid>

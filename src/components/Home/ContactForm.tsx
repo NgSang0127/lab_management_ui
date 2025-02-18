@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Stack, Alert, AlertColor } from '@mui/material';
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
+import {useTranslation} from "react-i18next";
 
 interface FormData {
     name: string;
@@ -10,6 +11,8 @@ interface FormData {
 }
 
 const ContactForm: React.FC = () => {
+    const { t } = useTranslation();
+
     const [formData, setFormData] = useState<FormData>({
         name: '',
         email: '',
@@ -79,7 +82,7 @@ const ContactForm: React.FC = () => {
             <form onSubmit={handleSubmit}>
                 <Stack spacing={2}>
                     <TextField
-                        label="Your Name"
+                        label={t('home.contact_form.name')}
                         name="name"
                         variant="outlined"
                         fullWidth
@@ -98,7 +101,7 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <TextField
-                        label="Message"
+                        label={t('home.contact_form.message')}
                         name="message"
                         variant="outlined"
                         fullWidth
@@ -109,7 +112,7 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                        {loading ? 'Sending...' : 'Send Message'}
+                        {loading ? t('home.contact_form.sending') : t('home.contact_form.title')}
                     </Button>
                 </Stack>
             </form>

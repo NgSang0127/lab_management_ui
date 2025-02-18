@@ -13,6 +13,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import logoIT from "@images/logo2.png";
+import {useTranslation} from "react-i18next";
 
 
 const FooterContainer = styled('footer')(({ theme }) => ({
@@ -32,6 +33,7 @@ const SocialMediaContainer = styled(Box)(({ theme }) => ({
 }));
 
 const Footer: React.FC = () => {
+    const {t}=useTranslation();
     return (
         <FooterContainer>
             <Container  maxWidth="xl">
@@ -39,13 +41,13 @@ const Footer: React.FC = () => {
                     {/* Left Section - Contact Info */}
                     <Grid size={{xs:12,md:6}}>
                         <Typography variant="h6" gutterBottom>
-                            International University - Vietnam National University HCMC
+                            {t('home.footer.title')}
                         </Typography>
                         <Typography variant="body2" gutterBottom>
-                            Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City
+                            {t('home.footer.address')}
                         </Typography>
                         <Typography variant="body2" gutterBottom>
-                            Phone Number: (028) 37244270
+                            {t('home.footer.phone')}
                         </Typography>
                         <Typography variant="body2" gutterBottom>
                             Fax: (028) 37244271

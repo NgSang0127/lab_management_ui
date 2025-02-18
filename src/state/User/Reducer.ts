@@ -61,3 +61,22 @@ export const endSession=createAsyncThunk(
         }
     }
 )
+
+export const qrTfa=createAsyncThunk(
+    'user/tfa-qr',
+    async (_,{rejectWithValue})=>{
+        try{
+            const response=await api.get('/user/tfa-qr');
+            return response.data;
+        }catch (error:unknown) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)

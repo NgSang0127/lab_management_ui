@@ -23,6 +23,7 @@ import {RegisterRequest} from "../../state/Authentication/ActionType.ts";
 import {useAppDispatch} from "../../state/store.ts";
 import {useNavigate} from "react-router-dom";
 import logo from "@images/logo.png";
+import {useTranslation} from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -60,6 +61,8 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignUp() {
+    const {t}=useTranslation();
+
     const navigate=useNavigate();
     const { isDarkMode, showCustomTheme } = useContext(ThemeContext);
     const dispatch = useAppDispatch();
@@ -98,7 +101,7 @@ export default function SignUp() {
 
         if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
             setEmailError(true);
-            setEmailErrorMessage('Please enter a valid email address.');
+            setEmailErrorMessage(t('signup.errors.email'));
             isValid = false;
         } else {
             setEmailError(false);
@@ -107,7 +110,7 @@ export default function SignUp() {
 
         if (!formData.password || formData.password.length < 8) {
             setPasswordError(true);
-            setPasswordErrorMessage('Password must be at least 8 characters long.');
+            setPasswordErrorMessage(t('signup.errors.password'));
             isValid = false;
         } else {
             setPasswordError(false);
@@ -116,7 +119,7 @@ export default function SignUp() {
 
         if (!formData.firstName) {
             setFirstNameError(true);
-            setFirstNameErrorMessage('Firstname is required.');
+            setFirstNameErrorMessage(t('signup.errors.firstName'));
             isValid = false;
         } else {
             setFirstNameError(false);
@@ -125,7 +128,7 @@ export default function SignUp() {
 
         if (!formData.lastName) {
             setLastNameError(true);
-            setLastNameErrorMessage('Lastname is required.');
+            setLastNameErrorMessage(t('signup.errors.lastName'));
             isValid = false;
         } else {
             setLastNameError(false);
@@ -134,7 +137,7 @@ export default function SignUp() {
 
         if (!formData.username) {
             setUsernameError(true);
-            setUsernameErrorMessage('Username is required.');
+            setUsernameErrorMessage(t('signup.errors.username'));
             isValid = false;
         } else {
             setUsernameError(false);
@@ -142,7 +145,7 @@ export default function SignUp() {
         }
         if (!formData.phoneNumber || formData.phoneNumber.length > 11) {
             setPhoneNumberError(true);
-            setPhoneNumberErrorMessage('Phone number is not correct format');
+            setPhoneNumberErrorMessage(t('signup.errors.phoneNumber'));
             isValid = false;
         } else {
             setPhoneNumberError(false);
@@ -188,7 +191,7 @@ export default function SignUp() {
                             variant="h4"
                             sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
                         >
-                            Sign up
+                            {t('signup.title')}
                         </Typography>
                         <Box
                             component="form"
@@ -196,7 +199,7 @@ export default function SignUp() {
                             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
                         >
                             <FormControl>
-                                <FormLabel htmlFor="firstName">FirstName</FormLabel>
+                                <FormLabel htmlFor="firstName">{t('signup.firstName')}</FormLabel>
                                 <TextField
                                     name="firstName"
                                     value={formData.firstName}
@@ -211,7 +214,7 @@ export default function SignUp() {
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel htmlFor="lastName">LastName</FormLabel>
+                                <FormLabel htmlFor="lastName">{t('signup.lastName')}</FormLabel>
                                 <TextField
                                     name="lastName"
                                     value={formData.lastName}
@@ -226,7 +229,7 @@ export default function SignUp() {
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel htmlFor="phoneNumber">PhoneNumber</FormLabel>
+                                <FormLabel htmlFor="phoneNumber">{t('signup.phoneNumber')}</FormLabel>
                                 <TextField
                                     name="phoneNumber"
                                     value={formData.phoneNumber}
@@ -257,7 +260,7 @@ export default function SignUp() {
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel htmlFor="username">Username</FormLabel>
+                                <FormLabel htmlFor="username">{t('signup.username')}</FormLabel>
                                 <TextField
                                     name="username"
                                     value={formData.username}
@@ -272,7 +275,7 @@ export default function SignUp() {
                                 />
                             </FormControl>
                             <FormControl>
-                                <FormLabel htmlFor="password">Password</FormLabel>
+                                <FormLabel htmlFor="password">{t('signup.password')}</FormLabel>
                                 <TextField
                                     name="password"
                                     value={formData.password}
@@ -291,30 +294,30 @@ export default function SignUp() {
                             </FormControl>
                             <FormControlLabel
                                 control={<Checkbox value="allowExtraEmails" color="primary" />}
-                                label="I want to receive updates via email."
+                                label={t('signup.allow_extra_email')}
                             />
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="contained"
                             >
-                                Sign up
+                                {t('signup.button')}
                             </Button>
                             <Typography sx={{ textAlign: 'center' }}>
-                                Already have an account?{' '}
+                                {t('signup.have_account')}{' '}
                                 <span>
                                     <Link
                                         href="/account/signin"
                                         variant="body2"
                                         sx={{ alignSelf: 'center' }}
                                     >
-                                        Sign in
+                                        {t('signin.title')}
                                     </Link>
                                 </span>
                             </Typography>
                         </Box>
                         <Divider>
-                            <Typography sx={{ color: 'text.secondary' }}>or</Typography>
+                            <Typography sx={{ color: 'text.secondary' }}>{t('signup.or')}</Typography>
                         </Divider>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Button
@@ -323,7 +326,7 @@ export default function SignUp() {
                                 onClick={() => alert('Sign up with Google')}
                                 startIcon={<GoogleIcon />}
                             >
-                                Sign up with Google
+                                {t('signup.google')}
                             </Button>
                             <Button
                                 fullWidth
@@ -331,7 +334,7 @@ export default function SignUp() {
                                 onClick={() => alert('Sign up with Facebook')}
                                 startIcon={<FacebookIcon />}
                             >
-                                Sign up with Facebook
+                                {t('signup.facebook')}
                             </Button>
                         </Box>
                     </Card>

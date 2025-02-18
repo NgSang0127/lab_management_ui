@@ -1,28 +1,31 @@
 import React from 'react';
 import { Box, Container, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {useTranslation} from "react-i18next";
 
-const faqs = [
-    {
-        question: 'What types of equipment does the lab support?',
-        answer: 'Our lab supports equipment such as computers, 3D printers, chemical analysis devices, and many other research tools.',
-    },
-    {
-        question: 'How do I register to use the lab?',
-        answer: 'You can register to use the lab through our online management system or by directly contacting the lab administrator.',
-    },
-    {
-        question: 'Does the lab support research projects?',
-        answer: 'Yes, the lab provides technical support and facilities for student and faculty research projects.',
-    },
-];
 
 const FAQ: React.FC = () => {
+    const { t } = useTranslation();
+
+    const faqs = [
+        {
+            question: t('home.faq.equipment'),
+            answer: t('home.faq.equipment_answer'),
+        },
+        {
+            question: t('home.faq.register'),
+            answer: t('home.faq.register_answer'),
+        },
+        {
+            question: t('home.faq.research'),
+            answer: t('home.faq.research_answer'),
+        },
+    ];
     return (
         <Box py={8} bgcolor="#f9f9f9">
             <Container maxWidth="md">
                 <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-                    Frequently Asked Questions
+                    {t('home.faq.title')}
                 </Typography>
                 <Box mt={4}>
                     {faqs.map((faq, index) => (

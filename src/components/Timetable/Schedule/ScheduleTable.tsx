@@ -8,15 +8,19 @@ import { fetchLessonTimes } from '../../../state/LessonTime/Reducer';
 import { fetchTimetables } from '../../../state/Timetable/Reducer';
 import { setSelectedWeek } from '../../../state/Timetable/Action';
 import {addDays, isSameDay, parse} from 'date-fns';
-import {daysOfWeek, periods, rooms} from '../../../utils/utilsTimetable';
-import convertDayOfWeekToVietnamese from '../../../utils/convertDay';
+import {periods, rooms} from '../../../utils/utilsTimetable';
+
 import SelectWeek from "../SelectWeek.tsx";
 import ScheduleHeader from "./ScheduleHeader.tsx";
 import ScheduleBody from "./ScheduleBody.tsx";
 import './Tooltip.css';
 import './Schedule.css'
+import {useTranslation} from "react-i18next";
+import useConvertDayOfWeek from "../../../utils/convertDay.ts";
 
 const ScheduleTable: React.FC = () => {
+    const {t}=useTranslation();
+    const { convertDayOfWeek } = useConvertDayOfWeek();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -67,6 +71,9 @@ const ScheduleTable: React.FC = () => {
         }
     };
 
+    const daysOfWeek: string[] = t("timetable.scheduleTableHeader.daysOfWeek", { returnObjects: true }) as string [];
+    console.log("sss",daysOfWeek);
+
     const handleCourseClick = (
         courseId: string | null,
         NH: string | null,
@@ -105,7 +112,7 @@ const ScheduleTable: React.FC = () => {
             }
 
             return (
-                convertDayOfWeekToVietnamese(item.dayOfWeek) === dayOfWeek &&
+                convertDayOfWeek(item.dayOfWeek) === dayOfWeek &&
                 item.startLessonTime.lessonNumber <= period &&
                 item.endLessonTime.lessonNumber >= period &&
                 item.room.name === roomName
@@ -125,17 +132,17 @@ const ScheduleTable: React.FC = () => {
         );
     if (errorLessonTimes)
         return (
-            <Alert severity="error">Có lỗi xảy ra khi tải lessonTimes: {errorLessonTimes}</Alert>
+            <Alert severity="error">{t('timetable.scheduleTable.errors.lessonTime',{error:errorLessonTimes})}</Alert>
         );
     if (errorTimetables)
-        return <Alert severity="error">Có lỗi xảy ra khi tải timetables: {errorTimetables}</Alert>;
+        return <Alert severity="error">{t('timetable.scheduleTable.errors.timetable',{error:errorTimetables})}</Alert>;
 
     return (
         <Box className="container mx-auto px-3 py-5">
             <Typography variant="h4" align="center" gutterBottom>
                 {selectedWeek
-                    ? `Timetable Week Range ${selectedWeek.startDate} - ${selectedWeek.endDate}`
-                    : 'Timetable'}
+                    ? t('timetable.scheduleTable.title',{startDate:selectedWeek.startDate,endDate:selectedWeek.endDate})
+                    : t('timetable.scheduleTable.defaultTitle')}
             </Typography>
             <SelectWeek onWeekChange={handleWeekChange} initialWeek={selectedWeek} />
             <Box className="overflow-x-auto mt-4">

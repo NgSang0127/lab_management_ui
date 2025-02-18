@@ -5,8 +5,10 @@ import {
     Box,
 } from '@mui/material';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import {useTranslation} from "react-i18next";
 
 const AssetDashboard: React.FC = () => {
+    const {t}=useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const [value, setValue] = useState(0);
@@ -66,12 +68,12 @@ const AssetDashboard: React.FC = () => {
                     onChange={handleChange}
                     aria-label="Asset Management Tabs"
                 >
-                    <Tab label="Assets" />
-                    <Tab label="Locations" />
-                    <Tab label="Categories" />
-                    <Tab label="Manager" />
-                    <Tab label="Maintainance" />
-                    <Tab label="Import/Export" />
+                    <Tab label={t('manager_asset.asset.title')} />
+                    <Tab label={t('manager_asset.location')} />
+                    <Tab label={t('manager_asset.category.title')} />
+                    <Tab label={t('manager_asset.manager')} />
+                    <Tab label={t('manager_asset.maintenance')} />manager_
+                    <Tab label={t('manager_asset.import_export')} />
                 </Tabs>
             </Box>
             <Box sx={{ p: 3 }}>

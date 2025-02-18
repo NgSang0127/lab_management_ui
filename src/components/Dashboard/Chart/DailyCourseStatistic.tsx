@@ -21,6 +21,7 @@ import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from "../../../state/store";
 import { getCourseLogStatistics, getDailyLogStatistic } from "../../../state/Dashboard/Reducer";
 import { CourseLogStatistics, DailyLogStatistics } from "../../../state/Dashboard/Action";
+import {useTranslation} from "react-i18next";
 
 
 ChartJS.register(
@@ -34,14 +35,15 @@ ChartJS.register(
     Legend
 );
 
-interface LogsDashboardProps {
+interface DailyCourseStatisticsProps {
     startDate: string;
     endDate: string;
     setError: (msg: string) => void;
     setErrorOpen: (open: boolean) => void;
 }
 
-const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
+const DailyCourseStatistic: React.FC<DailyCourseStatisticsProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
+    const {t}=useTranslation();
     const dispatch = useAppDispatch();
 
     const { dailyStats, courseStats, isLoading } = useSelector((state: RootState) => state.logs);
@@ -80,7 +82,7 @@ const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setEr
         labels: dailyLabels,
         datasets: [
             {
-                label: 'Log Count',
+                label: t('dashboard.logDashboard.label'),
                 data: dailyLogCount,
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -115,7 +117,7 @@ const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setEr
         labels: courseLabels,
         datasets: [
             {
-                label: 'Count',
+                label:  t('dashboard.logDashboard.count'),
                 data: courseLogCount,
                 backgroundColor: 'rgba(255, 159, 64, 0.6)',
             },
@@ -151,7 +153,7 @@ const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setEr
                     <Card className="shadow-lg">
                         <CardContent>
                             <Typography variant="h6" gutterBottom>
-                                Daily Log Statistics
+                                {t('dashboard.logDashboard.title')}
                             </Typography>
                             <div style={{width: '100%', overflowX: 'auto'}}>
                                 <div style={{minWidth: '500px', height: '300px'}}>
@@ -166,7 +168,7 @@ const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setEr
                     <Card className="shadow-lg">
                         <CardContent>
                             <Typography variant="h6" gutterBottom>
-                                Top 20 Course Log Statistics
+                                {t('dashboard.logDashboard.content')}
                             </Typography>
                             {/* Horizontal scroll */}
                             <div style={{ width: '100%', height: '400px', overflowX: 'auto' }}>
@@ -182,4 +184,4 @@ const LogsDashboard: React.FC<LogsDashboardProps> = ({ startDate, endDate, setEr
     );
 };
 
-export default LogsDashboard;
+export default DailyCourseStatistic;
