@@ -3,7 +3,7 @@ import {
     cancelTimetable, createTimetable,
     fetchCourseDetails,
     fetchTimetableByDate,
-    fetchTimetables,
+    fetchTimetables, getFourSemesterRecent,
     getRangeWeek,
     importTimetable
 } from "./Reducer.ts";
@@ -59,9 +59,18 @@ export interface Timetable {
 
 }
 
+export interface Semester{
+    id:number;
+    name:string;
+    academicYear:string;
+    startDate:string;
+    endDate:string;
+}
+
 
 interface TimetableState {
     weekRange: { firstWeekStart: string; lastWeekEnd: string } | null;
+    semester:Semester[];
     timetables: Timetable[];
     course:Timetable | null;
     timetableDate:Timetable[];
@@ -76,6 +85,7 @@ interface TimetableState {
 
 const initialState: TimetableState = {
     weekRange:null,
+    semester:[],
     course:null,
     timetableDate:[],
     selectedWeek:null,
@@ -185,8 +195,20 @@ const timetableSlice = createSlice({
                 state.isLoading=false;
                 state.error=action.payload as string;
             })
-        ;
-    },
+            //semester
+            .addCase(getFourSemesterRecent.pending,(state)=>{
+                state.isLoading=true;
+                state.error=null;
+            })
+            .addCase(getFourSemesterRecent.fulfilled,(state,action)=>{
+                state.isLoading=false;
+                state.semester=action.payload;
+            })
+            .addCase(getFourSemesterRecent.rejected,(state,action)=> {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+    }
 });
 
 export const { setSelectedWeek } = timetableSlice.actions;

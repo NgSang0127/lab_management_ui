@@ -23,7 +23,7 @@ const VerifyEmailOTP = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { isLoading, success } = useSelector((state: RootState) => state.auth);
+    const { isLoading } = useSelector((state: RootState) => state.auth);
 
     // Lấy username từ query string
     const queryParams = new URLSearchParams(location.search);
@@ -58,8 +58,8 @@ const VerifyEmailOTP = () => {
 
     const handleSendEmail = async () => {
         try {
-            await dispatch(sendTFAEmail(username)).unwrap();
-            showAlert("Mã OTP đã được gửi đến email của bạn.", "success");
+            const result=await dispatch(sendTFAEmail(username)).unwrap();
+            showAlert(result, "success");
         } catch (err) {
             showAlert(err as string, "error");
         }
@@ -67,9 +67,9 @@ const VerifyEmailOTP = () => {
 
     const handleVerifyOTP = async () => {
         try {
-            await dispatch(verifyTFAEmail({ username, code: otp })).unwrap();
+            const result=await dispatch(verifyTFAEmail({ username, code: otp })).unwrap();
+            showAlert(result, "success");
             navigate("/");
-            showAlert(success as string, "success");
         } catch (err) {
             showAlert(err as string, "error");
         }

@@ -15,6 +15,7 @@ import {createTheme} from "@mui/material/styles";
 import getThemeSignInSignUp from "./theme/getThemeSignInSignUp.ts";
 import {SidebarProvider} from "./context/SidebarContext.tsx";
 import useUserActivityCheck from "./utils/useTabVisibilityCheck.ts";
+import {connectWebSocket} from "./config/websocket.ts";
 
 
 const App: React.FC = () => {
@@ -23,6 +24,10 @@ const App: React.FC = () => {
 
     useUserActivityCheck();
     const storedAccessToken = localStorage.getItem('accessToken');
+    // useEffect(() => {
+    //     console.log("🔌 Connecting WebSocket...");
+    //     connectWebSocket();
+    // }, []);
     useEffect(() => {
         if (storedAccessToken) {
             console.log("Access token from localStorage: ", storedAccessToken);

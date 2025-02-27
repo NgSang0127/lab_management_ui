@@ -381,6 +381,7 @@
       "code": "Mã Môn Học :",
       "name": "Tên Môn Học :",
       "room": "Phòng Học :",
+      "group": "Nhóm",
       "dayOfWeek": "Thứ :",
       "startLesson": "Tiết Bắt Đầu :",
       "numberOfLesson": "Số Tiết :",

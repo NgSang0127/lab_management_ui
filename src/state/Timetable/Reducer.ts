@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import {api, API_URL} from '../../config/api.ts';
-import {TimetableRequest} from "./Action.ts";
+import {Semester, TimetableRequest} from "./Action.ts";
 
 
 interface TimetableApiResponse {
@@ -98,9 +98,13 @@ export const fetchTimetables = createAsyncThunk(
 
 export const getRangeWeek = createAsyncThunk(
     'timetable/getRangeWeek',
-    async (_, { rejectWithValue }) => {
+    async (param: { semesterId:number }, { rejectWithValue }) => {
         try {
-            const response = await api.get(`${API_URL}/timetable/weeks-range`);
+            const response = await api.get(`${API_URL}/timetable/weeks-range`,{
+                params:{
+                    semesterId:param.semesterId
+                }
+            });
             console.log("rangeweek",response);
             return response.data; // Trả về dữ liệu cho reducer
         } catch (error) {
@@ -115,6 +119,27 @@ export const getRangeWeek = createAsyncThunk(
         }
     }
 );
+
+export const getFourSemesterRecent = createAsyncThunk(
+    'timetable/getFourSemesterRecent',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get<Semester[]>('/timetable/semester');
+            console.log("four semester",response.data)
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+);
+
 
 export const fetchCourseDetails = createAsyncThunk(
     'timetable/fetchCourseDetails',

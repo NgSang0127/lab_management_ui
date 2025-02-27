@@ -212,32 +212,23 @@ export const authSlice = createSlice({
             //tfa email
             .addCase(sendTFAEmail.pending,(state)=>{
                 state.isLoading = true;
-                state.error=null;
             })
             .addCase(sendTFAEmail.fulfilled,(state,action)=>{
                 state.isLoading = false;
-                state.success=action.payload;
-                state.error=null;
+
             })
             .addCase(sendTFAEmail.rejected,(state,action)=>{
                 state.isLoading = false;
-                state.success='';
-                state.error=action.payload as string;
             })
             //verifyTFAEmail
             .addCase(verifyTFAEmail.pending,(state)=>{
                 state.isLoading = true;
-                state.error=null;
             })
             .addCase(verifyTFAEmail.fulfilled,(state,action)=>{
                 state.isLoading = false;
-                state.success=action.payload;
-                state.error=null;
             })
             .addCase(verifyTFAEmail.rejected,(state,action)=>{
                 state.isLoading = false;
-                state.success='';
-                state.error=action.payload as string;
             })
 
 

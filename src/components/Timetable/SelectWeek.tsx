@@ -24,7 +24,7 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange, initialWeek }) =>
     // Chỉ gọi getRangeWeek khi component lần đầu được mount
     useEffect(() => {
         if (!initialized.current && (!weekRange?.firstWeekStart || !weekRange?.lastWeekEnd)) {
-            dispatch(getRangeWeek());
+            dispatch(getRangeWeek({semesterId:2}));
             initialized.current = true;
         }
     }, [dispatch, weekRange?.firstWeekStart, weekRange?.lastWeekEnd]);

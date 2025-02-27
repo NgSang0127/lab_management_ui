@@ -13,7 +13,9 @@ import AssetDashboard from "../components/Asset/AssetDashboard.tsx";
 import AssetManager from "../components/Asset/AssetManager.tsx";
 import MaintenancePage from "../components/Asset/MaintenancePage.tsx";
 import AssetImportExport from "../components/Asset/AssetImportExport.tsx";
-import NotificationCenter from "../components/Notification/NotificationCenter.tsx";
+// @ts-ignore
+import UserNotificationCenter from "../components/Notification/UserNotificationCenter.tsx";
+import AdminNotificationCenter from "../components/Notification/AdminNotificationCenter.tsx";
 
 
 const adminRoutes = [
@@ -35,7 +37,7 @@ const adminRoutes = [
             },
             {
               path: 'notification',
-              element: <NotificationCenter/>
+              element: <AdminNotificationCenter/>
             },
             {
                 path: 'timetable/import',

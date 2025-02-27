@@ -18,7 +18,7 @@ import ScheduleTable from "../components/Timetable/Schedule/ScheduleTable.tsx";
 import DashboardAdmin from "../components/Dashboard/DashboardAdmin.tsx";
 import DashboardContent from "../components/Dashboard/DashboardContent.tsx";
 import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
-import NotificationCenter from "../components/Notification/NotificationCenter.tsx";
+import UserNotificationCenter from "../components/Notification/UserNotificationCenter.tsx";
 import SettingPage from "../components/Dashboard/Setting/SettingPage.tsx";
 import Dashboard from "../components/Dashboard/Dashboard.tsx";
 import AttendanceCheck from "../components/Attendance/AttendanceCheck.tsx";
@@ -80,7 +80,7 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'notification',
-                        element: <NotificationCenter/>
+                        element: <UserNotificationCenter/>
                     },
                     {
                         path: 'setting',

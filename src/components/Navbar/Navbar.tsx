@@ -27,6 +27,8 @@ import SidebarAdmin from "../Dashboard/SidebarAdmin.tsx";
 import {SidebarContext} from "../../context/SidebarContext.tsx";
 import {useTranslation} from "react-i18next";
 import {styled} from "@mui/material/styles";
+import NotificationIcon from "./NotificationIcon.tsx";
+import Stack from "@mui/material/Stack";
 
 // eslint-disable-next-line no-empty-pattern
 const CustomToggleButtonGroup = styled(ToggleButtonGroup)(({ }) => ({
@@ -243,14 +245,16 @@ const Navbar: React.FC = () => {
                     </CustomToggleButtonGroup>
 
                     {user?.enabled ? (
-                        <>
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            {/* Icon thông báo */}
+                            <NotificationIcon />
+
+                            {/* Avatar người dùng */}
                             <IconButton
                                 onClick={handleAvatarClick}
                                 color="inherit"
                                 aria-label="account of current user"
-                                sx={{
-                                    padding: 0,
-                                }}
+                                sx={{ padding: 0 }}
                             >
                                 <Avatar
                                     sx={{ bgcolor: blue.A400 }}
@@ -261,7 +265,7 @@ const Navbar: React.FC = () => {
                                         : <AccountCircle />}
                                 </Avatar>
                             </IconButton>
-                        </>
+                        </Stack>
                     ) : (
                         <IconButton
                             edge="end"

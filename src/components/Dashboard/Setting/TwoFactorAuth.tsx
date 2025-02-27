@@ -51,7 +51,7 @@ const TwoFactorAuth: React.FC = () => {
 
         try {
             // Gửi mã OTP đến API để xác minh
-            await dispatch(verifyOtp({ code: otp, username: user?.username })).unwrap();
+            const result=await dispatch(verifyOtp({ code: otp, username: user?.username })).unwrap();
 
             // Nếu OTP xác minh thành công, hiển thị thông báo thành công
             showAlert('OTP verification successful!', 'success');

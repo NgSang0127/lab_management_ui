@@ -381,6 +381,7 @@
       "code": "Class Code :",
       "name": "Course :",
       "room": "Room :",
+      "group": "Group",
       "dayOfWeek": "DayofWeek :",
       "startLesson": "Start Lesson:",
       "numberOfLesson": "Number of Lessons :",

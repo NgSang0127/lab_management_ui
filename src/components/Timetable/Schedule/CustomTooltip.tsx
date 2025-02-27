@@ -23,7 +23,7 @@ const CustomTooltip = ({scheduleItem, children}: { scheduleItem: Timetable, chil
                             hasCourse ? (
                                     <>
                                         <p><strong>{t('timetable.toolTip.code')}</strong> <span
-                                            className="text-teal-600">{`${scheduleItem.courses[0].code} nhóm ${scheduleItem.courses[0].nh}`}</span>
+                                            className="text-teal-600">{`${scheduleItem.courses[0].code} ${t('timetable.toolTip.group')} ${scheduleItem.courses[0].nh}`}</span>
                                         </p>
                                         <p><strong>{t('timetable.toolTip.name')}</strong> <span
                                             className="text-teal-600">{scheduleItem.courses[0].name}</span></p>
