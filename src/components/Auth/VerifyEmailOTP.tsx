@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { RootState, useAppDispatch } from "../../state/store.ts";
-import { sendTFAEmail, verifyTFAEmail } from "../../state/Authentication/Reducer.ts";
+import {useState, useEffect, useCallback} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {RootState, useAppDispatch} from "../../state/store.ts";
+import {sendTFAEmail, verifyTFAEmail} from "../../state/Authentication/Reducer.ts";
 import {
     Button,
     TextField,
@@ -14,7 +14,7 @@ import {
     CardActions,
     Stack
 } from "@mui/material";
-import { useSelector } from "react-redux";
+import {useSelector} from "react-redux";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 
@@ -23,7 +23,7 @@ const VerifyEmailOTP = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const { isLoading } = useSelector((state: RootState) => state.auth);
+    const {isLoading} = useSelector((state: RootState) => state.auth);
 
     // Lấy username từ query string
     const queryParams = new URLSearchParams(location.search);
@@ -43,11 +43,11 @@ const VerifyEmailOTP = () => {
     });
 
     const showAlert = (message: string, severity: "success" | "error" | "info") => {
-        setAlert({ open: true, message, severity });
+        setAlert({open: true, message, severity});
     };
 
     const handleCloseAlert = useCallback(() => {
-        setAlert((prev) => ({ ...prev, open: false }));
+        setAlert((prev) => ({...prev, open: false}));
     }, []);
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const VerifyEmailOTP = () => {
 
     const handleSendEmail = async () => {
         try {
-            const result=await dispatch(sendTFAEmail(username)).unwrap();
+            const result = await dispatch(sendTFAEmail(username)).unwrap();
             showAlert(result, "success");
         } catch (err) {
             showAlert(err as string, "error");
@@ -67,7 +67,7 @@ const VerifyEmailOTP = () => {
 
     const handleVerifyOTP = async () => {
         try {
-            const result=await dispatch(verifyTFAEmail({ username, code: otp })).unwrap();
+            const result = await dispatch(verifyTFAEmail({username, code: otp})).unwrap();
             showAlert(result, "success");
             navigate("/");
         } catch (err) {
@@ -87,13 +87,13 @@ const VerifyEmailOTP = () => {
             }}
         >
             <Container maxWidth="sm">
-                <Card sx={{ borderRadius: 3, boxShadow: 5, backgroundColor: "white" }}>
+                <Card sx={{borderRadius: 3, boxShadow: 5, backgroundColor: "white"}}>
                     <CardContent>
-                        <Typography variant="h5" align="center" sx={{ fontWeight: "bold", mb: 3, color: "#1976d2" }}>
+                        <Typography variant="h5" align="center" sx={{fontWeight: "bold", mb: 3, color: "#1976d2"}}>
                             Xác thực Email bằng OTP
                         </Typography>
 
-                        <LoadingIndicator open={isLoading} />
+                        <LoadingIndicator open={isLoading}/>
 
                         <Stack spacing={2}>
                             {/* Nhập username */}
@@ -116,43 +116,41 @@ const VerifyEmailOTP = () => {
                                 Gửi mã OTP qua Email
                             </Button>
 
-                            {/* Nhập mã OTP */}
-                            <TextField
-                                label="Nhập mã OTP"
-                                variant="outlined"
-                                fullWidth
-                                type="text"
-                                value={otp}
-                                onChange={(e) => setOtp(e.target.value)}
-                                placeholder="Nhập mã OTP"
-                                inputProps={{ maxLength: 6 }}
-                            />
+                            <Box component="form" onSubmit={(e) => { e.preventDefault(); handleVerifyOTP(); }}>
+                                <Stack spacing={2}>
+                                    <TextField
+                                        label="Nhập mã OTP"
+                                        variant="outlined"
+                                        fullWidth
+                                        type="text"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        placeholder="Nhập mã OTP"
+                                        inputProps={{ maxLength: 6 }}
+                                    />
 
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                onClick={handleVerifyOTP}
-                                disabled={!otp || otp.length !== 6}
-                                sx={{
-                                    color: (!otp || otp.length !== 6) ? "#757575" : "#fff",
-                                    "&:disabled": {
-                                        backgroundColor: "#bdbdbd", // Màu nền khi disabled
-                                        color: "#757575" // Màu chữ khi disabled
-                                    }
-                                }}
-                            >
-                                Xác thực OTP
-                            </Button>
+                                    {/* Button không cần onClick, chỉ cần type="submit" */}
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        fullWidth
+                                        disabled={!otp || otp.length !== 6}
+                                    >
+                                        Xác thực OTP
+                                    </Button>
+                                </Stack>
+                            </Box>
                         </Stack>
                     </CardContent>
-                    <CardActions sx={{ justifyContent: "center", mt: 1 }}>
+                    <CardActions sx={{justifyContent: "center", mt: 1}}>
                         <Typography variant="caption" color="textSecondary">
                             Nếu bạn không nhận được mã, hãy kiểm tra thư rác hoặc thử lại sau.
                         </Typography>
                     </CardActions>
                 </Card>
 
-                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message} severity={alert.severity} />
+                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message}
+                             severity={alert.severity}/>
             </Container>
         </Box>
     );

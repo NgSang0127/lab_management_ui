@@ -90,7 +90,7 @@ const Home: React.FC = () => {
             <Stats/>
 
             {/* Features Section */}
-            <Box py={8} id="features" bgcolor="#ffffff">
+            <Box py={8} id="features-section" bgcolor="#ffffff">
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
                         {t('home.features.main_functions')}
@@ -234,7 +234,7 @@ const Home: React.FC = () => {
             {/* FAQ Section */}
             <FAQ/>
             {/* Contact Section */}
-            <Box py={8} bgcolor="#ffffff">
+            <Box py={8} bgcolor="#ffffff" id="contact-section">
                 <Container maxWidth="lg">
                     <Typography variant="h4" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
                         {t('home.contact_us.title')}

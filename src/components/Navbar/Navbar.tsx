@@ -29,6 +29,7 @@ import {useTranslation} from "react-i18next";
 import {styled} from "@mui/material/styles";
 import NotificationIcon from "./NotificationIcon.tsx";
 import Stack from "@mui/material/Stack";
+import { Link as ScrollLink } from "react-scroll";
 
 // eslint-disable-next-line no-empty-pattern
 const CustomToggleButtonGroup = styled(ToggleButtonGroup)(({ }) => ({
@@ -81,8 +82,8 @@ const Navbar: React.FC = () => {
     const navItems = [
         { text: t("navbar.about_us"), path: "/about" },
         { text: t("navbar.view_timetable"), path: "/timetable/by-week" },
-        { text: t("navbar.featured"), path: "/featured" },
-        { text: t("navbar.contact_me"), path: "/contact" },
+        { text: t("navbar.featured"), scrollTo: "features-section" },
+        { text: t("navbar.contact_me"),  scrollTo: "contact-section" },
         { text: t('attendance.title'), path: "/attendance/checkAttendance" },
     ];
 
@@ -103,6 +104,16 @@ const Navbar: React.FC = () => {
         }
     }, [navigate, user]);
 
+    const handleScrollClick = (scrollTo: string) => {
+        if (location.pathname !== "/") {
+            navigate("/", { state: { scrollTo } });
+            setTimeout(() => {
+                document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 300);
+        } else {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    };
 
     // Handle storage changes for logout
     useEffect(() => {
@@ -118,24 +129,56 @@ const Navbar: React.FC = () => {
 
     // Render navigation links for desktop
     const renderNavLinks = () => (
-        navItems.map((item) => (
-            <Button
-                key={item.text}
-                component={Link}
-                to={item.path}
-                sx={{
-                    color: 'white',
-                    textTransform: 'none',
-                    '&:hover': {
-                        textDecoration: 'underline',
-                        backgroundColor: 'transparent',
-                    },
-                }}
-            >
-                {item.text}
-            </Button>
-        ))
+        <Box display="flex" gap={2}>
+            {navItems.map((item) =>
+                item.scrollTo ? (
+                    <Box
+                        key={item.text}
+                        onClick={() => handleScrollClick(item.scrollTo)}
+                        sx={{
+                            cursor: "pointer",
+                            color: "white",
+                            textTransform: "none",
+                            fontWeight: 500,
+                            padding: "8px 16px",
+                            borderRadius: "8px",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                textDecoration: "none",
+                            },
+                        }}
+                    >
+                        {item.text}
+                    </Box>
+                ) : (
+                    <Button
+                        key={item.text}
+                        component={Link}
+                        to={item.path}
+                        sx={{
+                            color: "white",
+                            textTransform: "none",
+                            fontWeight: 500,
+                            padding: "8px 16px",
+                            borderRadius: "8px",
+                            transition: "all 0.3s ease",
+                            "&:hover": {
+                                backgroundColor: "rgba(255, 255, 255, 0.1)",
+                                textDecoration: "none",
+                            },
+                            "&.active": {
+                                color: "#FFD700",
+                            },
+                        }}
+                    >
+                        {item.text}
+                    </Button>
+                )
+            )}
+        </Box>
     );
+
 
     // Drawer content for mobile
     const drawer = ( <SidebarAdmin />);
@@ -145,7 +188,7 @@ const Navbar: React.FC = () => {
             position="sticky"
             sx={{
                 zIndex: theme.zIndex.drawer + 1,
-                background: 'linear-gradient(294deg, #0093E9 0%, #80D0C7 100%)',
+                background: 'linear-gradient(290deg, #0093E9 0%, #80D0C7 100%)',
                 boxShadow: 'none',
             }}
         >

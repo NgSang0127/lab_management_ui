@@ -59,7 +59,7 @@ export default function ForgotPassword({ open, handleClose }: ForgotPasswordProp
             console.log("result",result)
             showAlert(result, 'success');
             setTimeout(() => {
-                navigate('/account/reset-code');
+                navigate('/account/reset-code',{ state: { email }});
             }, 1000);
         } catch (error) {
             // Nếu thất bại, hiển thị lỗi

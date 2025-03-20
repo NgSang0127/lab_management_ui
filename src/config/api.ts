@@ -11,10 +11,6 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
 });
 
@@ -22,28 +18,16 @@ api.interceptors.response.use(
     (res) => res,
     async (err) => {
         const originalRequest = err.config;
+
+        // Nếu lỗi 401 và chưa retry, thử refresh token
         if (err.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
-            const refreshToken = localStorage.getItem("refreshToken");
-            if (!refreshToken) {
-                console.log("No refresh token available.");
-                return Promise.reject(err);
-            }
+
             try {
-                // Sử dụng instance `axios` riêng cho việc refresh token
-                const refreshApi = axios.create({ baseURL: API_URL });
-                const res = await refreshApi.post(
-                    `/auth/refresh-token`,
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${refreshToken}`,
-                        },
-                    }
-                );
-                const newAccessToken = res.data.access_token;
-                localStorage.setItem("accessToken", newAccessToken);
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                // Gửi request refresh token (cookie tự động gửi kèm)
+                await axios.post(`${API_URL}/auth/refresh-token`, {}, { withCredentials: true });
+
+                // Retry request ban đầu
                 return api(originalRequest);
             } catch (e) {
                 console.error("Error refreshing token:", e);

@@ -1,5 +1,6 @@
-import React, {useContext, useState} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {
+    AlertColor,
     Box,
     Button,
     Checkbox,
@@ -28,6 +29,7 @@ import Divider from "@mui/material/Divider";
 import {FacebookIcon, GoogleIcon} from "../../theme/CustomIcons.tsx";
 import {useTranslation} from "react-i18next";
 import {clearStatus} from "../../state/Authentication/Action.ts";
+import CustomAlert from "../Support/CustomAlert.tsx";
 
 // Extract common styles
 const cardStyles = (theme: any) => ({
@@ -84,6 +86,25 @@ export default function SignIn() {
     const [errors, setErrors] = useState({username: '', password: ''});
     const [open, setOpen] = useState(false);
 
+
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: AlertColor;
+    }>({
+        open: false,
+        message: "",
+        severity: "info",
+    });
+
+    const showAlert = (message: string, severity: "success" | "error" | "info") => {
+        setAlert({open: true, message, severity});
+    };
+
+    const handleCloseAlert = useCallback(() => {
+        setAlert((prev) => ({...prev, open: false}));
+    }, []);
+
     // Handlers - extracted for modularity
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
@@ -121,20 +142,28 @@ export default function SignIn() {
                 const loginResponse = await dispatch(loginUser(formData)).unwrap();
 
                 if (loginResponse.tfaEnabled) {
-                    // Nếu bật TFA, chuyển đến trang QR Code
-                    dispatch(clearStatus())
+                    dispatch(clearStatus());
                     navigate('/account/verify', { state: { username: formData.username } });
+
                 } else {
-                    // Nếu không bật TFA, chuyển đến trang chủ
-                    dispatch(clearStatus())
+                    dispatch(clearStatus());
                     await dispatch(getUser()).unwrap();
-                    navigate('/');
+                    showAlert("Đăng nhập thành công!", "success");
+                    setTimeout(() => {
+                        navigate('/');
+                    }, 2000); // Chờ 2 giây trước khi chuyển trang
                 }
             } catch (error) {
                 console.error('Failed to login:', error);
+                showAlert("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.", "error");
             }
+        } else {
+            showAlert("Vui lòng nhập đầy đủ thông tin!", "error");
         }
     };
+
+
+
 
     return (
         <ThemeProvider theme={showCustomTheme ? signInTheme : defaultTheme}>
@@ -165,7 +194,7 @@ export default function SignIn() {
                             <FormControl>
                                 <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
                                     <FormLabel htmlFor="password">{t('signin.password')}</FormLabel>
-                                    <Link component="button" onClick={handleForgotPasswordOpen} variant="body2"
+                                    <Link href="#" onClick={handleForgotPasswordOpen} variant="body2"
                                           sx={{alignSelf: 'baseline'}}
                                     >
                                         {t('signin.forgot_password')}
@@ -236,6 +265,8 @@ export default function SignIn() {
                         </Box>
                     </Card>
                 </Stack>
+                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message}
+                             severity={alert.severity}/>
             </SignInContainer>
         </ThemeProvider>
     );

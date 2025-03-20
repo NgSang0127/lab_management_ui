@@ -17,7 +17,8 @@ const ResetPassword: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const resetCode = location.state?.resetCode; // Receive reset code from state
+    const resetCode = location.state?.resetCode;
+    const email=location.state?.email;
 
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -59,9 +60,11 @@ const ResetPassword: React.FC = () => {
 
 
         try {
-            await dispatch(resetPassword({ code: resetCode, newPassword: password })).unwrap();
+            await dispatch(resetPassword({email, code: resetCode, newPassword: password })).unwrap();
             showAlert(success as string, 'success');
-            navigate('/account/signin');
+            setTimeout(() => {
+                navigate("/account/signin");
+            }, 2000);
         } catch {
             showAlert(error || t('reset_password.errors.navigate'), 'error');
         }

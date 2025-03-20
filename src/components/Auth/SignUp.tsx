@@ -13,17 +13,19 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
-import { useContext } from 'react';
+import {useCallback, useContext, useState} from 'react';
 
 import { FacebookIcon, GoogleIcon } from "../../theme/CustomIcons";
 import { ThemeContext } from "../../theme/ThemeContext.tsx";
 import getThemeSignInSignUp from "../../theme/getThemeSignInSignUp.ts";
 import { registerUser } from "../../state/Authentication/Reducer.ts";
 import {RegisterRequest} from "../../state/Authentication/ActionType.ts";
-import {useAppDispatch} from "../../state/store.ts";
+import { useAppDispatch} from "../../state/store.ts";
 import {useNavigate} from "react-router-dom";
 import logo from "@images/logo.png";
 import {useTranslation} from "react-i18next";
+import {AlertColor} from "@mui/material";
+import CustomAlert from "../Support/CustomAlert.tsx";
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -69,6 +71,26 @@ export default function SignUp() {
     const mode = isDarkMode ? 'dark' : 'light';
     const defaultTheme = createTheme({ palette: { mode } });
     const SignUpTheme = createTheme(getThemeSignInSignUp(mode));
+
+
+
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: AlertColor;
+    }>({
+        open: false,
+        message: "",
+        severity: "info",
+    });
+
+    const showAlert = (message: string, severity: "success" | "error" | "info") => {
+        setAlert({open: true, message, severity});
+    };
+
+    const handleCloseAlert = useCallback(() => {
+        setAlert((prev) => ({...prev, open: false}));
+    }, []);
 
     const [formData, setFormData] = React.useState<RegisterRequest>({
         firstName: '',
@@ -159,14 +181,22 @@ export default function SignUp() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (validateInputs()) {
-            try {
-                 dispatch(registerUser(formData)).unwrap();
-                navigate("/check-email")
-            } catch (error) {
-                console.error('Failed to login:', error);
-            }
+            showAlert("Đang xử lý đăng ký...", "info");
+
+            dispatch(registerUser(formData))
+                .unwrap()
+                .then((response) => {
+                    showAlert(response.message, "success");
+                    setTimeout(function() {
+                        navigate("/check-email");
+                    }, 2000);
+                })
+                .catch((error) => {
+                    showAlert(error || "Đăng ký thất bại!", "error");
+                });
         }
     };
+
 
     return (
         <ThemeProvider theme={showCustomTheme ? SignUpTheme : defaultTheme}>
@@ -339,6 +369,8 @@ export default function SignUp() {
                         </Box>
                     </Card>
                 </Stack>
+                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message}
+                             severity={alert.severity}/>
             </SignUpContainer>
         </ThemeProvider>
     );

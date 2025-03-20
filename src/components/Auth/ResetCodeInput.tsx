@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {TextField, Button, Box, Typography} from '@mui/material';
 import {useAppDispatch} from "../../state/store";
 import {useSelector} from "react-redux";
 import {RootState} from "../../state/store";
-import {forgotPassword, validateResetCode} from "../../state/Authentication/Reducer";
-import {useNavigate} from "react-router-dom";
+import { validateResetCode} from "../../state/Authentication/Reducer";
+import {useLocation, useNavigate} from "react-router-dom";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import {useTranslation} from "react-i18next";
@@ -15,9 +15,12 @@ const RESET_CODE_LENGTH = 6;
 const ResetCodeInput: React.FC = () => {
     const {t} = useTranslation();
 
+    const location=useLocation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const {isLoading} = useSelector((state: RootState) => state.auth);
+
+    const email = location.state?.email || "";
 
     const [code, setCode] = useState<string>('');
     const [alert, setAlert] = useState<{
@@ -68,11 +71,11 @@ const ResetCodeInput: React.FC = () => {
         }
 
         try {
-            const result = await dispatch(validateResetCode({code, newPassword: null})).unwrap();
+            const result = await dispatch(validateResetCode({email,code, newPassword: null})).unwrap();
             showAlert(result, 'success');
             setTimeout(() => {
 
-                navigate('/account/reset-password', {state: {resetCode: code}});
+                navigate('/account/reset-password', {state: {resetCode: code,email}});
             }, 1000);
             setCode('');
         } catch (error) {
