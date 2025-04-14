@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import {
@@ -8,6 +8,8 @@ import {
     List,
     ListItem,
     ListItemText,
+    ListItemAvatar,
+    Avatar,
     Typography,
     Dialog,
     DialogTitle,
@@ -16,7 +18,9 @@ import {
     Button,
     IconButton,
     Tooltip,
-    CircularProgress
+    CircularProgress,
+    Box,
+    Divider,
 } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MarkAsReadIcon from "@mui/icons-material/DoneAll";
@@ -24,16 +28,22 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../state/store.ts";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { fetchNotifications, fetchUnreadNotifications } from "../../state/Notification/Reducer.ts";
-import {NotificationResponse} from "../../api/notification/notification.ts";
+import { fetchNotifications, fetchUnreadNotifications, markAsRead } from "../../state/Notification/Reducer.ts";
+import { NotificationResponse } from "../../api/notification/notification.ts";
+import { motion } from "framer-motion";
 import {markNotificationAsRead} from "../../state/Notification/Action.ts";
+
+const ITEMS_PER_PAGE = 10;
 
 const UserNotificationCenter: React.FC = () => {
     const dispatch = useAppDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
-    const { notifications, unReadNotifications, isLoading, page, last } = useSelector((state: RootState) => state.notify);
+    const { notifications, unReadNotifications, isLoading, page, last } = useSelector(
+        (state: RootState) => state.notify
+    );
     const [selectedNotification, setSelectedNotification] = useState<NotificationResponse | null>(null);
     const token = localStorage.getItem("accessToken");
+    const listRef = useRef<HTMLUListElement>(null);
 
     // WebSocket Setup
     useEffect(() => {
@@ -45,9 +55,11 @@ const UserNotificationCenter: React.FC = () => {
                 client.subscribe(`/user/${user?.id}/notification`, (messageOutput) => {
                     try {
                         const notification: NotificationResponse = JSON.parse(messageOutput.body);
-                        dispatch(fetchUnreadNotifications()); // Cập nhật số lượng chưa đọc
+                        dispatch(fetchUnreadNotifications());
+                        // Reset về trang đầu tiên khi có thông báo mới
+                        dispatch(fetchNotifications({ page: 0, size: ITEMS_PER_PAGE }));
                     } catch (error) {
-                        console.error("❌ Error parsing JSON:", error);
+                        console.error("Error parsing JSON:", error);
                     }
                 });
             },
@@ -60,111 +72,198 @@ const UserNotificationCenter: React.FC = () => {
 
     // Fetch notifications on mount
     useEffect(() => {
-        dispatch(fetchNotifications(page));
+        dispatch(fetchNotifications({ page: 0, size: ITEMS_PER_PAGE }));
         dispatch(fetchUnreadNotifications());
     }, [dispatch]);
 
-    // Mark notification as read
-    const handleMarkAsRead = (id: number, status: string) => {
+    // Infinite scroll logic
+    useEffect(() => {
+        const handleScroll = () => {
+            if (listRef.current) {
+                const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+                if (scrollTop + clientHeight >= scrollHeight - 5 && !isLoading && !last) {
+                    // Tải trang tiếp theo khi cuộn đến cuối
+                    dispatch(fetchNotifications({ page: page + 1, size: ITEMS_PER_PAGE }));
+                }
+            }
+        };
+
+        const listElement = listRef.current;
+        if (listElement) {
+            listElement.addEventListener("scroll", handleScroll);
+        }
+
+        return () => {
+            if (listElement) {
+                listElement.removeEventListener("scroll", handleScroll);
+            }
+        };
+    }, [dispatch, isLoading, last, page]);
+
+    // Mark notification as read (gọi cả client và server)
+    const handleMarkAsRead = async (id: number, status: string) => {
         if (status === "READ") return;
-        dispatch(markNotificationAsRead(id));
+
+        try {
+            // Gọi API server để đánh dấu đã đọc
+            await dispatch(markAsRead(id)).unwrap();
+
+            // Cập nhật state client-side
+            dispatch(markNotificationAsRead(id));
+        } catch (error) {
+            console.error("Error marking notification as read:", error);
+        }
     };
 
-    // Open notification details
+    // Open notification details and mark as read if unread
     const handleOpenDetail = (notification: NotificationResponse) => {
         setSelectedNotification(notification);
+        // Tự động đánh dấu đã đọc khi nhấn vào thông báo nếu trạng thái là UNREAD
         if (notification.status === "UNREAD") {
             handleMarkAsRead(notification.id, notification.status);
         }
     };
 
     return (
-        <Card className="max-w-6xl mx-auto mt-5 p-4 rounded-xl shadow-lg bg-white dark:bg-gray-800">
-            <div className="flex items-center justify-between">
-                <Typography variant="h5" sx={{ textAlign: "center", flexGrow: 1 }} className="font-bold text-gray-900 dark:text-white">
-                    🔔 Notification Center
+        <Card
+            sx={{
+                maxWidth: 1000,
+                mx: "auto",
+                mt: 4,
+                p: 3,
+                borderRadius: 3,
+                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+                background: "linear-gradient(135deg, #f5f7fa, #e4e7eb)",
+            }}
+        >
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                    Trung Tâm Thông Báo
                 </Typography>
-                <Tooltip title="Unread Notifications">
-                    <Badge badgeContent={unReadNotifications.length} color="error">
-                        <NotificationsIcon fontSize="large" className="text-gray-700 dark:text-gray-300" />
+                <Tooltip title="Thông báo chưa đọc">
+                    <Badge badgeContent={unReadNotifications?.length || 0} color="error">
+                        <NotificationsIcon sx={{ fontSize: 30, color: "primary.main" }} />
                     </Badge>
                 </Tooltip>
-            </div>
+            </Box>
 
-
-            <CardContent className="mt-3">
-                <List className="max-h-custom overflow-auto">
+            <CardContent>
+                <List
+                    ref={listRef}
+                    sx={{ overflow: "auto", bgcolor: "#fff", borderRadius: 2 }}
+                >
                     {notifications?.length === 0 ? (
-                        <Typography variant="body2" className="text-center text-gray-500">
-                            No notifications available.
+                        <Typography variant="body2" sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
+                            Không có thông báo nào.
                         </Typography>
                     ) : (
-                        notifications.map((notif) => (
-                            <ListItem
+                        (notifications ?? []).map((notif, index) => (
+                            <motion.div
                                 key={notif.id}
-                                className={`rounded-lg transition-all cursor-pointer p-3 my-2 ${
-                                    notif.status === "UNREAD" ? "bg-blue-200" : "bg-gray-100 dark:bg-gray-700"
-                                }`}
-                                onClick={() => handleOpenDetail(notif)}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
                             >
-                                <ListItemText
-                                    primary={
-                                        <Typography variant="subtitle1" className="font-semibold text-gray-900 dark:text-white">
-                                            {notif.title}
-                                        </Typography>
-                                    }
-                                    secondary={
-                                        <>
-                                            <Typography variant="body2" className="truncate text-gray-700 dark:text-gray-300">
-                                                {notif.message}
+                                <ListItem
+                                    sx={{
+                                        borderRadius: 2,
+                                        my: 1,
+                                        bgcolor: notif.status === "UNREAD" ? "blue.50" : "grey.100",
+                                        "&:hover": {
+                                            bgcolor: notif.status === "UNREAD" ? "blue.100" : "grey.200",
+                                            transform: "translateY(-2px)",
+                                            transition: "all 0.2s ease-in-out",
+                                        },
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => handleOpenDetail(notif)}
+                                >
+                                    <ListItemAvatar>
+                                        <Avatar sx={{ bgcolor: notif.status === "UNREAD" ? "primary.main" : "grey.400" }}>
+                                            <NotificationsIcon />
+                                        </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={
+                                            <Typography
+                                                variant="subtitle1"
+                                                sx={{ fontWeight: "medium", color: "text.primary" }}
+                                            >
+                                                {notif.title}
                                             </Typography>
-                                            <Typography variant="caption" className="text-gray-500">
-                                                {format(new Date(notif.createdDate), "dd/MM/yyyy HH:mm:ss", { locale: vi })}
-                                            </Typography>
-                                        </>
-                                    }
-                                />
-                                {notif.status === "UNREAD" && (
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleMarkAsRead(notif.id, notif.status);
-                                        }}
-                                    >
-                                        <MarkAsReadIcon color="primary" />
-                                    </IconButton>
-                                )}
-                            </ListItem>
+                                        }
+                                        secondary={
+                                            <Box>
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        color: "text.secondary",
+                                                        display: "-webkit-box",
+                                                        WebkitLineClamp: 1,
+                                                        WebkitBoxOrient: "vertical",
+                                                        overflow: "hidden",
+                                                    }}
+                                                >
+                                                    {notif.message}
+                                                </Typography>
+                                                <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                                                    {format(new Date(notif.createdDate), "dd/MM/yyyy HH:mm:ss", {
+                                                        locale: vi,
+                                                    })}
+                                                </Typography>
+                                            </Box>
+                                        }
+                                    />
+                                    {notif.status === "UNREAD" && (
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleMarkAsRead(notif.id, notif.status);
+                                            }}
+                                        >
+                                            <MarkAsReadIcon color="primary" />
+                                        </IconButton>
+                                    )}
+                                </ListItem>
+                                <Divider sx={{ bgcolor: "grey.200" }} />
+                            </motion.div>
                         ))
                     )}
+                    {isLoading && (
+                        <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                            <CircularProgress size={24} />
+                        </Box>
+                    )}
                 </List>
-
-                {!last && (
-                    <Button
-                        onClick={() => dispatch(fetchNotifications(page + 1))}
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        sx={{ mt: 2 }}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? <CircularProgress size={24} /> : "Xem thêm"}
-                    </Button>
-                )}
             </CardContent>
 
-            <Dialog open={Boolean(selectedNotification)} onClose={() => setSelectedNotification(null)} fullWidth>
-                <DialogTitle>{selectedNotification?.title}</DialogTitle>
+            <Dialog
+                open={Boolean(selectedNotification)}
+                onClose={() => setSelectedNotification(null)}
+                fullWidth
+                maxWidth="sm"
+                sx={{ "& .MuiDialog-paper": { borderRadius: 3 } }}
+            >
+                <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <NotificationsIcon color="primary" />
+                    <Typography variant="h6">{selectedNotification?.title}</Typography>
+                </DialogTitle>
                 <DialogContent>
-                    <Typography>{selectedNotification?.message}</Typography>
-                    <Typography variant="caption" color="textSecondary">
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        {selectedNotification?.message}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
                         {selectedNotification &&
                             format(new Date(selectedNotification.createdDate), "dd/MM/yyyy HH:mm:ss", { locale: vi })}
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setSelectedNotification(null)} color="primary">
+                    <Button
+                        onClick={() => setSelectedNotification(null)}
+                        color="primary"
+                        sx={{ borderRadius: 2 }}
+                    >
                         Đóng
                     </Button>
                 </DialogActions>

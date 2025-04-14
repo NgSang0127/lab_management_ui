@@ -3,12 +3,12 @@ import {api} from "../../config/api.ts";
 import {PageResponse} from "../Page/ActionType.ts";
 import axios from "axios";
 import {NotificationResponse} from "../../api/notification/notification.ts";
-
+import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 
 
 export const fetchNotifications = createAsyncThunk(
     'notify/fetchNotifications',
-    async (params:{page:number,size:number }, {rejectWithValue}) => {
+    async (params: { page: number, size: number }, {rejectWithValue}) => {
         try {
             const {data} = await api.get<PageResponse<NotificationResponse>>('/notifications', {
                 params: {
@@ -33,9 +33,9 @@ export const fetchNotifications = createAsyncThunk(
 
 export const fetchUnreadNotifications = createAsyncThunk(
     'notify/fetchUnreadNotifications',
-    async (_ ,{rejectWithValue}) => {
+    async (_, {rejectWithValue}) => {
         try {
-            const response =await api.get<NotificationResponse[]>('/notifications/unread');
+            const response = await api.get<NotificationResponse[]>('/notifications/unread');
             return response.data;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
@@ -49,4 +49,26 @@ export const fetchUnreadNotifications = createAsyncThunk(
         }
     }
 )
+
+export const markAsRead = createAsyncThunk(
+    'notify/markAsRead',
+    async (id: number, {rejectWithValue}) => {
+        try {
+            const response = await api.post<string>(`/notifications/${id}/read`);
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+
+    }
+)
+
+
 
