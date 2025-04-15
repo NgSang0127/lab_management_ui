@@ -1,50 +1,41 @@
-# React + TypeScript + Vite
+#  Lab Management HCMIU
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application designed to streamline laboratory operations with an intuitive and responsive user interface.
 
-Currently, two official plugins are available:
+## 📖 Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Lab Management UI** is a frontend application built to simplify the management of laboratory resources. It allows users to track equipment, schedule lab bookings, and monitor experiment progress through a clean and user-friendly interface. Developed as part of my learning journey at **International University (HCMIU)**, this project showcases my skills in modern web development using **React**, **Tailwind CSS**, and **Material-UI**.
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **Equipment Management**: View and manage lab equipment details.
+- **Lab Booking**: Schedule and track lab usage with ease.
+- **Responsive Design**: Works seamlessly on desktop and mobile devices.
+- **Modern UI**: Built with **Material-UI** and **Tailwind CSS** for a polished look.
+- **API Integration**: Connects to a backend for data storage and retrieval (e.g., MySQL).
 
-- Configure the top-level `parserOptions` property like this:
+## 🛠️ Technologies Used
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- **Frontend**:
+  - React
+  - Redux
+  - Tailwind CSS
+  - Material-UI
+- **Tools**:
+  - Visual Studio Code
+  - WebStorm
+  - Docker
+  - Postman
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### Prerequisites
+- Node.js (>= 14.x)
+- npm or yarn
+- Docker (optional, for containerized setup)
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/NgSang0127/lab_management_ui.git
+   cd lab_management_ui
