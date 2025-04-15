@@ -74,14 +74,8 @@ export const forgotPassword = createAsyncThunk(
             const {data} = await api.post(`${API_URL}/auth/forgot-password`, request);
             return data;
         } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
-            }
-            return rejectWithValue('Unknown error');
+            const err = handleAxiosError(error);
+            return rejectWithValue(err.message);
         }
     }
 )
@@ -93,13 +87,9 @@ export const validateResetCode = createAsyncThunk(
             return data;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
+                const err = handleAxiosError(error);
+                return rejectWithValue(err.message);
             }
-            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -165,13 +155,9 @@ export const verifyOtp = createAsyncThunk(
             return data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
+                const err = handleAxiosError(error);
+                return rejectWithValue(err.message);
             }
-            return rejectWithValue('Unknown error');
         }
     }
 )
@@ -204,14 +190,8 @@ export const sendTFAEmail = createAsyncThunk(
             const { data } = await axios.post(`${API_URL}/auth/email-otp`, { username });
             return data;
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
-            }
-            return rejectWithValue('Unknown error');
+            const err = handleAxiosError(error);
+            return rejectWithValue(err.message);
         }
     }
 );
@@ -233,13 +213,9 @@ export const verifyTFAEmail = createAsyncThunk(
             return data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
+                const err = handleAxiosError(error);
+                return rejectWithValue(err.message);
             }
-            return rejectWithValue('Unknown error');
         }
     }
 )

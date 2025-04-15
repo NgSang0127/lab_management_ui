@@ -145,8 +145,9 @@ export const authSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(validateResetCode.fulfilled, (state) => {
+            .addCase(validateResetCode.fulfilled, (state,action) => {
                 state.isLoading = false;
+                state.success=action.payload.message;
             })
             .addCase(validateResetCode.rejected, (state, action) => {
                 state.isLoading = false;
@@ -157,9 +158,10 @@ export const authSlice = createSlice({
                 state.isLoading = true;
                 state.error = null;
             })
-            .addCase(resetPassword.fulfilled, (state) => {
+            .addCase(resetPassword.fulfilled, (state,action) => {
                 state.isLoading = false;
                 state.error = null;
+                state.error=action.payload.message;
             })
             .addCase(resetPassword.rejected, (state, action) => {
                 state.isLoading = false;

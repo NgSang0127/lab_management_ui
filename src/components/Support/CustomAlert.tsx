@@ -1,12 +1,13 @@
 import React from 'react';
 import { Snackbar, Alert, AlertColor } from '@mui/material';
+
 interface CustomAlertProps {
     open: boolean;
     message: string;
     severity?: AlertColor;
-    /** Hàm callback đóng alert */
     onClose: () => void;
 }
+
 const CustomAlert: React.FC<CustomAlertProps> = ({
                                                      open,
                                                      message,
@@ -21,4 +22,5 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
         </Snackbar>
     );
 };
+
 export default CustomAlert;
