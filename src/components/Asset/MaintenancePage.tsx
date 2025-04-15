@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
-    TablePagination, FormControl, InputLabel, Select, MenuItem, IconButton
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+    IconButton, TextField, FormControl, InputLabel, Select, MenuItem,
 } from '@mui/material';
+import {
+    DataGrid, GridColDef, GridCellParams, GridToolbar,
+} from '@mui/x-data-grid';
 import { AxiosError } from 'axios';
 import LoadingIndicator from "../Support/LoadingIndicator";
-import CustomAlert from "../Support/CustomAlert"; // Hoặc ErrorAlert
+import CustomAlert from "../Support/CustomAlert";
 import {
     MaintenanceRequest,
     MaintenanceResponse,
@@ -17,36 +19,31 @@ import {
     deleteMaintenanceById,
 } from "../../api/asset/maintenanceApi";
 import AssetSelect from "./AssetSelect.tsx";
-import {format} from "date-fns";
-import {SelectChangeEvent} from "@mui/material/Select";
+import { format } from "date-fns";
+import { SelectChangeEvent } from "@mui/material/Select";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete"; // Đường dẫn tương ứng với code API bạn đưa
+import DeleteIcon from "@mui/icons-material/Delete";
+import {CustomNoRowsOverlay} from "../../utils/CustomNoRowsOverlay.tsx";
 
 interface MaintenancePageProps {}
 
 const MaintenancePage: React.FC<MaintenancePageProps> = () => {
-    // State cho danh sách Maintenance
     const [maintenances, setMaintenances] = useState<MaintenanceResponse[]>([]);
     const [totalElements, setTotalElements] = useState(0);
 
-    // Pagination
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    // Filter
     const [keyword, setKeyword] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
 
-    // Loading & Error & Success
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Dialog Create/Update
     const [openDialog, setOpenDialog] = useState(false);
     const [editMaintenance, setEditMaintenance] = useState<MaintenanceRequest | null>(null);
 
-    // Form state
     const [form, setForm] = useState<MaintenanceRequest>({
         assetId: 0,
         scheduledDate: "",
@@ -54,11 +51,9 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
         remarks: "",
     });
 
-    // Dialog Xác Nhận Xóa
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
-    // Fetch Maintenances
     const fetchData = async () => {
         try {
             setLoading(true);
@@ -79,32 +74,8 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
 
     useEffect(() => {
         fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, rowsPerPage, keyword, statusFilter]);
 
-    // Pagination handlers
-    const handleChangePage = (
-        _event: React.MouseEvent<HTMLButtonElement> | null,
-        newPage: number
-    ) => {
-        setPage(newPage);
-    };
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    // Filter handlers
-    const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setKeyword(e.target.value);
-        setPage(0); // reset về trang đầu
-    };
-    const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
-        setStatusFilter(event.target.value);
-    };
-
-
-    // Dialog create/update
     const handleOpenDialogCreate = () => {
         setEditMaintenance(null);
         setForm({
@@ -115,6 +86,7 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
         });
         setOpenDialog(true);
     };
+
     const handleOpenDialogEdit = (maintenance: MaintenanceResponse) => {
         setEditMaintenance(maintenance);
         setForm({
@@ -125,62 +97,61 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
         });
         setOpenDialog(true);
     };
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    };
+
+    const handleCloseDialog = () => setOpenDialog(false);
 
     const handleSave = async () => {
-        // Validate
         if (form.assetId === 0) {
             setError("Asset ID is required.");
+            setSuccess(null);
             return;
         }
         if (!form.scheduledDate) {
             setError("Scheduled date is required.");
+            setSuccess(null);
             return;
         }
         try {
             setLoading(true);
             setError(null);
+            setSuccess(null);
             if (editMaintenance) {
-                // Update
-                await putUpdateMaintenanceById(
-                    (editMaintenance as MaintenanceResponse).id,
-                    form
-                );
+                await putUpdateMaintenanceById((editMaintenance as MaintenanceResponse).id, form);
                 setSuccess("Maintenance updated successfully.");
             } else {
-                // Create
                 await postCreateMaintenance(form);
                 setSuccess("Maintenance created successfully.");
             }
             handleCloseDialog();
-            fetchData(); // refresh
+            fetchData();
         } catch (err: any) {
             if (err instanceof AxiosError) {
                 setError(err.response?.data?.message || err.message);
             } else {
                 setError("An unexpected error occurred.");
             }
+            setSuccess(null);
         } finally {
             setLoading(false);
         }
     };
 
-    // Delete
     const handleDeleteClick = (id: number) => {
         setDeleteId(id);
         setOpenDeleteDialog(true);
     };
+
     const handleCloseDeleteDialog = () => {
         setOpenDeleteDialog(false);
         setDeleteId(null);
     };
+
     const handleConfirmDelete = async () => {
         if (deleteId !== null) {
             try {
                 setLoading(true);
                 setError(null);
+                setSuccess(null);
                 await deleteMaintenanceById(deleteId);
                 setSuccess("Maintenance deleted successfully.");
                 await fetchData();
@@ -190,6 +161,7 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
                 } else {
                     setError("An unexpected error occurred.");
                 }
+                setSuccess(null);
             } finally {
                 setLoading(false);
                 handleCloseDeleteDialog();
@@ -197,135 +169,174 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
         }
     };
 
+    const columns: GridColDef<MaintenanceResponse>[] = [
+        {
+            field: 'id',
+            headerName: 'No.',
+            minWidth: 100,
+            flex: 0.5,
+            sortable: true,
+            filterable: false,
+            valueGetter: (value, row) => {
+                const index = maintenances.findIndex((item) => item.id === row.id);
+                return index >= 0 ? index + 1 + page * rowsPerPage : '-';
+            },
+        },
+        {
+            field: 'assetName',
+            headerName: 'Asset Name',
+            minWidth: 150,
+            flex: 1,
+        },
+        {
+            field: 'scheduledDate',
+            headerName: 'Scheduled Date',
+            minWidth: 180,
+            flex: 1,
+            renderCell: (params) => format(new Date(params.value), 'dd/MM/yyyy HH:mm'),
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            minWidth: 150,
+            flex: 1,
+        },
+        {
+            field: 'remarks',
+            headerName: 'Remarks',
+            minWidth: 200,
+            flex: 2,
+        },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            minWidth: 120,
+            flex: 0.5,
+            sortable: false,
+            filterable: false,
+            renderCell: (params: GridCellParams) => (
+                <>
+                    <IconButton
+                        sx={{ color: 'primary.main' }}
+                        size="small"
+                        onClick={() => handleOpenDialogEdit(params.row as MaintenanceResponse)}
+                    >
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton
+                        sx={{ color: 'error.main' }}
+                        size="small"
+                        onClick={() => handleDeleteClick(params.row.id)}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </>
+            ),
+        },
+    ];
+
     return (
         <div className="p-4">
             <h2 className="text-2xl font-bold mb-4">Maintenance</h2>
-
-            {/* Filter Controls */}
-            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                    label="Keyword"
-                    variant="outlined"
-                    value={keyword}
-                    onChange={handleKeywordChange}
-                    placeholder="Search by remarks..."
-                />
-                <FormControl variant="outlined" sx={{ minWidth: 180 }}>
-                    <InputLabel id="status-filter-label">Filter by Status</InputLabel>
-                    <Select
-                        labelId="status-filter-label"
-                        label="Filter by Status"
-                        value={statusFilter}
-                        onChange={handleStatusFilterChange}
-                    >
-                        <MenuItem value="">
-                            <em>All Status</em>
-                        </MenuItem>
-                        <MenuItem value={MaintenanceStatus.SCHEDULED}>
-                            SCHEDULED
-                        </MenuItem>
-                        <MenuItem value={MaintenanceStatus.COMPLETED}>
-                            COMPLETED
-                        </MenuItem>
-                        <MenuItem value={MaintenanceStatus.CANCELED}>
-                            CANCELED
-                        </MenuItem>
-                    </Select>
-                </FormControl>
+            <Box display="flex" gap={2} mb={2}>
                 <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
                     Create Maintenance
                 </Button>
+
+                <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
+                    <TextField
+                        label="Keyword"
+                        variant="outlined"
+                        sx={{
+                            '& .MuiOutlinedInput-root': { borderRadius: 10 },
+                            maxWidth: '200px'
+                        }}
+                        value={keyword}
+                        onChange={(e) => {
+                            setKeyword(e.target.value);
+                            setPage(0);
+                        }}
+                        placeholder="Search by remarks..."
+                    />
+                    <FormControl
+                        variant="outlined"
+                        sx={{ minWidth: 180, '& .MuiOutlinedInput-root': { borderRadius: 10 } }}
+                    >
+                        <InputLabel id="status-filter-label">Filter by Status</InputLabel>
+                        <Select
+                            labelId="status-filter-label"
+                            label="Filter by Status"
+                            value={statusFilter}
+                            onChange={(e: SelectChangeEvent<string>) => {
+                                setStatusFilter(e.target.value);
+                                setPage(0);
+                            }}
+                        >
+                            <MenuItem value="">
+                                <em>All Status</em>
+                            </MenuItem>
+                            <MenuItem value={MaintenanceStatus.SCHEDULED}>SCHEDULED</MenuItem>
+                            <MenuItem value={MaintenanceStatus.COMPLETED}>COMPLETED</MenuItem>
+                            <MenuItem value={MaintenanceStatus.CANCELED}>CANCELED</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
             </Box>
 
-            {/* Loading Indicator */}
-            <LoadingIndicator open={loading} />
-
-            {/* Error/Success Alert */}
             <CustomAlert
-                open={!!error}
+                open={!!error && !success}
                 message={error || ""}
                 severity="error"
                 onClose={() => setError(null)}
             />
             <CustomAlert
-                open={!!success}
+                open={!!success && !error}
                 message={success || ""}
                 severity="success"
                 onClose={() => setSuccess(null)}
             />
 
-            {/* Table Maintenances */}
-            <TableContainer component={Paper} className="mt-4">
-                <Table size="small" aria-label="maintenance-table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>No.</TableCell>
-                            <TableCell>Asset Name</TableCell>
-                            <TableCell>Scheduled Date</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Remarks</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {maintenances.map((mtn, index) => {
-                            const rowNumber = page * rowsPerPage + index + 1;
-                            return (
-                                <TableRow key={mtn.id}>
-                                    <TableCell>{rowNumber}</TableCell>
-                                    <TableCell>{mtn.assetName}</TableCell>
-                                    <TableCell>{format(new Date(mtn.scheduledDate), 'dd/MM/yyyy HH:mm')}</TableCell>
-                                    <TableCell>{mtn.status}</TableCell>
-                                    <TableCell>{mtn.remarks}</TableCell>
-                                    <TableCell>
-                                        <IconButton
-                                            sx={{ color: 'primary.main' }}  // Màu xanh
-                                            size="small"
-                                            onClick={() => handleOpenDialogEdit(mtn)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton
-                                            sx={{ color: 'error.main' }}  // Màu đỏ
-                                            size="small"
-                                            onClick={() => handleDeleteClick(mtn.id)}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
-                        {maintenances.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={7} align="center">
-                                    No maintenances found.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            {/* Pagination */}
-            <Box display="flex" justifyContent="flex-end" alignItems="center" mt={2}>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={totalElements}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    showFirstButton
-                    showLastButton
-                    sx={{ position: 'relative', left: '-10px' }}
+            <Box sx={{ height: '700px', width: '100%', mt: 4 }}>
+                <DataGrid
+                    rows={maintenances}
+                    columns={columns.map((col) => ({
+                        ...col,
+                        align: 'center',
+                        headerAlign: 'center',
+                    }))}
+                    paginationMode="server"
+                    rowCount={totalElements}
+                    paginationModel={{ page, pageSize: rowsPerPage }}
+                    onPaginationModelChange={(newModel) => {
+                        setPage(newModel.page);
+                        setRowsPerPage(newModel.pageSize);
+                    }}
+                    pageSizeOptions={[5, 10, 25]}
+                    loading={loading}
+                    slotProps={{
+                        pagination: {
+                            showFirstButton: true,
+                            showLastButton: true,
+                        },
+                    }}
+                    slots={{
+                        toolbar: GridToolbar,
+                        noRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            color: '#1976d2',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                        },
+                        '--DataGrid-overlayHeight': '300px',
+                    }}
+                    disableRowSelectionOnClick
                 />
             </Box>
 
-            {/* Dialog Create/Update */}
             <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                <DialogTitle >
+                <DialogTitle>
                     {editMaintenance ? "Update Maintenance" : "Create Maintenance"}
                 </DialogTitle>
                 <DialogContent className="space-y-4" sx={{ mt: 5 }}>
@@ -341,7 +352,6 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
                                 }}
                             />
                         )}
-
                     </div>
                     <TextField
                         label="Scheduled Date"
@@ -383,7 +393,6 @@ const MaintenancePage: React.FC<MaintenancePageProps> = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Dialog Xác nhận Xóa */}
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
                 <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent>

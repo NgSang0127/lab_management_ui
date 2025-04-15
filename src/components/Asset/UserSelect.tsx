@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Autocomplete, TextField, CircularProgress, Paper } from '@mui/material';
+import { Autocomplete, TextField, CircularProgress, Paper, InputAdornment } from '@mui/material';
 import { useSelector } from 'react-redux';
 import debounce from 'lodash.debounce';
 import { RootState, useAppDispatch } from '../../state/store.ts';
-import { getUsers } from "../../state/Admin/Reducer.ts";
-import { User } from "../../state/Authentication/Action.ts";
+import { getUsers } from '../../state/Admin/Reducer.ts';
+import { User } from '../../state/Authentication/Action.ts';
 import { styled } from '@mui/material/styles';
+import {unwrapResult} from "@reduxjs/toolkit";
 
-// Tùy chỉnh màu sắc của Paper (dropdown)
 const StyledPaper = styled(Paper)(({ theme }) => ({
-    backgroundColor: theme.palette.mode === 'light' ? '#fff8d6' : '#424242',
+    backgroundColor: theme.palette.mode === 'light' ? '#f8f6f4' : '#424242',
 }));
 
 interface UserSelectProps {
@@ -19,40 +19,70 @@ interface UserSelectProps {
 
 const UserSelect: React.FC<UserSelectProps> = ({ assignedUserId, setAssignedUserId }) => {
     const dispatch = useAppDispatch();
-    const { user, isLoading } = useSelector((state: RootState) => state.admin);
+    const {  isLoading } = useSelector((state: RootState) => state.admin);
 
-    console.log("user",user);
     const [inputValue, setInputValue] = useState<string>('');
-    const [options, setOptions] = useState<User[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [open, setOpen] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(0);
+    const [hasMoreUsers, setHasMoreUsers] = useState<boolean>(true);
 
-    // Debounce fetchUsers to avoid excessive API calls
+    const fetchUsers = async (searchKeyword: string = '', pageNum: number = 0, append: boolean = false) => {
+        try {
+            const size = 20;
+            const response = await dispatch(
+                getUsers({
+                    page: pageNum,
+                    size,
+                    keyword: searchKeyword,
+                    role: '',
+                })
+            );
+            const result=unwrapResult(response);
+            const newUsers = Array.isArray(result.content) ? result.content : [];
+            const uniqueUsers = Array.from(
+                new Map([...(append ? filteredUsers : []), ...newUsers].map(u => [u.id, u])).values()
+            );
+            setFilteredUsers(uniqueUsers);
+            setHasMoreUsers(result.totalElements > uniqueUsers.length);
+        } catch (err: any) {
+            console.error(err.message || 'Failed to fetch users.');
+        }
+    };
+
     const debouncedFetchUsers = useMemo(
         () =>
-            debounce((query: string) => {
-                if (query.length < 2) return;
-                dispatch(getUsers({ page: 0, size: 20, keyword: query, role: '' }));
-            }, 500),
-        [dispatch]
+            debounce((keyword: string) => {
+                setPage(0);
+                fetchUsers(keyword, 0, false);
+            }, 300),
+        []
     );
+
+    useEffect(() => {
+        if (open) {
+            fetchUsers('', 0, false);
+        }
+        return () => {
+            debouncedFetchUsers.cancel();
+        };
+    }, [open]);
 
     useEffect(() => {
         if (inputValue) {
             debouncedFetchUsers(inputValue);
-        } else {
-            setOptions([]);
+        } else if (open) {
+            fetchUsers('', 0, false);
         }
-        // Cleanup debounce on unmount
-        return () => {
-            debouncedFetchUsers.cancel();
-        };
-    }, [inputValue, debouncedFetchUsers]);
+    }, [inputValue, open]);
 
-    useEffect(() => {
-        if (user.length > 0) {
-            setOptions(user);
+    const handleUserLoadMore = () => {
+        if (hasMoreUsers && !isLoading) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchUsers(inputValue, nextPage, true);
         }
-    }, [user]);
+    };
 
     const handleInputChange = (_event: any, newInputValue: string) => {
         setInputValue(newInputValue);
@@ -60,6 +90,7 @@ const UserSelect: React.FC<UserSelectProps> = ({ assignedUserId, setAssignedUser
 
     const handleChange = (_event: any, newValue: User | null) => {
         setAssignedUserId(newValue ? newValue.id : null);
+        setInputValue(newValue ? newValue.username || '' : '');
     };
 
     return (
@@ -68,14 +99,17 @@ const UserSelect: React.FC<UserSelectProps> = ({ assignedUserId, setAssignedUser
             open={open}
             onOpen={() => setOpen(true)}
             onClose={() => setOpen(false)}
-            getOptionLabel={(option) => `${option.firstName} ${option.lastName} (${option.username})`}
-            options={options}
+            getOptionLabel={(option) => option.username || ''}
+            getOptionKey={(option) => option.id}
+            filterOptions={(x) => x} // Rely on backend filtering
+            options={filteredUsers}
             loading={isLoading}
-            value={options.find(user => user.id === assignedUserId) || null}
+            value={filteredUsers.find(user => user.id === assignedUserId) || null}
             onChange={handleChange}
             onInputChange={handleInputChange}
-            noOptionsText={inputValue.length < 2 ? 'Enter at least two characters' : 'Not found user'}
+            noOptionsText={inputValue.length < 1 && !filteredUsers.length ? 'Type to search users' : 'No users found'}
             PaperComponent={(props) => <StyledPaper {...props} />}
+            clearOnBlur
             renderInput={(params) => (
                 <TextField
                     {...params}
@@ -83,15 +117,35 @@ const UserSelect: React.FC<UserSelectProps> = ({ assignedUserId, setAssignedUser
                     variant="outlined"
                     fullWidth
                     slotProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                            <>
-                                {isLoading ? <CircularProgress color="inherit" size={20} /> : null}
-                                {params.InputProps.endAdornment}
-                            </>
-                        ),
+                        input: {
+                            ...params.InputProps,
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    {isLoading && <CircularProgress color="inherit" size={20} />}
+                                    {params.InputProps.endAdornment}
+                                </InputAdornment>
+                            ),
+                        },
                     }}
                 />
+            )}
+            slotProps={{
+                listbox: {
+                    onScroll: (event: React.SyntheticEvent) => {
+                        const listboxNode = event.currentTarget;
+                        const isNearBottom =
+                            listboxNode.scrollTop + listboxNode.clientHeight >= listboxNode.scrollHeight - 1;
+                        if (isNearBottom && hasMoreUsers && !isLoading) {
+                            handleUserLoadMore();
+                        }
+                    },
+                    style: { maxHeight: '300px', overflow: 'auto' },
+                },
+            }}
+            renderOption={(props, option) => (
+                <li {...props} key={option.id}>
+                    {option.username || ''}
+                </li>
             )}
         />
     );

@@ -11,19 +11,18 @@ import {
     Tooltip,
     AlertColor,
 } from "@mui/material";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Upload as UploadIcon, Download as DownloadIcon, Close as CloseIcon } from "@mui/icons-material";
 import { importAssetsFromCSV, importAssetsFromExcel, exportAssetsToCSV, exportAssetsToExcel } from "../../api/asset/importexportApi";
 import LoadingIndicator from "../Support/LoadingIndicator";
 import CustomAlert from "../Support/CustomAlert";
 import { styled } from '@mui/material/styles';
 
-// Styled input for file selection
+
 const Input = styled('input')({
     display: 'none',
 });
 
-// Styled component for drag-and-drop area
 const DragAndDropBox = styled(Box)(({ theme }) => ({
     border: `2px dashed ${theme.palette.primary.main}`,
     borderRadius: theme.shape.borderRadius,
@@ -50,12 +49,10 @@ const AssetImportExport: React.FC = () => {
     });
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // Handle closing the alert
     const handleCloseAlert = useCallback(() => {
         setAlert((prev) => ({ ...prev, open: false }));
     }, []);
 
-    // Handle importing CSV
     const handleImportCSV = useCallback(async () => {
         if (!csvFile) return;
         setIsLoading(true);
@@ -66,11 +63,11 @@ const AssetImportExport: React.FC = () => {
                 message: response,
                 severity: "success",
             });
-            setCsvFile(null); // Reset file input
+            setCsvFile(null);
         } catch (error: any) {
             setAlert({
                 open: true,
-                message: error.message || "An error occurred while importing CSV.",
+                message: error || "An error occurred while importing CSV.",
                 severity: "error",
             });
         } finally {
@@ -93,7 +90,7 @@ const AssetImportExport: React.FC = () => {
         } catch (error: any) {
             setAlert({
                 open: true,
-                message: error.message || "An error occurred while importing Excel.",
+                message: error || "An error occurred while importing Excel.",
                 severity: "error",
             });
         } finally {
@@ -122,7 +119,7 @@ const AssetImportExport: React.FC = () => {
         } catch (error: any) {
             setAlert({
                 open: true,
-                message: error.message || "An error occurred while exporting CSV.",
+                message: error || "An error occurred while exporting CSV.",
                 severity: "error",
             });
         } finally {
@@ -130,7 +127,6 @@ const AssetImportExport: React.FC = () => {
         }
     }, []);
 
-    // Handle exporting Excel
     const handleExportExcel = useCallback(async () => {
         setIsLoading(true);
         try {
@@ -151,7 +147,7 @@ const AssetImportExport: React.FC = () => {
         } catch (error: any) {
             setAlert({
                 open: true,
-                message: error.message || "An error occurred while exporting Excel.",
+                message: error || "An error occurred while exporting Excel.",
                 severity: "error",
             });
         } finally {
@@ -159,7 +155,6 @@ const AssetImportExport: React.FC = () => {
         }
     }, []);
 
-    // Handle drag-and-drop for CSV
     const handleDropCSV = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -176,7 +171,6 @@ const AssetImportExport: React.FC = () => {
         }
     };
 
-    // Handle drag-and-drop for Excel
     const handleDropExcel = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -193,7 +187,6 @@ const AssetImportExport: React.FC = () => {
         }
     };
 
-    // Prevent default behavior for drag over
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
     };

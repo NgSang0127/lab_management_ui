@@ -1,49 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
-    IconButton,
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+    IconButton, TextField, Select, MenuItem, FormControl, InputLabel, Chip, Autocomplete,
 } from '@mui/material';
 import {
     DataGrid, GridColDef, GridCellParams, GridToolbar,
 } from '@mui/x-data-grid';
-import {
-    CategoryResponse, deleteCategoryById,
-    fetchCategories,
-    postCreateCategory,
-    putUpdateCategoryById
-} from "../../api/asset/categoryApi.ts";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
+import { AxiosError } from "axios";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useTranslation } from "react-i18next";
+import {
+    deleteRoomById,
+    fetchRooms,
+    postCreateRoom,
+    putUpdateRoomById,
+    RoomResponse,
+    RoomStatus
+} from "../../api/asset/roomApi.ts";
+import { fetchSoftwares, getSoftwaresByRoomId, SoftwareResponse } from '../../api/asset/softwareApi.ts';
 import {CustomNoRowsOverlay} from "../../utils/CustomNoRowsOverlay.tsx";
 
-interface Category {
-    id: number;
-    name: string;
-    description?: string;
-}
-
-const CategoryPage: React.FC = () => {
-    const { t } = useTranslation();
-    const [data, setData] = useState<CategoryResponse[]>([]);
+const RoomPage: React.FC = () => {
+    const [data, setData] = useState<RoomResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Pagination
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [page, setPage] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 
-    // Dialog create/update category
     const [openDialog, setOpenDialog] = useState(false);
-    const [editCategory, setEditCategory] = useState<Category | null>(null);
+    const [editRoom, setEditRoom] = useState<RoomResponse | null>(null);
     const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
+    const [location, setLocation] = useState('');
+    const [capacity, setCapacity] = useState(0);
+    const [status, setStatus] = useState<RoomStatus>(RoomStatus.AVAILABLE);
+    const [softwareList, setSoftwareList] = useState<SoftwareResponse[]>([]);
+    const [selectedSoftwareIds, setSelectedSoftwareIds] = useState<number[]>([]);
 
-    // Dialog xác nhận xóa
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -51,7 +48,7 @@ const CategoryPage: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await fetchCategories(page, rowsPerPage);
+            const res = await fetchRooms(page, rowsPerPage);
             console.log('API Response:', res);
             if (res.content && res.totalElements !== undefined) {
                 setData(res.content);
@@ -60,13 +57,20 @@ const CategoryPage: React.FC = () => {
                 throw new Error('Invalid API response structure.');
             }
         } catch (err: any) {
-            if (err) {
-                setError(err.response?.data?.message || err.error);
-            } else {
-                setError(t('manager_asset.category.errors.unexpected'));
-            }
+            setError(err.response?.data?.message || err.error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSoftwaresData = async () => {
+        try {
+            const res = await fetchSoftwares(0, 20);
+            if (res.content) {
+                setSoftwareList(res.content);
+            }
+        } catch (error) {
+            console.error("Error fetching softwares", error);
         }
     };
 
@@ -74,49 +78,71 @@ const CategoryPage: React.FC = () => {
         fetchData();
     }, [page, rowsPerPage]);
 
+    useEffect(() => {
+        fetchSoftwaresData();
+    }, []);
+
     const handleCloseError = () => setError(null);
     const handleCloseSuccess = () => setSuccess(null);
 
     const handleOpenDialogCreate = () => {
-        setEditCategory(null);
+        setEditRoom(null);
         setName('');
-        setDescription('');
+        setLocation('');
+        setCapacity(0);
+        setStatus(RoomStatus.AVAILABLE);
+        setSelectedSoftwareIds([]);
         setOpenDialog(true);
     };
 
-    const handleOpenDialogEdit = (cat: Category) => {
-        setEditCategory(cat);
-        setName(cat.name);
-        setDescription(cat.description || '');
+    const handleOpenDialogEdit = async (room: RoomResponse) => {
+        setEditRoom(room);
+        setName(room.name);
+        setLocation(room.location);
+        setCapacity(room.capacity);
+        setStatus(room.status);
+        try {
+            const softwares = await getSoftwaresByRoomId(room.id);
+            setSelectedSoftwareIds(softwares.map((s) => s.id));
+        } catch (error) {
+            console.error("Failed to fetch room's softwares", error);
+        }
         setOpenDialog(true);
     };
 
     const handleCloseDialog = () => setOpenDialog(false);
 
     const handleSave = async () => {
-        if (name.trim() === '') {
-            setError(t('manager_asset.category.name'));
+        if (name.trim() === '' || location.trim() === '' || capacity <= 0) {
+            setError('All fields are required.');
             setSuccess(null);
             return;
         }
+
         try {
             setLoading(true);
             setError(null);
             setSuccess(null);
-            if (editCategory) {
-                await putUpdateCategoryById(editCategory.id, { id: editCategory.id, name, description });
-                setSuccess(t('manager_asset.category.success.update'));
+            if (editRoom) {
+                await putUpdateRoomById(editRoom.id, {
+                    name,
+                    location,
+                    capacity,
+                    status,
+                    softwareIds: selectedSoftwareIds
+                });
+                setSuccess('Room updated successfully.');
             } else {
-                await postCreateCategory({ id: 0, name, description });
-                setSuccess(t('manager_asset.category.success.create'));
+                await postCreateRoom({ name, location, capacity, status, softwareIds: selectedSoftwareIds });
+                setSuccess('Room created successfully.');
             }
             await fetchData();
             handleCloseDialog();
-        } catch (err: any) {
-            if (err) {
-                setError(err.error || err.response?.data?.message);
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                setError(err.response?.data?.message || err.message);
             } else {
-                setError(t('manager_asset.category.errors.unexpected'));
+                setError('An unexpected error occurred.');
             }
             setSuccess(null);
         } finally {
@@ -140,14 +166,14 @@ const CategoryPage: React.FC = () => {
                 setLoading(true);
                 setError(null);
                 setSuccess(null);
-                await deleteCategoryById(deleteId);
-                setSuccess(t('manager_asset.category.success.delete'));
+                await deleteRoomById(deleteId);
+                setSuccess('Room deleted successfully.');
                 await fetchData();
-            } catch (err: any) {
-                if (err) {
-                    setError(err.response?.data?.message || err.error);
+            } catch (err) {
+                if (err instanceof AxiosError) {
+                    setError(err.response?.data?.message || err.message);
                 } else {
-                    setError(t('manager_asset.category.errors.unexpected'));
+                    setError('An unexpected error occurred.');
                 }
                 setSuccess(null);
             } finally {
@@ -157,7 +183,7 @@ const CategoryPage: React.FC = () => {
         }
     };
 
-    const columns: GridColDef<CategoryResponse>[] = [
+    const columns: GridColDef<RoomResponse>[] = [
         {
             field: 'id',
             headerName: 'No.',
@@ -174,21 +200,46 @@ const CategoryPage: React.FC = () => {
         },
         {
             field: 'name',
-            headerName: t('manager_asset.category.name'),
+            headerName: 'Name',
             minWidth: 150,
             flex: 1,
-
+            align: 'center',
+            headerAlign: 'center',
         },
         {
-            field: 'description',
-            headerName: t('manager_asset.category.description'),
-            minWidth: 200,
-            flex: 2,
-
+            field: 'location',
+            headerName: 'Location',
+            minWidth: 150,
+            flex: 1,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'capacity',
+            headerName: 'Capacity',
+            minWidth: 120,
+            flex: 0.5,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            minWidth: 150,
+            flex: 1,
+            align: 'center',
+            headerAlign: 'center',
+            renderCell: (params) => (
+                <Chip
+                    label={RoomStatus[params.value as RoomStatus]}
+                    color={params.value === RoomStatus.AVAILABLE ? 'success' : 'warning'}
+                    size="small"
+                />
+            ),
         },
         {
             field: 'actions',
-            headerName: t('manager_asset.category.actions'),
+            headerName: 'Actions',
             minWidth: 120,
             flex: 0.5,
             sortable: false,
@@ -200,7 +251,7 @@ const CategoryPage: React.FC = () => {
                     <IconButton
                         sx={{ color: 'primary.main' }}
                         size="small"
-                        onClick={() => handleOpenDialogEdit(params.row as Category)}
+                        onClick={() => handleOpenDialogEdit(params.row as RoomResponse)}
                     >
                         <EditIcon />
                     </IconButton>
@@ -218,11 +269,12 @@ const CategoryPage: React.FC = () => {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">{t('manager_asset.category.title')}</h2>
+            <h2 className="text-2xl font-bold mb-4">Rooms</h2>
 
             <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
-                {t('manager_asset.category.button_create')}
+                Create Room
             </Button>
+
 
             <CustomAlert
                 open={!!error && !success}
@@ -237,7 +289,7 @@ const CategoryPage: React.FC = () => {
                 onClose={handleCloseSuccess}
             />
 
-            <Box sx={{ height: '700px', width: '100%', mt: 4 }}>
+            <Box sx={{ height: '600px', width: '100%', mt: 4 }}>
                 <DataGrid
                     rows={data}
                     columns={columns}
@@ -274,10 +326,10 @@ const CategoryPage: React.FC = () => {
 
             {/* Dialog Create/Update */}
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>{editCategory ? t('manager_asset.category.update_title') : t('manager_asset.category.create_title')}</DialogTitle>
+                <DialogTitle>{editRoom ? 'Update Room' : 'Create Room'}</DialogTitle>
                 <DialogContent className="space-y-4">
                     <TextField
-                        label={t('manager_asset.category.name')}
+                        label="Name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         variant="outlined"
@@ -286,36 +338,89 @@ const CategoryPage: React.FC = () => {
                         sx={{ marginTop: 2 }}
                     />
                     <TextField
-                        label={t('manager_asset.category.description')}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        label="Location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
                         fullWidth
-                        multiline
-                        rows={4}
+                        required
                     />
+                    <TextField
+                        label="Capacity"
+                        type="number"
+                        value={capacity}
+                        onChange={(e) => setCapacity(Number(e.target.value))}
+                        fullWidth
+                        required
+                    />
+                    <Autocomplete
+                        multiple
+                        options={softwareList}
+                        getOptionLabel={(option) => option.softwareName}
+                        value={softwareList.filter((software) =>
+                            selectedSoftwareIds.includes(software.id)
+                        )}
+                        onChange={(_event, newValue) => {
+                            setSelectedSoftwareIds(newValue.map((software) => software.id));
+                        }}
+                        renderTags={(value, getTagProps) =>
+                            value.map((option, index) => (
+                                <Chip
+                                    variant="outlined"
+                                    label={option.softwareName}
+                                    {...getTagProps({ index })}
+                                    sx={{ margin: 0.5 }}
+                                />
+                            ))
+                        }
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Software"
+                                placeholder="Search software..."
+                                variant="outlined"
+                            />
+                        )}
+                        fullWidth
+                        disableCloseOnSelect
+                        sx={{ marginTop: 2 }}
+                    />
+                    <FormControl fullWidth required sx={{ marginTop: 2 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as RoomStatus)}
+                            label="Status"
+                        >
+                            {Object.values(RoomStatus).map((status) => (
+                                <MenuItem key={status} value={status}>
+                                    {status}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} variant="outlined">
-                        {t('manager_asset.category.button_cancel')}
+                        Cancel
                     </Button>
                     <Button onClick={handleSave} variant="contained" color="primary">
-                        {t('manager_asset.category.button_save')}
+                        Save
                     </Button>
                 </DialogActions>
             </Dialog>
 
-            {/* Dialog Xác nhận Xóa */}
+            {/* Dialog Confirm Delete */}
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>{t('manager_asset.category.dialog_title')}</DialogTitle>
+                <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent>
-                    <div>{t('manager_asset.category.dialog_content')}</div>
+                    <div>Are you sure you want to delete this room?</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog} variant="outlined">
-                        {t('manager_asset.category.button_cancel')}
+                        Cancel
                     </Button>
                     <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                        {t('manager_asset.category.button_delete')}
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -323,4 +428,4 @@ const CategoryPage: React.FC = () => {
     );
 };
 
-export default CategoryPage;
+export default RoomPage;

@@ -1,0 +1,11 @@
+.clickable-cell {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.clickable-cell:hover {
+
+    color: #1976d2;
+    font-weight: 500;
+}
+

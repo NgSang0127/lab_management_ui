@@ -1,11 +1,11 @@
-
 import React, { useEffect, useState } from 'react';
 import {
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
-    Button, Box, TextField, Dialog, DialogActions, DialogContent, DialogTitle, TablePagination,
-    IconButton
+    Box, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
+    IconButton,
 } from '@mui/material';
-
+import {
+    DataGrid, GridColDef, GridCellParams, GridToolbar,
+} from '@mui/x-data-grid';
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import {
@@ -18,6 +18,7 @@ import {
 import { AxiosError } from "axios";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import {CustomNoRowsOverlay} from "../../utils/CustomNoRowsOverlay.tsx";
 
 interface Location {
     id: number;
@@ -31,7 +32,7 @@ const LocationPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // rowsPerPage = size
+    // Pagination
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [page, setPage] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
@@ -51,17 +52,18 @@ const LocationPage: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await fetchLocations(page , rowsPerPage); // Giả sử API page bắt đầu từ 1
-            // Kiểm tra cấu trúc dữ liệu trả về từ API
+            const res = await fetchLocations(page, rowsPerPage);
             if (res.content && res.totalElements !== undefined) {
                 setData(res.content);
                 setTotalElements(res.totalElements);
             } else {
                 throw new Error('Invalid API response structure.');
             }
-        } catch (err :any) {
-            if (err ) {
-                setError(err.response?.data?.message || err.error);
+        } catch (err: any) {
+            if (err instanceof AxiosError) {
+                setError(err.response?.data?.message || err.message);
+            } else {
+                setError('An unexpected error occurred.');
             }
         } finally {
             setLoading(false);
@@ -72,22 +74,8 @@ const LocationPage: React.FC = () => {
         fetchData();
     }, [page, rowsPerPage]);
 
-    const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
-
-    const handleCloseError = () => {
-        setError(null);
-    };
-
-    const handleCloseSuccess = () => {
-        setSuccess(null);
-    };
+    const handleCloseError = () => setError(null);
+    const handleCloseSuccess = () => setSuccess(null);
 
     const handleOpenDialogCreate = () => {
         setEditLocation(null);
@@ -103,25 +91,23 @@ const LocationPage: React.FC = () => {
         setOpenDialog(true);
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    };
+    const handleCloseDialog = () => setOpenDialog(false);
 
     const handleSave = async () => {
-        // Kiểm tra các trường bắt buộc
         if (name.trim() === '') {
             setError('Name is required.');
+            setSuccess(null);
             return;
         }
 
         try {
             setLoading(true);
             setError(null);
+            setSuccess(null);
             if (editLocation) {
                 await putUpdateLocationById(editLocation.id, { name, address });
                 setSuccess('Location updated successfully.');
             } else {
-                // Loại bỏ trường id khi tạo mới
                 await postCreateLocation({ name, address });
                 setSuccess('Location created successfully.');
             }
@@ -133,13 +119,12 @@ const LocationPage: React.FC = () => {
             } else {
                 setError('An unexpected error occurred.');
             }
+            setSuccess(null);
         } finally {
             setLoading(false);
         }
     };
 
-
-    // Mở dialog xóa
     const handleDeleteClick = (id: number) => {
         setDeleteId(id);
         setOpenDeleteDialog(true);
@@ -155,6 +140,7 @@ const LocationPage: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
+                setSuccess(null);
                 await deleteLocationById(deleteId);
                 setSuccess('Location deleted successfully.');
                 await fetchData();
@@ -164,12 +150,63 @@ const LocationPage: React.FC = () => {
                 } else {
                     setError('An unexpected error occurred.');
                 }
+                setSuccess(null);
             } finally {
                 setLoading(false);
                 handleCloseDeleteDialog();
             }
         }
     };
+
+    const columns: GridColDef<LocationResponse>[] = [
+        {
+            field: 'id',
+            headerName: 'No.',
+            flex: 0.5,
+            sortable: true,
+            filterable: false,
+            valueGetter: (value, row) => {
+                const index = data.findIndex((item) => item.id === row.id);
+                return index >= 0 ? index + 1 + page * rowsPerPage : '-';
+            },
+        },
+        {
+            field: 'name',
+            headerName: 'Name',
+            flex: 1,
+            resizable:false
+        },
+        {
+            field: 'address',
+            headerName: 'Address',
+            flex: 1,
+        },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            flex: 1,
+            sortable: false,
+            filterable: false,
+            renderCell: (params: GridCellParams) => (
+                <>
+                    <IconButton
+                        sx={{ color: 'primary.main' }}
+                        size="small"
+                        onClick={() => handleOpenDialogEdit(params.row as Location)}
+                    >
+                        <EditIcon />
+                    </IconButton>
+                    <IconButton
+                        sx={{ color: 'error.main' }}
+                        size="small"
+                        onClick={() => handleDeleteClick(params.row.id)}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </>
+            ),
+        },
+    ];
 
     return (
         <div className="p-4">
@@ -179,92 +216,59 @@ const LocationPage: React.FC = () => {
                 Create Location
             </Button>
 
-            {/* Loading Indicator */}
-            <LoadingIndicator open={loading} />
-
-            {/* Hiển thị alert error (nếu có) */}
             <CustomAlert
-                open={!!error}
+                open={!!error && !success}
                 message={error || ''}
-                severity="error" // Mặc định
+                severity="error"
                 onClose={handleCloseError}
             />
-
-            {/* Hiển thị alert success (nếu có) */}
             <CustomAlert
-                open={!!success}
+                open={!!success && !error}
                 message={success || ''}
                 severity="success"
                 onClose={handleCloseSuccess}
             />
 
-            {!loading && (
-                <div className="mt-4">
-                    <TableContainer component={Paper}>
-                        <Table size="small" aria-label="locations">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>No.</TableCell>
-                                    <TableCell>ID</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Address</TableCell>
-                                    <TableCell>Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {data.map((loc, index) => {
-                                    const rowNumber = page * rowsPerPage + index + 1; // tính số thứ tự
-                                    return (
-                                        <TableRow key={loc.id}>
-                                            <TableCell>{rowNumber}</TableCell>
-                                            <TableCell>{loc.id}</TableCell>
-                                            <TableCell>{loc.name}</TableCell>
-                                            <TableCell>{loc.address}</TableCell>
-                                            <TableCell>
-                                                <IconButton
-                                                    sx={{ color: 'primary.main' }}  // Màu xanh
-                                                    size="small"
-                                                    onClick={() => handleOpenDialogEdit(loc)}
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    sx={{ color: 'error.main' }}  // Màu đỏ
-                                                    size="small"
-                                                    onClick={() => handleDeleteClick(loc.id)}
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                                {data.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={5} align="center">
-                                            No locations found
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+            <Box sx={{ height: '600px', width: '100%', mt: 4 }}>
+                <DataGrid
+                    rows={data}
+                    columns={columns.map((col) => ({
+                        ...col,
+                        align: 'center',
+                        headerAlign: 'center',
+                    }))}
 
-                    <Box display="flex" justifyContent="flex-end" alignItems="center" mt={2}>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            component="div"
-                            count={totalElements}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            showFirstButton
-                            showLastButton
-                        />
-                    </Box>
-                </div>
-            )}
+                    paginationMode="server"
+                    rowCount={totalElements}
+                    paginationModel={{ page, pageSize: rowsPerPage }}
+                    onPaginationModelChange={(newModel) => {
+                        setPage(newModel.page);
+                        setRowsPerPage(newModel.pageSize);
+                    }}
+                    pageSizeOptions={[5, 10, 25]}
+                    loading={loading}
+                    slotProps={{
+                        pagination: {
+                            showFirstButton: true,
+                            showLastButton: true,
+                        },
+                    }}
+                    slots={{
+                        toolbar: GridToolbar,
+                        noRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            color: '#1976d2',           // màu chữ tiêu đề (blue MUI)
+                            fontWeight: 'bold',         // đậm chữ
+                            fontSize: '0.95rem',        // size chữ
+                        },
+                        '--DataGrid-overlayHeight': '300px',
+
+                    }}
+                    disableRowSelectionOnClick
+                />
+            </Box>
 
             {/* Dialog Create/Update */}
             <Dialog open={openDialog} onClose={handleCloseDialog}>
@@ -315,7 +319,6 @@ const LocationPage: React.FC = () => {
             </Dialog>
         </div>
     );
-
 };
 
 export default LocationPage;

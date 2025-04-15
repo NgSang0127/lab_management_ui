@@ -1,85 +1,221 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect} from 'react';
 import {
-    Tabs,
-    Tab,
     Box,
+    Card,
+    CardActionArea,
+    CardContent,
+    Typography,
+    Grid,
+    Container,
+    styled,
 } from '@mui/material';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
-import {useTranslation} from "react-i18next";
+import {
+    Dashboard as DashboardIcon,
+    LocationOn as LocationIcon,
+    Category as CategoryIcon,
+    People as PeopleIcon,
+    Build as BuildIcon,
+    ImportExport as ImportExportIcon,
+    MeetingRoom as RoomIcon,
+    Code as CodeIcon,
+    AccountCircle as AccountCircleIcon,
+    History as HistoryIcon,
+} from '@mui/icons-material';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {useSelector} from 'react-redux';
+import {RootState} from '../../state/store.ts';
+import {Outlet} from 'react-router-dom';
+
+const StyledCard = styled(Card, {
+    shouldForwardProp: (prop) => prop !== 'isActive',
+})<{ isActive?: boolean }>(({theme, isActive}) => ({
+    background: isActive
+        ? `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`
+        : '#fff',
+    borderRadius: theme.shape.borderRadius * 2,
+    boxShadow: isActive
+        ? '0 6px 16px rgba(0, 0, 0, 0.2)'
+        : '0 4px 12px rgba(0, 0, 0, 0.1)',
+    border: isActive ? `1px solid ${theme.palette.primary.dark}` : 'none',
+    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.3s ease-in-out',
+    '&:hover': {
+        transform: 'translateY(-4px)',
+        boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)',
+        background: `linear-gradient(135deg, ${theme.palette.primary.light}, ${theme.palette.primary.main})`,
+        '& .MuiTypography-root': {
+            color: theme.palette.primary.contrastText,
+        },
+        '& .MuiSvgIcon-root': {
+            color: theme.palette.primary.contrastText,
+        },
+    },
+    height: '140px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    [theme.breakpoints.down('sm')]: {
+        height: '120px',
+    },
+    '& .MuiTypography-root': {
+        color: isActive ? theme.palette.primary.contrastText : theme.palette.text.primary,
+    },
+    '& .MuiSvgIcon-root': {
+        color: isActive ? theme.palette.primary.contrastText : theme.palette.text.primary,
+    },
+}));
 
 const AssetDashboard: React.FC = () => {
-    const {t}=useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
-    const [value, setValue] = useState(0);
+    const currentUser = useSelector((state: RootState) => state.auth.user);
 
-    // Xác định tab hiện tại dựa trên đường dẫn
+    // Danh sách mục dashboard
+    const dashboardItems = [
+        {
+            label: 'Asset',
+            path: 'asset',
+            icon: <DashboardIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'View and manage all assets',
+            adminOnly: true,
+        },
+        {
+            label: 'Location',
+            path: 'location',
+            icon: <LocationIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'View and manage locations',
+            adminOnly: true,
+        },
+        {
+            label: 'Category',
+            path: 'category',
+            icon: <CategoryIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Organize assets by categories',
+            adminOnly: true,
+        },
+        {
+            label: 'Manager',
+            path: 'manager',
+            icon: <PeopleIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Manage asset managers',
+            adminOnly: true,
+        },
+        {
+            label: 'Maintenance',
+            path: 'maintenance',
+            icon: <BuildIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Track maintenance activities',
+            adminOnly: true,
+        },
+        {
+            label: 'Import-Export',
+            path: 'import-export',
+            icon: <ImportExportIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Handle asset import/export',
+            adminOnly: true,
+        },
+        {
+            label: 'Room',
+            path: 'room',
+            icon: <RoomIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Manage rooms and their assets',
+            adminOnly: true,
+        },
+        {
+            label: 'Software',
+            path: 'software',
+            icon: <CodeIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'Manage software licenses and assets',
+            adminOnly: true,
+        },
+        {
+            label: 'Borrowing',
+            path: 'borrow',
+            icon: <HistoryIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'View borrowing history',
+        },
+        {
+            label: 'My Assets',
+            path: 'asset-user',
+            icon: <AccountCircleIcon sx={{fontSize: {xs: 28, sm: 32}}}/>,
+            description: 'View your assigned assets',
+        },
+    ];
+
+    // Chuyển hướng mặc định
     useEffect(() => {
-        if (location.pathname.endsWith('/asset')) {
-            setValue(0);
-        } else if (location.pathname.endsWith('/location')) {
-            setValue(1);
-        } else if (location.pathname.endsWith('/category')) {
-            setValue(2);
-        }else if (location.pathname.endsWith('/manager')) {
-                setValue(3);
-        }else if (location.pathname.endsWith('/maintenance')) {
-            setValue(4);
-        }else if (location.pathname.endsWith('/import-export')) {
-            setValue(5);
-        } else {
-            // Mặc định chọn tab đầu tiên
-            setValue(0);
-            navigate('asset', { replace: true });
+        const currentPath = location.pathname.split('/').pop();
+        if (!dashboardItems.some((item) => item.path === currentPath)) {
+            navigate('asset', {replace: true});
         }
-    }, [location.pathname, navigate]);
-
-    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-        switch(newValue) {
-            case 0:
-                navigate('asset');
-                break;
-            case 1:
-                navigate('location');
-                break;
-            case 2:
-                navigate('category');
-                break;
-            case 3:
-                navigate('manager');
-                break;
-            case 4:
-                navigate('maintenance');
-                break;
-            case 5:
-                navigate('import-export');
-                break;
-            default:
-                navigate('asset');
-        }
-    };
+    }, [location.pathname, navigate, dashboardItems]);
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <Tabs
-                    value={value}
-                    onChange={handleChange}
-                    aria-label="Asset Management Tabs"
-                >
-                    <Tab label={t('manager_asset.asset.title')} />
-                    <Tab label={t('manager_asset.location')} />
-                    <Tab label={t('manager_asset.category.title')} />
-                    <Tab label={t('manager_asset.manager')} />
-                    <Tab label={t('manager_asset.maintenance')} />manager_
-                    <Tab label={t('manager_asset.import_export')} />
-                </Tabs>
+        <Container
+            maxWidth="xl"
+            sx={{
+                py: 4,
+                px: {xs: 2, sm: 3},
+                minWidth: '100%', // Loại bỏ minWidth cố định
+            }}
+        >
+            <Grid container spacing={{xs: 2, sm: 3}} sx={{mb: 4}}>
+                {dashboardItems.map((item) => {
+                    // Ẩn mục admin-only nếu không phải admin
+                    if (item.adminOnly && currentUser?.role !== 'ADMIN') return null;
+
+                    // Xác định card active
+                    const isActive = location.pathname.endsWith(item.path);
+
+                    return (
+                        <Grid
+                            size={{xs:12,sm:6,md:4,lg:3}}
+                            key={item.path}
+                        >
+                            <StyledCard isActive={isActive}>
+                                <CardActionArea
+                                    onClick={() => navigate(item.path)}
+                                    sx={{
+                                        height: '100%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <CardContent>
+                                        <Box sx={{mb: 1}}>{item.icon}</Box>
+                                        <Typography
+                                            variant="h6"
+                                            gutterBottom
+                                            sx={{
+                                                fontSize: {xs: '1rem', sm: '1.1rem'},
+                                                fontWeight: 600,
+                                            }}
+                                        >
+                                            {item.label}
+                                        </Typography>
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{
+                                                fontSize: {xs: '0.75rem', sm: '0.85rem'},
+                                            }}
+                                        >
+                                            {item.description}
+                                        </Typography>
+                                    </CardContent>
+                                </CardActionArea>
+                            </StyledCard>
+                        </Grid>
+                    );
+                })}
+            </Grid>
+
+            <Box sx={{mt: 2}}>
+                <Outlet/>
             </Box>
-            <Box sx={{ p: 3 }}>
-                <Outlet />
-            </Box>
-        </Box>
+        </Container>
     );
 };
 

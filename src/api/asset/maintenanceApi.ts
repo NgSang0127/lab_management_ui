@@ -1,6 +1,7 @@
 import {PageResponse} from "../../state/Page/ActionType.ts";
 import {api} from "../../config/api.ts";
 import axios from "axios";
+import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 
 export interface MaintenanceRequest{
     assetId:number,
@@ -37,14 +38,7 @@ export async function fetchMaintenances(page:number,size:number,keyword:string,s
         });
         return response.data;
     }catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -53,14 +47,7 @@ export async function fetchMaintenanceById(id: number): Promise<MaintenanceRespo
         const response = await api.get<MaintenanceResponse>(`/admin/maintenances/${id}`);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -69,14 +56,7 @@ export async function postCreateMaintenance(request: MaintenanceRequest): Promis
         const response = await api.post<MaintenanceResponse>(`/admin/maintenances`, request);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -85,14 +65,7 @@ export async function putUpdateMaintenanceById(id: number, request: MaintenanceR
         const response = await api.put<MaintenanceResponse>(`/admin/maintenances/${id}`, request);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -101,13 +74,6 @@ export async function deleteMaintenanceById(id: number): Promise<string> {
         const response = await api.delete(`/admin/maintenances/${id}`);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }

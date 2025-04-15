@@ -1,47 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Box, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
-    IconButton,
+    Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+    IconButton, TextField, FormControlLabel, Checkbox, Chip,
 } from '@mui/material';
 import {
     DataGrid, GridColDef, GridCellParams, GridToolbar,
 } from '@mui/x-data-grid';
-import {
-    CategoryResponse, deleteCategoryById,
-    fetchCategories,
-    postCreateCategory,
-    putUpdateCategoryById
-} from "../../api/asset/categoryApi.ts";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useTranslation } from "react-i18next";
+import {
+    deleteSoftwareById,
+    fetchSoftwares,
+    postCreateSoftware,
+    putUpdateSoftwareById,
+    SoftwareResponse,
+    SoftwareRequest
+} from "../../api/asset/softwareApi.ts";
 import {CustomNoRowsOverlay} from "../../utils/CustomNoRowsOverlay.tsx";
 
-interface Category {
-    id: number;
-    name: string;
-    description?: string;
-}
-
-const CategoryPage: React.FC = () => {
-    const { t } = useTranslation();
-    const [data, setData] = useState<CategoryResponse[]>([]);
+const SoftwarePage: React.FC = () => {
+    const [data, setData] = useState<SoftwareResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    // Pagination
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [page, setPage] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 
-    // Dialog create/update category
+    // Dialog create/update software
     const [openDialog, setOpenDialog] = useState(false);
-    const [editCategory, setEditCategory] = useState<Category | null>(null);
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
+    const [editSoftware, setEditSoftware] = useState<SoftwareResponse | null>(null);
+    const [softwareName, setSoftwareName] = useState('');
+    const [isFree, setIsFree] = useState(false);
 
     // Dialog xác nhận xóa
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -51,20 +44,15 @@ const CategoryPage: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const res = await fetchCategories(page, rowsPerPage);
-            console.log('API Response:', res);
-            if (res.content && res.totalElements !== undefined) {
+            const res = await fetchSoftwares(page, rowsPerPage);
+            if (res && res.content && res.totalElements !== undefined) {
                 setData(res.content);
                 setTotalElements(res.totalElements);
             } else {
                 throw new Error('Invalid API response structure.');
             }
         } catch (err: any) {
-            if (err) {
-                setError(err.response?.data?.message || err.error);
-            } else {
-                setError(t('manager_asset.category.errors.unexpected'));
-            }
+            setError(err.message || 'An error occurred while fetching softwares.');
         } finally {
             setLoading(false);
         }
@@ -78,46 +66,45 @@ const CategoryPage: React.FC = () => {
     const handleCloseSuccess = () => setSuccess(null);
 
     const handleOpenDialogCreate = () => {
-        setEditCategory(null);
-        setName('');
-        setDescription('');
+        setEditSoftware(null);
+        setSoftwareName('');
+        setIsFree(false);
         setOpenDialog(true);
     };
 
-    const handleOpenDialogEdit = (cat: Category) => {
-        setEditCategory(cat);
-        setName(cat.name);
-        setDescription(cat.description || '');
+    const handleOpenDialogEdit = (software: SoftwareResponse) => {
+        setEditSoftware(software);
+        setSoftwareName(software.softwareName);
+        setIsFree(software.isFree);
         setOpenDialog(true);
     };
 
     const handleCloseDialog = () => setOpenDialog(false);
 
     const handleSave = async () => {
-        if (name.trim() === '') {
-            setError(t('manager_asset.category.name'));
+        if (softwareName.trim() === '') {
+            setError('Software name is required.');
             setSuccess(null);
             return;
         }
+
+        const request: SoftwareRequest = { softwareName, isFree };
+
         try {
             setLoading(true);
             setError(null);
             setSuccess(null);
-            if (editCategory) {
-                await putUpdateCategoryById(editCategory.id, { id: editCategory.id, name, description });
-                setSuccess(t('manager_asset.category.success.update'));
+            if (editSoftware) {
+                await putUpdateSoftwareById(editSoftware.id, request);
+                setSuccess('Software updated successfully.');
             } else {
-                await postCreateCategory({ id: 0, name, description });
-                setSuccess(t('manager_asset.category.success.create'));
+                await postCreateSoftware(request);
+                setSuccess('Software created successfully.');
             }
             await fetchData();
             handleCloseDialog();
         } catch (err: any) {
-            if (err) {
-                setError(err.error || err.response?.data?.message);
-            } else {
-                setError(t('manager_asset.category.errors.unexpected'));
-            }
+            setError(err.message || 'An unexpected error occurred.');
             setSuccess(null);
         } finally {
             setLoading(false);
@@ -140,15 +127,11 @@ const CategoryPage: React.FC = () => {
                 setLoading(true);
                 setError(null);
                 setSuccess(null);
-                await deleteCategoryById(deleteId);
-                setSuccess(t('manager_asset.category.success.delete'));
+                await deleteSoftwareById(deleteId);
+                setSuccess('Software deleted successfully.');
                 await fetchData();
             } catch (err: any) {
-                if (err) {
-                    setError(err.response?.data?.message || err.error);
-                } else {
-                    setError(t('manager_asset.category.errors.unexpected'));
-                }
+                setError(err.message || 'An unexpected error occurred.');
                 setSuccess(null);
             } finally {
                 setLoading(false);
@@ -157,7 +140,7 @@ const CategoryPage: React.FC = () => {
         }
     };
 
-    const columns: GridColDef<CategoryResponse>[] = [
+    const columns: GridColDef<SoftwareResponse>[] = [
         {
             field: 'id',
             headerName: 'No.',
@@ -169,38 +152,51 @@ const CategoryPage: React.FC = () => {
                 const index = data.findIndex((item) => item.id === row.id);
                 return index >= 0 ? index + 1 + page * rowsPerPage : '-';
             },
-            align: 'center',
-            headerAlign: 'center',
         },
         {
-            field: 'name',
-            headerName: t('manager_asset.category.name'),
-            minWidth: 150,
-            flex: 1,
-
-        },
-        {
-            field: 'description',
-            headerName: t('manager_asset.category.description'),
+            field: 'softwareName',
+            headerName: 'Name',
             minWidth: 200,
             flex: 2,
+        },
+        {
+            field: 'isFree',
+            headerName: 'Is Free',
+            minWidth: 120,
+            flex: 1,
+            renderCell: (params) => {
+                const isFree = params.value;
+                const label = isFree ? 'Yes' : 'No';
+                const chipColor = isFree ? 'success' : 'default';
 
+                return (
+                    <Chip
+                        label={label}
+                        color={chipColor}
+                        size="small"
+                        sx={{
+                            width: '70px',
+                            fontWeight: 200,
+                            borderRadius: '20px',
+                            justifyContent: 'center',
+                        }}
+                    />
+                );
+            },
         },
         {
             field: 'actions',
-            headerName: t('manager_asset.category.actions'),
+            headerName: 'Actions',
             minWidth: 120,
             flex: 0.5,
             sortable: false,
             filterable: false,
-            align: 'center',
-            headerAlign: 'center',
             renderCell: (params: GridCellParams) => (
                 <>
                     <IconButton
                         sx={{ color: 'primary.main' }}
                         size="small"
-                        onClick={() => handleOpenDialogEdit(params.row as Category)}
+                        onClick={() => handleOpenDialogEdit(params.row as SoftwareResponse)}
                     >
                         <EditIcon />
                     </IconButton>
@@ -218,10 +214,10 @@ const CategoryPage: React.FC = () => {
 
     return (
         <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">{t('manager_asset.category.title')}</h2>
+            <h2 className="text-2xl font-bold mb-4">Softwares</h2>
 
             <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
-                {t('manager_asset.category.button_create')}
+                Create Software
             </Button>
 
             <CustomAlert
@@ -240,7 +236,11 @@ const CategoryPage: React.FC = () => {
             <Box sx={{ height: '700px', width: '100%', mt: 4 }}>
                 <DataGrid
                     rows={data}
-                    columns={columns}
+                    columns={columns.map((col) => ({
+                        ...col,
+                        align: 'center',
+                        headerAlign: 'center',
+                    }))}
                     paginationMode="server"
                     rowCount={totalElements}
                     paginationModel={{ page, pageSize: rowsPerPage }}
@@ -274,48 +274,50 @@ const CategoryPage: React.FC = () => {
 
             {/* Dialog Create/Update */}
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>{editCategory ? t('manager_asset.category.update_title') : t('manager_asset.category.create_title')}</DialogTitle>
+                <DialogTitle>{editSoftware ? 'Update Software' : 'Create Software'}</DialogTitle>
                 <DialogContent className="space-y-4">
                     <TextField
-                        label={t('manager_asset.category.name')}
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        label="Software Name"
+                        value={softwareName}
+                        onChange={(e) => setSoftwareName(e.target.value)}
                         variant="outlined"
                         fullWidth
                         required
                         sx={{ marginTop: 2 }}
                     />
-                    <TextField
-                        label={t('manager_asset.category.description')}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        fullWidth
-                        multiline
-                        rows={4}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={isFree}
+                                onChange={(e) => setIsFree(e.target.checked)}
+                                color="primary"
+                            />
+                        }
+                        label="Is Free?"
                     />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} variant="outlined">
-                        {t('manager_asset.category.button_cancel')}
+                        Cancel
                     </Button>
                     <Button onClick={handleSave} variant="contained" color="primary">
-                        {t('manager_asset.category.button_save')}
+                        Save
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Dialog Xác nhận Xóa */}
             <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                <DialogTitle>{t('manager_asset.category.dialog_title')}</DialogTitle>
+                <DialogTitle>Confirm Delete</DialogTitle>
                 <DialogContent>
-                    <div>{t('manager_asset.category.dialog_content')}</div>
+                    <div>Are you sure you want to delete this software?</div>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog} variant="outlined">
-                        {t('manager_asset.category.button_cancel')}
+                        Cancel
                     </Button>
                     <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                        {t('manager_asset.category.button_delete')}
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -323,4 +325,4 @@ const CategoryPage: React.FC = () => {
     );
 };
 
-export default CategoryPage;
+export default SoftwarePage;

@@ -1,6 +1,7 @@
 import {PageResponse} from "../../state/Page/ActionType.ts";
 import {api} from "../../config/api.ts";
 import axios from "axios";
+import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 
 
 export interface LocationResponse{
@@ -25,14 +26,7 @@ export async function fetchLocations(page: number, size: number): Promise<PageRe
         });
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -41,14 +35,7 @@ export async function fetchLocationById(id: number): Promise<LocationResponse> {
         const response = await api.get<LocationResponse>(`/admin/locations/${id}`);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -57,14 +44,7 @@ export async function postCreateLocation(request: LocationRequest): Promise<Loca
         const response = await api.post<LocationResponse>(`/admin/locations`, request);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -73,14 +53,7 @@ export async function putUpdateLocationById(id: number, request: LocationRequest
         const response = await api.put<LocationResponse>(`/admin/locations/${id}`, request);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -89,13 +62,6 @@ export async function deleteLocationById(id: number): Promise<string> {
         const response = await api.delete(`/admin/locations/${id}`);
         return response.data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
