@@ -1,24 +1,21 @@
-import React, {useState} from 'react';
-import {TextField, Button, Box, Typography} from '@mui/material';
-import {useAppDispatch} from "../../state/store";
-import {useSelector} from "react-redux";
-import {RootState} from "../../state/store";
-import { validateResetCode} from "../../state/Authentication/Reducer";
-import {useLocation, useNavigate} from "react-router-dom";
+import React, { useState } from 'react';
+import { TextField, Button, Box, Typography } from '@mui/material';
+import { useAppDispatch, RootState } from "../../state/store";
+import { useSelector } from "react-redux";
+import { validateResetCode } from "../../state/Authentication/Reducer";
+import { useLocation, useNavigate } from "react-router-dom";
 import LoadingIndicator from "../Support/LoadingIndicator.tsx";
 import CustomAlert from "../Support/CustomAlert.tsx";
-import {useTranslation} from "react-i18next";
-
+import { useTranslation } from "react-i18next";
 
 const RESET_CODE_LENGTH = 6;
 
 const ResetCodeInput: React.FC = () => {
-    const {t} = useTranslation();
-
-    const location=useLocation();
+    const { t } = useTranslation();
+    const location = useLocation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const {isLoading} = useSelector((state: RootState) => state.auth);
+    const { isLoading } = useSelector((state: RootState) => state.auth);
 
     const email = location.state?.email || "";
 
@@ -34,11 +31,10 @@ const ResetCodeInput: React.FC = () => {
     });
 
     const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
-        setAlert({open: true, message, severity});
+        setAlert({ open: true, message, severity });
     };
 
-    // Handle input value changes
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
         const value = e.target.value;
         if (/^\d$/.test(value) || value === '') {
             setCode((prevCode) => {
@@ -53,9 +49,7 @@ const ResetCodeInput: React.FC = () => {
         }
     };
 
-
-    // Handle backspace key for navigation
-    const handleBackspaceNavigation = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    const handleBackspaceNavigation = (e: React.KeyboardEvent<HTMLInputElement | HTMLDivElement>, index: number) => {
         if (e.key === 'Backspace' && index > 0 && !code[index]) {
             const prevInput = document.getElementById(`code-input-${index - 1}`);
             prevInput?.focus();
@@ -63,34 +57,29 @@ const ResetCodeInput: React.FC = () => {
     };
 
     const handleSubmit = async () => {
-        if (isLoading) return; // Tránh gọi API khi đang loading
+        if (isLoading) return;
 
         if (code.length !== RESET_CODE_LENGTH) {
-            showAlert(t('reset_code.errors.code', {length: RESET_CODE_LENGTH}), 'error');
+            showAlert(t('reset_code.errors.code', { length: RESET_CODE_LENGTH }), 'error');
             return;
         }
 
         try {
-            const result = await dispatch(validateResetCode({email,code, newPassword: null})).unwrap();
+            const result = await dispatch(validateResetCode({ email, code, newPassword: null })).unwrap();
             showAlert(result, 'success');
             setTimeout(() => {
-
-                navigate('/account/reset-password', {state: {resetCode: code,email}});
+                navigate('/account/reset-password', { state: { resetCode: code, email } });
             }, 1000);
             setCode('');
         } catch (error) {
             showAlert(error as string, 'error');
         }
-
     };
-
 
     const handleCloseAlert = () => {
-        setAlert(prev => ({...prev, open: false}));
+        setAlert(prev => ({ ...prev, open: false }));
     };
 
-    // @ts-ignore
-    // @ts-ignore
     return (
         <Box
             sx={{
@@ -106,11 +95,11 @@ const ResetCodeInput: React.FC = () => {
                 maxWidth: '700px',
             }}
         >
-            <Typography variant="h5" sx={{marginBottom: '24px', fontWeight: 'bold'}}>
+            <Typography variant="h5" sx={{ marginBottom: '24px', fontWeight: 'bold' }}>
                 {t('reset_code.title')}
             </Typography>
-            <Box sx={{display: 'flex', gap: '12px', marginBottom: '24px'}}>
-                {Array.from({length: RESET_CODE_LENGTH}).map((_, index) => (
+            <Box sx={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                {Array.from({ length: RESET_CODE_LENGTH }).map((_, index) => (
                     <TextField
                         key={index}
                         variant="outlined"
@@ -118,7 +107,7 @@ const ResetCodeInput: React.FC = () => {
                         name={`code-${index}`}
                         inputProps={{
                             maxLength: 1,
-                            style: {textAlign: 'center', fontSize: '1.5rem', width: '50px'},
+                            style: { textAlign: 'center', fontSize: '1.5rem', width: '50px' },
                         }}
                         value={code[index] || ''}
                         onChange={(e) => handleInputChange(e, index)}
@@ -137,15 +126,14 @@ const ResetCodeInput: React.FC = () => {
                 sx={{
                     width: '100%', padding: '12px',
                     "&:disabled": {
-                        backgroundColor: "#bdbdbd", // Màu nền khi disabled
-                        color: "#757575" // Màu chữ khi disabled
+                        backgroundColor: "#bdbdbd",
+                        color: "#757575"
                     }
                 }}
                 aria-label="Submit Reset Code"
             >
-                {isLoading ? <LoadingIndicator open={isLoading}/> : t('reset_code.submit')}
+                {isLoading ? <LoadingIndicator open={isLoading} /> : t('reset_code.submit')}
             </Button>
-            {/* Custom Alert for Notifications */}
             <CustomAlert
                 open={alert.open}
                 onClose={handleCloseAlert}

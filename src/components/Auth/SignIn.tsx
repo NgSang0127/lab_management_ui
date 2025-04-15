@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from 'react';
+import React, { useCallback, useState } from 'react';
 import {
     AlertColor,
     Box,
@@ -13,23 +13,21 @@ import {
     Link,
     Stack,
     TextField,
-    Typography
+    Typography,
 } from '@mui/material';
-import {Visibility, VisibilityOff} from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import ForgotPassword from './ForgotPassword';
-import {ThemeProvider, createTheme, styled} from '@mui/material/styles';
-import {ThemeContext} from '../../theme/ThemeContext.tsx';
-import {LoginRequestData} from '../../state/Authentication/ActionType.ts';
-import {useAppDispatch} from '../../state/store.ts';
-import {getUser, loginUser} from '../../state/Authentication/Reducer.ts';
-import {useNavigate} from 'react-router-dom';
+import { styled } from '@mui/material/styles';
+import { LoginRequestData } from '../../state/Authentication/ActionType.ts';
+import { useAppDispatch } from '../../state/store.ts';
+import { getUser, loginUser } from '../../state/Authentication/Reducer.ts';
+import { useNavigate } from 'react-router-dom';
 import logo from '@images/logo.png';
-import getThemeSignInSignUp from '../../theme/getThemeSignInSignUp.ts';
-import Divider from "@mui/material/Divider";
-import {FacebookIcon, GoogleIcon} from "../../theme/CustomIcons.tsx";
-import {useTranslation} from "react-i18next";
-import {clearStatus} from "../../state/Authentication/Action.ts";
-import CustomAlert from "../Support/CustomAlert.tsx";
+import Divider from '@mui/material/Divider';
+import { FacebookIcon, GoogleIcon } from '../../theme/CustomIcons.tsx';
+import { useTranslation } from 'react-i18next';
+import { clearStatus } from '../../state/Authentication/Action.ts';
+import CustomAlert from '../Support/CustomAlert.tsx';
 
 // Extract common styles
 const cardStyles = (theme: any) => ({
@@ -43,6 +41,7 @@ const cardStyles = (theme: any) => ({
         width: '550px',
     },
     boxShadow: 'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
+    // Tùy chỉnh boxShadow cho dark mode nếu cần, nhưng giả định App.tsx xử lý
     ...theme.applyStyles('dark', {
         boxShadow: 'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
     }),
@@ -55,9 +54,9 @@ const formContainerStyles = {
     gap: 2,
 };
 
-// Styled components
-const Card = styled(Box)(({theme}) => cardStyles(theme));
-const SignInContainer = styled(Stack)(({theme}) => ({
+
+const Card = styled(Box)(({ theme }) => cardStyles(theme));
+const SignInContainer = styled(Stack)(({ theme }) => ({
     height: 'auto',
     backgroundImage: 'rgba(255, 255, 255, 0.8)',
     backgroundRepeat: 'no-repeat',
@@ -69,23 +68,16 @@ const SignInContainer = styled(Stack)(({theme}) => ({
     }),
 }));
 
-// Refactored component
 export default function SignIn() {
-    const {t}=useTranslation();
-
-    const {isDarkMode, showCustomTheme} = useContext(ThemeContext);
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const mode = isDarkMode ? 'dark' : 'light';
-    const defaultTheme = createTheme({palette: {mode}});
-    const signInTheme = createTheme(getThemeSignInSignUp(mode));
 
     // Consolidated state for errors
-    const [formData, setFormData] = useState<LoginRequestData>({username: '', password: ''});
+    const [formData, setFormData] = useState<LoginRequestData>({ username: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState({username: '', password: ''});
+    const [errors, setErrors] = useState({ username: '', password: '' });
     const [open, setOpen] = useState(false);
-
 
     const [alert, setAlert] = useState<{
         open: boolean;
@@ -93,36 +85,37 @@ export default function SignIn() {
         severity: AlertColor;
     }>({
         open: false,
-        message: "",
-        severity: "info",
+        message: '',
+        severity: 'info',
     });
 
-    const showAlert = (message: string, severity: "success" | "error" | "info") => {
-        setAlert({open: true, message, severity});
+    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
+        setAlert({ open: true, message, severity });
     };
 
     const handleCloseAlert = useCallback(() => {
-        setAlert((prev) => ({...prev, open: false}));
+        setAlert((prev) => ({ ...prev, open: false }));
     }, []);
 
-    // Handlers - extracted for modularity
+    // Handlers
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = event.target;
-        setFormData(prevData => ({...prevData, [name]: value}));
+        const { name, value } = event.target;
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
     const togglePasswordVisibility = () => {
-        setShowPassword(prev => !prev);
+        setShowPassword((prev) => !prev);
     };
 
-    const handleForgotPasswordOpen = () => {
-        event.preventDefault();
+    const handleForgotPasswordOpen = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
         setOpen(true);
-        setErrors({username: '', password: ''}); // Clear errors when dialog opens
+        setErrors({ username: '', password: '' });
     };
+
     const handleForgotPasswordClose = () => {
         setOpen(false);
-    }
+    };
 
     const validateInputs = () => {
         const validationErrors = {
@@ -144,36 +137,35 @@ export default function SignIn() {
                 if (loginResponse.tfaEnabled) {
                     dispatch(clearStatus());
                     navigate('/account/verify', { state: { username: formData.username } });
-
                 } else {
                     dispatch(clearStatus());
                     await dispatch(getUser()).unwrap();
-                    showAlert("Đăng nhập thành công!", "success");
+                    const successMessage = loginResponse.message || 'Đăng nhập thành công!';
+                    showAlert(successMessage, 'success');
                     setTimeout(() => {
                         navigate('/');
-                    }, 2000); // Chờ 2 giây trước khi chuyển trang
+                    }, 500);
                 }
-            } catch (error) {
-                console.error('Failed to login:', error);
-                showAlert("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.", "error");
+            }catch (error) {
+                showAlert(error, 'error');
             }
         } else {
-            showAlert("Vui lòng nhập đầy đủ thông tin!", "error");
+            showAlert('Vui lòng nhập đầy đủ thông tin!', 'error');
         }
     };
 
-
-
-
     return (
-        <ThemeProvider theme={showCustomTheme ? signInTheme : defaultTheme}>
-            <CssBaseline/>
+        <>
+            <CssBaseline />
             <SignInContainer direction="column" justifyContent="space-between">
-                <Stack sx={{justifyContent: 'center', height: '100dvh'}}>
+                <Stack sx={{ justifyContent: 'center', height: '100dvh' }}>
                     <Card>
-                        <Box component="img" src={logo} alt="Logo" sx={{width: 60, height: 60}}/>
-                        <Typography component="h1" variant="h4"
-                                    sx={{width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)'}}>
+                        <Box component="img" src={logo} alt="Logo" sx={{ width: 60, height: 60 }} />
+                        <Typography
+                            component="h1"
+                            variant="h4"
+                            sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)' }}
+                        >
                             {t('signin.title')}
                         </Typography>
                         <Box component="form" onSubmit={handleSubmit} noValidate sx={formContainerStyles}>
@@ -192,10 +184,13 @@ export default function SignIn() {
                                 />
                             </FormControl>
                             <FormControl>
-                                <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <FormLabel htmlFor="password">{t('signin.password')}</FormLabel>
-                                    <Link href="#" onClick={handleForgotPasswordOpen} variant="body2"
-                                          sx={{alignSelf: 'baseline'}}
+                                    <Link
+                                        href="#"
+                                        onClick={handleForgotPasswordOpen}
+                                        variant="body2"
+                                        sx={{ alignSelf: 'baseline' }}
                                     >
                                         {t('signin.forgot_password')}
                                     </Link>
@@ -212,44 +207,43 @@ export default function SignIn() {
                                     error={Boolean(errors.password)}
                                     helperText={errors.password}
                                     slotProps={{
-                                        input:{
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton onClick={togglePasswordVisibility} edge="end">
-                                                    {showPassword ? <VisibilityOff/> : <Visibility/>}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        )},
+                                        input: {
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton onClick={togglePasswordVisibility} edge="end">
+                                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        },
                                     }}
                                 />
                             </FormControl>
-                            <FormControlLabel control={<Checkbox value="remember" color="primary"/>}
-                                              label="Remember me"/>
-                            <ForgotPassword open={open} handleClose={handleForgotPasswordClose}/>
+                            <FormControlLabel
+                                control={<Checkbox value="remember" color="primary" />}
+                                label="Remember me"
+                            />
+                            <ForgotPassword open={open} handleClose={handleForgotPasswordClose} />
                             <Button type="submit" fullWidth variant="contained">
                                 {t('signin.button')}
                             </Button>
-                            <Typography sx={{textAlign: 'center'}}>
+                            <Typography sx={{ textAlign: 'center' }}>
                                 {t('signin.not_have_account')}{' '}
                                 <span>
-                  <Link
-                      href="/account/signup"
-                      variant="body2"
-                      sx={{alignSelf: 'center'}}
-                  >
-                    {t('signup.title')}
-                  </Link>
-                </span>
+                                    <Link href="/account/signup" variant="body2" sx={{ alignSelf: 'center' }}>
+                                        {t('signup.title')}
+                                    </Link>
+                                </span>
                             </Typography>
                         </Box>
                         <Divider>{t('signin.or')}</Divider>
-                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Button
                                 type="submit"
                                 fullWidth
                                 variant="outlined"
-                                onClick={() => alert('Sign in with Google')}
-                                startIcon={<GoogleIcon/>}
+                                onClick={() => showAlert('Sign in with Google', 'info')}
+                                startIcon={<GoogleIcon />}
                             >
                                 {t('signin.google')}
                             </Button>
@@ -257,17 +251,21 @@ export default function SignIn() {
                                 type="submit"
                                 fullWidth
                                 variant="outlined"
-                                onClick={() => alert('Sign in with Facebook')}
-                                startIcon={<FacebookIcon/>}
+                                onClick={() => showAlert('Sign in with Facebook', 'info')}
+                                startIcon={<FacebookIcon />}
                             >
                                 {t('signin.facebook')}
                             </Button>
                         </Box>
                     </Card>
                 </Stack>
-                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message}
-                             severity={alert.severity}/>
+                <CustomAlert
+                    open={alert.open}
+                    onClose={handleCloseAlert}
+                    message={alert.message}
+                    severity={alert.severity}
+                />
             </SignInContainer>
-        </ThemeProvider>
+        </>
     );
 }

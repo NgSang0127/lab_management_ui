@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, Stack, Alert, AlertColor } from '@mui/material';
-import LoadingIndicator from "../Support/LoadingIndicator.tsx";
-import CustomAlert from "../Support/CustomAlert.tsx";
-import {useTranslation} from "react-i18next";
+import { Box, TextField, Button, Stack, AlertColor } from '@mui/material';
+import LoadingIndicator from '../Support/LoadingIndicator.tsx';
+import CustomAlert from '../Support/CustomAlert.tsx';
+import { useTranslation } from 'react-i18next';
+import { AxiosError } from 'axios';
+import {api} from "../../config/api.ts";
 
 interface FormData {
     name: string;
@@ -44,11 +46,10 @@ const ContactForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // Kiểm tra dữ liệu trước khi gửi
         if (!formData.name || !formData.email || !formData.message) {
             setAlert({
                 open: true,
-                message: 'Vui lòng điền đầy đủ thông tin.',
+                message: t('home.contact_form.fill_all_fields'),
                 severity: 'warning',
             });
             return;
@@ -58,23 +59,40 @@ const ContactForm: React.FC = () => {
         setAlert({ open: false, message: '', severity: 'info' });
 
         try {
-            // Gọi API để gửi dữ liệu form (thay thế bằng API thực tế của bạn)
-            await fakeSendMessageAPI(formData);
+            await sendMessageAPI(formData);
             setAlert({
                 open: true,
-                message: 'Tin nhắn của bạn đã được gửi thành công!',
+                message: t('home.contact_form.success_message'),
                 severity: 'success',
             });
             setFormData({ name: '', email: '', message: '' });
         } catch (error) {
+            const errorMessage =
+                error instanceof AxiosError && error.response?.data?.message
+                    ? error.response.data.message
+                    : t('home.contact_form.error_message');
             setAlert({
                 open: true,
-                message: 'Đã xảy ra lỗi khi gửi tin nhắn. Vui lòng thử lại.',
+                message: errorMessage,
                 severity: 'error',
             });
         } finally {
             setLoading(false);
         }
+    };
+
+    const sendMessageAPI = async (data: FormData) => {
+        const payload = {
+            name: data.name,
+            email: data.email,
+            message: data.message,
+            subject: 'Contact Form Submission',
+            locale: t('i18n.language', 'en'),
+        };
+
+        const response = await api.post('/email/contact', payload);
+
+        return response.data;
     };
 
     return (
@@ -91,7 +109,7 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <TextField
-                        label="Email"
+                        label={t('home.contact_form.email')}
                         name="email"
                         type="email"
                         variant="outlined"
@@ -112,14 +130,13 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                        {loading ? t('home.contact_form.sending') : t('home.contact_form.title')}
+                        {loading ? t('home.contact_form.sending') : t('home.contact_form.submit')}
                     </Button>
                 </Stack>
             </form>
 
             <LoadingIndicator open={loading} />
 
-            {/* Error Message from Redux (if any) */}
             <CustomAlert
                 open={alert.open}
                 onClose={handleCloseAlert}
@@ -128,19 +145,6 @@ const ContactForm: React.FC = () => {
             />
         </Box>
     );
-};
-
-
-// Fake API call function (Thay thế bằng API thực tế của bạn)
-const fakeSendMessageAPI = (data: FormData) => {
-    return new Promise<void>((resolve, reject) => {
-        setTimeout(() => {
-            // Giả sử gửi thành công
-            resolve();
-            // Nếu có lỗi, gọi reject()
-            // reject(new Error('Error message'));
-        }, 2000);
-    });
 };
 
 export default ContactForm;

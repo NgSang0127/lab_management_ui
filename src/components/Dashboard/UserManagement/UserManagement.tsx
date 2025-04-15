@@ -1,29 +1,19 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {
-    Button,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Modal,
-    TextField,
-    Typography,
-    Box,
-    TablePagination,
-    CircularProgress,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    FormControlLabel,
-    Switch,
+    Button, TextField, Typography, Box, FormControl, InputLabel, Select, MenuItem,
+    FormControlLabel, Switch, Avatar, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, Chip,
 } from "@mui/material";
-import Grid from '@mui/material/Grid2';
-import { RootState, useAppDispatch } from "../../../state/store.ts";
-import { useSelector } from "react-redux";
+import Grid from '@mui/material/Grid';
+import {
+    DataGrid,
+    GridColDef,
+    GridCellParams,
+    GridToolbar,
+    GridValueGetter,
+    GridRenderCellParams
+} from '@mui/x-data-grid';
+import {RootState, useAppDispatch} from "../../../state/store.ts";
+import {useSelector} from "react-redux";
 import {
     createUser,
     deleteUser,
@@ -32,27 +22,20 @@ import {
     transferOwnership,
     updateUser
 } from "../../../state/Admin/Reducer.ts";
-import { CreateUserRequestByAdmin } from "../../../state/Admin/Action.ts";
-import { SelectChangeEvent } from "@mui/material/Select";
+import {CreateUserRequestByAdmin} from "../../../state/Admin/Action.ts";
+import {SelectChangeEvent} from "@mui/material/Select";
 import debounce from 'lodash.debounce';
-import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
 import {useTranslation} from "react-i18next";
-
-
-const modalStyle = {
-    position: "absolute" as const,
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: { xs: '90%', sm: 500 },
-    bgcolor: "background.paper",
-    borderRadius: 2,
-    boxShadow: 24,
-    p: 4,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 2,
-};
+import {stringToColor} from "../../../utils/randomColors.ts";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
+import {format, parse} from "date-fns";
+import {CustomNoRowsOverlay} from "../../../utils/CustomNoRowsOverlay.tsx";
+import CustomAlert from "../../Support/CustomAlert.tsx";
+import {AssetResponse, OperationTime, Status} from "../../../api/asset/assetApi.ts";
+import {Role, User} from "../../../state/Authentication/Action.ts";
 
 interface FormData {
     firstName: string;
@@ -67,23 +50,17 @@ interface FormData {
 }
 
 const UserManagement: React.FC = () => {
-    const {t}=useTranslation();
+    const {t} = useTranslation();
     const dispatch = useAppDispatch();
-    const { user, isLoading, error, success, totalElements } = useSelector(
-        (state: RootState) => state.admin
-    );
+    const {user, isLoading} = useSelector((state: RootState) => state.admin);
     const currentUser = useSelector((state: RootState) => state.auth.user);
+    const filteredUsers = user.filter((u) => u.id !== currentUser?.id);
 
-    console.log("userr",user);
-
-    console.log("Role:", currentUser?.role, typeof currentUser?.role); // Kiểm tra role và kiểu dữ liệu
-
-    // State for modal visibility
     const [open, setOpen] = useState(false);
     const [editUser, setEditUser] = useState<(CreateUserRequestByAdmin & { id: number }) | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
 
-
-    // Form state with all required fields
     const [formData, setFormData] = useState<FormData>({
         firstName: "",
         lastName: "",
@@ -96,34 +73,39 @@ const UserManagement: React.FC = () => {
         accountLocked: false,
     });
 
-    // Pagination state
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-    const [page, setPage] = useState<number>(0); // Local state for current page
+    const [page, setPage] = useState<number>(0);
+    const [totalElements, setTotalElements] = useState<number>(0);
 
-    // Filter state
     const [keyword, setKeyword] = useState<string>("");
     const [roleFilter, setRoleFilter] = useState<string>("");
-
-    // Fetch users whenever page, rowsPerPage, keyword or roleFilter change
 
     const debouncedFetchUsers = useMemo(
         () =>
             debounce((currentPage: number, currentRowsPerPage: number, currentKeyword: string, currentRole: string) => {
-                dispatch(getUsers({ page: currentPage, size: currentRowsPerPage, keyword: currentKeyword, role: currentRole }));
+                dispatch(getUsers({
+                    page: currentPage,
+                    size: currentRowsPerPage,
+                    keyword: currentKeyword,
+                    role: currentRole
+                })).then((result) => {
+                    if (getUsers.fulfilled.match(result)) {
+                        setTotalElements(result.payload.totalElements);
+                    } else if (getUsers.rejected.match(result)) {
+                        setError(result.error.message || "Failed to fetch users.");
+                    }
+                });
             }, 500),
         [dispatch]
     );
-    // Fetch users whenever page, rowsPerPage, keyword or roleFilter change
+
     useEffect(() => {
         debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
-        // Cleanup debounce on unmount
         return () => {
             debouncedFetchUsers.cancel();
         };
     }, [page, rowsPerPage, keyword, roleFilter, debouncedFetchUsers]);
 
-
-    // Open modal
     const handleOpen = (user: (CreateUserRequestByAdmin & { id: number }) | null = null) => {
         setEditUser(user);
         if (user) {
@@ -134,7 +116,7 @@ const UserManagement: React.FC = () => {
                 role: user.role.toLowerCase() as "student" | "teacher",
                 enabled: user.enabled,
                 username: user.username || "",
-                password: "", // Clear password for security
+                password: "",
                 phoneNumber: user.phoneNumber || "",
                 accountLocked: user.accountLocked,
             });
@@ -155,243 +137,399 @@ const UserManagement: React.FC = () => {
     };
 
     const handleClose = () => setOpen(false);
+    const handleCloseError = () => setError(null);
+    const handleCloseSuccess = () => setSuccess(null);
 
-    // Form submission
-    const handleSubmit = () => {
-        if (editUser) {
-            dispatch(updateUser({ id: editUser.id, request: formData }));
-        } else {
-            dispatch(createUser(formData));
+    const handleSubmit = async () => {
+        if (!formData.firstName || !formData.lastName || !formData.role || !formData.username || (!editUser)) {
+            setError("Please fill in all required fields.");
+            setSuccess(null);
+            return;
         }
-        handleClose();
+
+        try {
+            setError(null);
+            setSuccess(null);
+            if (editUser) {
+                await dispatch(updateUser({id: editUser.id, request: formData})).unwrap();
+                setSuccess("User updated successfully.");
+            } else {
+                await dispatch(createUser(formData)).unwrap();
+                setSuccess("User created successfully.");
+            }
+            handleClose();
+            debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
+        } catch (err: any) {
+            setError(err ?? 'An unexpected error occurred.');
+            setSuccess(null);
+        }
     };
 
     const handleChange = (
-        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<"student" | "teacher">
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>
     ) => {
-        const { name, value } = event.target;
-
-        if (!name) return; // Đảm bảo có `name` trước khi cập nhật
-
+        const {name, value} = event.target;
+        if (!name) return;
         setFormData((prev) => ({
             ...prev,
-            [name]: value, // Chấp nhận cả string từ TextField và Select
+            [name]: value,
         }));
     };
 
-
-    // Handle toggle changes for switches
     const handleToggleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = e.target;
+        const {name, checked} = e.target;
         setFormData({
             ...formData,
             [name]: checked,
         });
     };
 
-    // Delete user
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         if (window.confirm(t('user_management.dialog'))) {
-            dispatch(deleteUser(id));
+            try {
+                setError(null);
+                setSuccess(null);
+                await dispatch(deleteUser(id)).unwrap();
+                setSuccess("User deleted successfully.");
+                debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
+            } catch (err: any) {
+                setError(err.message || "An unexpected error occurred.");
+                setSuccess(null);
+            }
         }
     };
 
-    // Handle change of page
-    const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    const columns: GridColDef<User>[] = [
+        {
+            field: 'id',
+            headerName: 'No.',
+            minWidth: 100,
+            flex: 0.5,
+            sortable: false,
+            filterable: false,
+            valueGetter: (value, row) => {
+                const index = filteredUsers.findIndex((item) => item.id === row.id);
+                return index >= 0 ? index + 1 + page * rowsPerPage : '-';
+            },
+        },
+        {
+            field: 'lastName',
+            headerName: t('user_management.lastName'),
+            minWidth: 120,
+            flex: 1,
+        },
+        {
+            field: 'firstName',
+            headerName: t('user_management.firstName'),
+            minWidth: 120,
+            flex: 1,
+        },
+        {
+            field: 'username',
+            headerName: t('user_management.username'),
+            minWidth: 150,
+            flex: 1,
+        },
+        {
+            field: 'email',
+            headerName: 'Email',
+            minWidth: 200,
+            flex: 2,
+        },
+        {
+            field: 'phoneNumber',
+            headerName: 'Phone Number',
+            minWidth: 150,
+            flex: 1,
+        },
+        {
+            field: 'avatar',
+            headerName: 'Avatar',
+            minWidth: 100,
+            flex: 0.5,
+            renderCell: (params: GridCellParams) => (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
+                        width: '100%',
+                    }}
+                >
+                    <Avatar
+                        src={params.row.image || undefined}
+                        alt={params.row.firstName}
+                        sx={{
+                            width: 40,
+                            height: 40,
+                            bgcolor: !params.row.image ? stringToColor(params.row.firstName || '') : 'transparent',
+                            color: !params.row.image ? 'white' : 'inherit',
+                        }}
+                    >
+                        {!params.row.image && params.row.firstName?.charAt(0).toUpperCase()}
+                    </Avatar>
+                </Box>
+            ),
+        },
+        {
+            field: 'createdDate',
+            headerName: 'Created Date',
+            minWidth: 150,
+            flex: 1.5,
+            align: 'center',
+            headerAlign: 'center',
+            valueGetter: ((value) =>
+                    value
+                        ? format(
+                            parse(value as string, 'dd/MM/yyyy HH:mm:ss', new Date()),
+                            'dd/MM/yyyy HH:mm'
+                        )
+                        : ''
+            ) as GridValueGetter,
+        },
+        {
+            field: 'lastModifiedDate',
+            headerName: 'Last Modified',
+            minWidth: 150,
+            flex: 1,
+            align: 'center',
+            headerAlign: 'center',
+            valueGetter: ((value) =>
+                value ? format(new Date(value as string), 'dd/MM/yyyy HH:mm') : '') as GridValueGetter<any>,
+        },
+        {
+            field: 'role',
+            headerName: t('user_management.role'),
+            minWidth: 120,
+            flex: 1,
+            align: 'center',
+            headerAlign: 'center',
+            renderCell: (params: GridRenderCellParams<User, string>) => {
+                const value = params.value;
 
-    // Handle change of rows per page
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newSize = parseInt(event.target.value, 10);
-        setRowsPerPage(newSize);
-        setPage(0); // Reset to first page when rows per page changes
-    };
+                const getLabel = (val: string | undefined) => {
+                    switch (val) {
+                        case Role.ADMIN:
+                            return 'Admin';
+                        case Role.STUDENT:
+                            return 'Student';
+                        case Role.CO_OWNER:
+                            return 'Co_Owner';
+                        case Role.OWNER:
+                            return 'Owner';
+                        case Role.TEACHER:
+                            return 'Teacher';
+                        default:
+                            return 'N/A';
+                    }
+                };
 
-    // Handle filter changes
-    const handleKeywordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setKeyword(e.target.value);
-        setPage(0); // Reset to first page when filter changes
-    };
-
-    const handleRoleFilterChange = (e: SelectChangeEvent<string>) => {
-        setRoleFilter(e.target.value);
-        setPage(0); // Reset to first page when filter changes
-    };
+                const getColor = (val: string | undefined): 'default' | 'primary' | 'secondary' | 'error' | 'success' | 'warning' => {
+                    switch (val) {
+                        case Role.ADMIN:
+                            return 'primary';
+                        case Role.STUDENT:
+                            return 'success';
+                        case Role.TEACHER:
+                            return 'secondary';
+                        case Role.OWNER:
+                            return 'warning';
+                        case Role.CO_OWNER:
+                            return 'error';
+                        default:
+                            return 'default';
+                    }
+                };
+                return (
+                    <Chip
+                        label={getLabel(value)}
+                        color={getColor(value)}
+                        variant="outlined"
+                        size="small"
+                        sx={{width: '70px', fontWeight: 200, borderRadius: '20px', justifyContent: 'center'}}
+                    />
+                );
+            }
+        },
+        {
+            field: 'actions',
+            headerName: t('user_management.actions'),
+            minWidth: 200,
+            flex: 2,
+            align: 'center',
+            headerAlign: 'center',
+            sortable: false,
+            filterable: false,
+            renderCell: (params: GridCellParams) => (
+                <>
+                    <IconButton
+                        sx={{color: 'primary.main'}}
+                        size="small"
+                        onClick={() => handleOpen({
+                            id: params.row.id,
+                            firstName: params.row.firstName,
+                            lastName: params.row.lastName,
+                            email: params.row.email,
+                            role: params.row.role,
+                            enabled: params.row.enabled,
+                            username: params.row.username,
+                            password: "",
+                            phoneNumber: params.row.phoneNumber || "",
+                            accountLocked: params.row.accountLocked,
+                        })}
+                    >
+                        <EditIcon/>
+                    </IconButton>
+                    {((currentUser?.role === "OWNER" || currentUser?.role === "CO_OWNER") &&
+                        (params.row.role !== 'OWNER' && params.row.role !== 'CO_OWNER')) && (
+                        <>
+                            <IconButton
+                                sx={{color: 'warning.main'}}
+                                size="small"
+                                onClick={() => dispatch(transferOwnership(params.row.id))}
+                            >
+                                <TransferWithinAStationIcon/>
+                            </IconButton>
+                            <IconButton
+                                sx={{color: 'success.main'}}
+                                size="small"
+                                onClick={() => dispatch(promoteUser(params.row.id))}
+                            >
+                                <VerifiedUserIcon/>
+                            </IconButton>
+                        </>
+                    )}
+                    <IconButton
+                        sx={{color: 'error.main'}}
+                        size="small"
+                        onClick={() => handleDelete(params.row.id)}
+                    >
+                        <DeleteIcon/>
+                    </IconButton>
+                </>
+            ),
+        },
+    ];
 
     return (
         <div className="p-6">
-            <Typography variant="h4" className="mb-6">
+            <Typography variant="h4" className="pb-4">
                 {t('user_management.title')}
             </Typography>
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleOpen()}
-                className="mb-6"
-            >
-                {t('user_management.add_button')}
-            </Button>
+            <Box display="flex" gap={2} mb={2}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpen()}
+                    className="mb-6"
+                >
+                    {t('user_management.add_button')}
+                </Button>
 
-            {/* Filter Controls */}
-            <Box className="mt-4">
-                <Grid container spacing={2}>
-                    <Grid size={{ xs:12, sm:6}}>
-                        <TextField
-                            label={t('user_management.search')}
-                            value={keyword}
-                            onChange={handleKeywordChange}
-                            variant="outlined"
-                            fullWidth
-                            placeholder={t('user_management.search_placeholder')}
-                        />
+                <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
+                    <Grid container spacing={2}>
+                        <Grid size={{xs: 12, sm: 6}}>
+                            <TextField
+                                label={t('user_management.search')}
+                                value={keyword}
+                                onChange={(e) => {
+                                    setKeyword(e.target.value);
+                                    setPage(0);
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { borderRadius: 10 },
+                                    maxWidth: '300px'
+                                }}
+                                variant="outlined"
+                                fullWidth
+                                placeholder={t('user_management.search_placeholder')}
+                            />
+                        </Grid>
+                        <Grid size={{xs: 12, sm: 6}}>
+                            <FormControl fullWidth variant="outlined"  sx={{ minWidth: 180, '& .MuiOutlinedInput-root': { borderRadius: 10 } }}>
+                                <InputLabel id="role-filter-label">{t('user_management.filter')}</InputLabel>
+                                <Select
+                                    labelId="role-filter-label"
+                                    value={roleFilter}
+                                    onChange={(e: SelectChangeEvent<string>) => {
+                                        setRoleFilter(e.target.value);
+                                        setPage(0);
+                                    }}
+                                    label={t('user_management.filter_placeholder')}
+                                >
+                                    <MenuItem value="">
+                                        <em>{t('user_management.none')}</em>
+                                    </MenuItem>
+                                    <MenuItem value="student">{t('user_management.student')}</MenuItem>
+                                    <MenuItem value="teacher">{t('user_management.teacher')}</MenuItem>
+                                    <MenuItem value="owner">{t('user_management.owner')}</MenuItem>
+                                    <MenuItem value="co_owner">{t('user_management.co_owner')}</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
                     </Grid>
-                    <Grid size={{ xs:12, sm:6}}>
-                        <FormControl fullWidth variant="outlined">
-                            <InputLabel id="role-filter-label">{t('user_management.filter')}</InputLabel>
-                            <Select
-                                labelId="role-filter-label"
-                                id="role-filter"
-                                value={roleFilter}
-                                onChange={handleRoleFilterChange}
-                                label={t('user_management.filter_placeholder')}
-                            >
-                                <MenuItem value="">
-                                    <em>{t('user_management.none')}</em>
-                                </MenuItem>
-                                <MenuItem value="student">{t('user_management.student')}</MenuItem>
-                                <MenuItem value="teacher">{t('user_management.teacher')}</MenuItem>
-                                <MenuItem value="owner">{t('user_management.owner')}</MenuItem>
-                                <MenuItem value="co_owner">{t('user_management.co_owner')}</MenuItem>
-                                {/* Thêm các role khác nếu có */}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                </Grid>
+                </Box>
+            </Box>
+            <CustomAlert
+                open={!!error && !success}
+                message={error || ""}
+                severity="error"
+                onClose={handleCloseError}
+            />
+            <CustomAlert
+                open={!!success && !error}
+                message={success || ""}
+                severity="success"
+                onClose={handleCloseSuccess}
+            />
+
+            <Box sx={{height: '700px', width: '100%', mt: 4}}>
+                <DataGrid
+                    rows={filteredUsers}
+                    columnHeaderHeight={56}
+                    columns={columns.map((col) => ({
+                        ...col,
+                        align: 'center',
+                        headerAlign: 'center',
+                    }))}
+                    paginationMode="server"
+                    rowCount={totalElements}
+                    paginationModel={{page, pageSize: rowsPerPage}}
+                    onPaginationModelChange={(newModel) => {
+                        setPage(newModel.page);
+                        setRowsPerPage(newModel.pageSize);
+                    }}
+                    pageSizeOptions={[5, 10, 25]}
+                    loading={isLoading}
+                    slots={{
+                        toolbar: GridToolbar,
+                        noRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    slotProps={{
+                        pagination: {
+                            showFirstButton: true,
+                            showLastButton: true,
+                        },
+                    }}
+                    rowHeight={66}
+                    sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            color: '#1976d2',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                        },
+                        '--DataGrid-overlayHeight': '300px',
+                    }}
+                    disableRowSelectionOnClick
+                />
             </Box>
 
-            {/* Feedback Messages */}
-            {isLoading && <LoadingIndicator open={isLoading}/>}
-            {error && (
-                <Typography variant="body2" color="error" className="mb-4">
-                    {typeof error === "string" ? error : JSON.stringify(error)}
-                </Typography>
-            )}
-
-            {success && <Typography variant="body2" color="success.main" className="mb-4">{success}</Typography>}
-
-            <TableContainer component={Paper} className="mt-4 shadow-lg">
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ minWidth: 50 }}><strong>No.</strong></TableCell>
-                            <TableCell sx={{ minWidth: 100 }}><strong>{t('user_management.firstName')}</strong></TableCell>
-                            <TableCell sx={{ minWidth: 100 }}><strong>{t('user_management.lastName')}</strong></TableCell>
-                            <TableCell sx={{ minWidth: 200 }}><strong>Email</strong></TableCell>
-                            <TableCell sx={{ minWidth: 120 }}><strong>{t('user_management.role')}</strong></TableCell>
-                            <TableCell sx={{ minWidth: 150 }} align="center"><strong>{t('user_management.actions')}</strong></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {user.length > 0 ? (
-                            user.map((u) => (
-                                <TableRow key={u.id} hover>
-                                    <TableCell>{u.id}</TableCell>
-                                    <TableCell>{u.firstName}</TableCell>
-                                    <TableCell>{u.lastName}</TableCell>
-                                    <TableCell>{u.email}</TableCell>
-                                    <TableCell>{u.role ? (typeof u.role === 'object' ? u.role.name : u.role) : "N/A"}</TableCell>
-                                    <TableCell align="center">
-                                        <Button
-                                            variant="contained"
-                                            color="secondary"
-                                            size="small"
-                                            onClick={() => handleOpen({
-                                                id: u.id,
-                                                firstName: u.firstName,
-                                                lastName: u.lastName,
-                                                email: u.email,
-                                                role: u.role, // Đảm bảo role là string
-                                                enabled: u.enabled,
-                                                username: u.username,
-                                                password: "", // Mặc định để trống vì lý do bảo mật
-                                                phoneNumber: u.phoneNumber || "",
-                                                accountLocked: u.accountLocked,
-                                            })}
-                                            sx={{
-                                                marginRight: 1,
-                                            }}
-                                        >
-                                            {t('user_management.edit_button')}
-                                        </Button>
-                                        {/* Nếu là owner hoặc co_owner, hiển thị các nút đặc biệt */}
-                                        {((currentUser?.role === "OWNER" || currentUser?.role === "CO_OWNER") && (u?.role!== 'OWNER' && u?.role !== 'CO_OWNER')) && (
-                                            <>
-                                                <Button
-                                                    variant="contained"
-                                                    color="warning"
-                                                    size="small"
-                                                    onClick={() => dispatch(transferOwnership(u.id))}
-                                                    sx={{ marginRight: 1 }}
-                                                >
-                                                    {t('user_management.transfer_button')}
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="primary"
-                                                    size="small"
-                                                    sx={{
-                                                        marginRight: 1,
-                                                    }}
-                                                    onClick={() => dispatch(promoteUser(u.id ))}
-                                                >
-                                                    {t('user_management.promote_button')}
-                                                </Button>
-                                            </>
-                                        )}
-
-                                        <Button
-                                            variant="contained"
-                                            color="error"
-                                            size="small"
-                                            onClick={() => handleDelete(u.id)}
-                                        >
-                                            {t('user_management.delete_button')}
-                                        </Button>
-
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={6} align="center">
-                                    {t('user_management.no_data')}
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    component="div"
-                    count={totalElements}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    labelRowsPerPage={t("pagination.rowsPerPage")}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    showFirstButton
-                    showLastButton
-                    sx={{ position: 'relative', left: '-10px' }}
-                />
-            </TableContainer>
-
-            {/* Modal for Add/Edit User */}
-            <Modal open={open} onClose={handleClose}>
-                <Box sx={modalStyle}>
-                    <Typography variant="h6" className="mb-4">
-                        {editUser ? t('user_management.editUser') : t('user_management.add_button')}
-                    </Typography>
+            <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+                <DialogTitle>
+                    {editUser ? t('user_management.editUser') : t('user_management.add_button')}
+                </DialogTitle>
+                <DialogContent className="space-y-4" sx={{mt: 2}}>
                     <TextField
                         label={t('user_management.firstName')}
                         name="firstName"
@@ -399,11 +537,20 @@ const UserManagement: React.FC = () => {
                         onChange={handleChange}
                         fullWidth
                         required
+                        sx={{marginTop: 2}}
                     />
                     <TextField
                         label={t('user_management.lastName')}
                         name="lastName"
                         value={formData.lastName}
+                        onChange={handleChange}
+                        fullWidth
+                        required
+                    />
+                    <TextField
+                        label={t('user_management.username')}
+                        name="username"
+                        value={formData.username}
                         onChange={handleChange}
                         fullWidth
                         required
@@ -434,21 +581,13 @@ const UserManagement: React.FC = () => {
                         </Select>
                     </FormControl>
                     <TextField
-                        label={t('user_management.username')}
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        fullWidth
-                        required
-                    />
-                    <TextField
                         label={t('user_management.password')}
                         name="password"
                         type="password"
                         value={formData.password}
                         onChange={handleChange}
                         fullWidth
-                        required={!editUser} // Password required only for new users
+                        required={!editUser}
                     />
                     <TextField
                         label={t('user_management.phone')}
@@ -479,20 +618,18 @@ const UserManagement: React.FC = () => {
                         }
                         label={t('user_management.accountLocked')}
                     />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSubmit}
-                        fullWidth
-                        disabled={isLoading}
-                    >
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} variant="outlined">
+                        {t('common.cancel')}
+                    </Button>
+                    <Button onClick={handleSubmit} variant="contained" color="primary" disabled={isLoading}>
                         {editUser ? t('user_management.update_button') : t('user_management.create_button')}
                     </Button>
-                </Box>
-            </Modal>
+                </DialogActions>
+            </Dialog>
         </div>
     );
-
 };
 
 export default UserManagement;

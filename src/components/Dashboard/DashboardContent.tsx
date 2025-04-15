@@ -2,7 +2,7 @@ import DetailsTable from './Chart/DetailsTable.tsx';
 import BarChart from "./Chart/BarChart";
 import {TextField, Button, Container, Typography, Box} from '@mui/material';
 import CustomAlert from "../Support/CustomAlert.tsx";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import {useState} from "react";
 import DailyCourseStatistic from "./Chart/DailyCourseStatistic.tsx";
 import {useTranslation} from "react-i18next";

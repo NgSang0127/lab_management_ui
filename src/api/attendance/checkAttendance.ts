@@ -11,10 +11,11 @@ export async function postCheckAttendance(request: checkAttendanceRequest): Prom
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            if (error.response && typeof error.response.data === "string") {
-                throw new Error(error.response.data);
-            }
-            throw new Error("No response from server");
+            const message =
+                error.response?.data?.message ||
+                (typeof error.response?.data === "string" ? error.response.data : null) ||
+                "No response from server";
+            throw new Error(message);
         }
         throw new Error("Unknown error");
     }

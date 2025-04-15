@@ -54,7 +54,7 @@ const ScrollToTopButton: React.FC = () => {
                     },
                 }}
             >
-                <KeyboardArrowUpIcon sx={{ fontSize: 'px', color: 'white' }} /> {/* Kích thước icon */}
+                <KeyboardArrowUpIcon sx={{ fontSize: 'px', color: 'white' }} />
             </Button>
         </div>
     );

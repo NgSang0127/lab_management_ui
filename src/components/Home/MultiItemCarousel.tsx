@@ -1,6 +1,6 @@
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import './Slick.css'; // Import CSS tùy chỉnh sau slick styles
+import './Slick.css';
 import CarouselItem from "./CarouselItem";
 import Slider from "react-slick";
 import { topEvents } from "./topEvent";
@@ -12,14 +12,14 @@ const MultiItemCarousel = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const settings = {
-        dots: true,
+        dots: false,
         infinite: true,
         speed: 700,
         slidesToShow: 1,
         slidesToScroll: 1,
         autoplay: true,
-        autoplaySpeed: 5000,
-        arrows: true, // Sử dụng các mũi tên mặc định, sẽ được tùy chỉnh bằng CSS
+        autoplaySpeed: 4000,
+        arrows: true,
         fade: true,
         appendDots: (dots: any) => (
             <Box
@@ -52,7 +52,7 @@ const MultiItemCarousel = () => {
     };
 
     return (
-        <Box sx={{ position: 'relative', width: '100%', height: { xs: '200px', sm: '400px', md: '500px' }, mb: 4 }}>
+        <Box sx={{ position: 'relative', width: '100%', height: { xs: '200px', sm: '400px', md: '600px' }, mb: 4 }}>
             <Slider {...settings}>
                 {topEvents.map((item, index) => (
                     <CarouselItem key={index} image={item.image} title={item.title} description={item.description} link={item.link} />

@@ -1,5 +1,6 @@
 import { api } from "../../config/api.ts";
 import axios from "axios";
+import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 
 interface ExportResponse {
     blob: Blob;
@@ -20,14 +21,7 @@ export async function importAssetsFromCSV(file: File): Promise<string> {
 
         return response.data; // Mong đợi là một thông báo thành công
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -45,14 +39,7 @@ export async function importAssetsFromExcel(file: File): Promise<string> {
 
         return response.data; // Mong đợi là một thông báo thành công
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -76,14 +63,7 @@ export async function exportAssetsToCSV(): Promise<ExportResponse> {
 
         return { blob: response.data, filename };
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }
 
@@ -106,13 +86,6 @@ export async function exportAssetsToExcel(): Promise<ExportResponse> {
 
         return { blob: response.data, filename };
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            if (error.response && error.response.data) {
-                const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                throw new Error(backendError);
-            }
-            throw new Error('No response from server');
-        }
-        throw new Error('Unknown error');
+        handleAxiosError(error);
     }
 }

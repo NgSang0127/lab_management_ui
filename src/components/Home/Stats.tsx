@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Container,Typography, Paper } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';

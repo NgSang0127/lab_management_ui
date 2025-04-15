@@ -5,15 +5,16 @@ import {
     IconButton,
     Link,
     Divider,
-    Container,
+    Container, useMediaQuery, useTheme,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import logoIT from "@images/logo2.png";
 import {useTranslation} from "react-i18next";
+
 
 
 const FooterContainer = styled('footer')(({ theme }) => ({
@@ -34,6 +35,9 @@ const SocialMediaContainer = styled(Box)(({ theme }) => ({
 
 const Footer: React.FC = () => {
     const {t}=useTranslation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
     return (
         <FooterContainer>
             <Container  maxWidth="xl">
@@ -55,6 +59,7 @@ const Footer: React.FC = () => {
                         <Typography variant="body2">
                             Email: <Link href="mailto:info@hcmiu.edu.vn" color="primary.light" underline="hover">info@hcmiu.edu.vn</Link>
                         </Typography>
+
                     </Grid>
 
                     {/* Right Section - Social Media Links */}
@@ -108,9 +113,30 @@ const Footer: React.FC = () => {
                             >
                                 <InstagramIcon fontSize="large" />
                             </IconButton>
+
                         </SocialMediaContainer>
+                        {/* Nhúng Google Maps iframe ở đây */}
+                        <Grid
+                            container
+                            sx={{
+                                mt: 2,
+                                justifyContent: isMobile ? 'center' : 'flex-end',
+                            }}
+                        >
+                            <Grid size={{ xs: 12, md: 10 }}>
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.1316505608092!2d106.79904467583916!3d10.877590057317947!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3174d8a415a9d221%3A0x550c2b41569376f9!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBRdeG7kWMgVOG6vyAtIMSQ4bqhaSBo4buNYyBRdeG7kWMgZ2lhIFRQLkhDTQ!5e0!3m2!1svi!2s!4v1743504507116!5m2!1svi!2s"
+                                    width="100%"
+                                    height="200"
+                                    style={{ border: "0", borderRadius: "8px" }}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                ></iframe>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Grid>
+
 
                 {/* Divider */}
                 <Box my={4}>

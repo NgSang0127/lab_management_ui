@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { Bar } from "react-chartjs-2";
+import { Chart } from "react-chartjs-2"; // Thay Bar bằng Chart
 import {
     TextField,
     Box,
@@ -16,9 +16,7 @@ import { format, isValid } from "date-fns";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { RootState, useAppDispatch } from "../../../state/store.ts";
 import { getUsageTimeUsers } from "../../../state/Dashboard/Reducer.ts";
-
-
-// Chart.js registration (ensure Chart.js is properly registered)
+import { useTranslation } from "react-i18next";
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -29,9 +27,11 @@ import {
     Tooltip,
     Legend,
     Title,
+    ChartData,
+    ChartOptions,
 } from "chart.js";
-import {useTranslation} from "react-i18next";
 
+// Đăng ký các thành phần của Chart.js
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -43,20 +43,17 @@ ChartJS.register(
     Title
 );
 
-// Constants for chart appearance
 const CHART_BACKGROUND_COLOR = "rgba(54, 162, 235, 0.6)";
 const MAX_USAGE_TIME_COLOR = "rgba(255, 99, 132, 0.5)";
 const MAX_USAGE_TIME_BORDER_COLOR = "rgba(255, 99, 132, 1)";
 const MAX_USAGE_TIME = 240; // 4 hours in minutes
 
-// Utility function to format time in seconds to hours and minutes
 const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return `${hours}h ${minutes}m`;
 };
 
-// Define the shape of the filter parameters
 interface FilterParams {
     date: string;
     role: string;
@@ -65,7 +62,7 @@ interface FilterParams {
 }
 
 const BarChart: React.FC = () => {
-    const {t}=useTranslation();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const { usageTimeUsers, isLoading, error, page, totalElements } = useSelector(
         (state: RootState) => state.usage
@@ -78,7 +75,6 @@ const BarChart: React.FC = () => {
         size: 10,
     });
 
-    // Fetch data whenever filters change
     useEffect(() => {
         const { date, role, page, size } = filters;
         if (date && role) {
@@ -86,7 +82,6 @@ const BarChart: React.FC = () => {
         }
     }, [filters, dispatch]);
 
-    // Handlers for filter changes
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setFilters((prev) => ({ ...prev, date: event.target.value, page: 0 }));
     };
@@ -106,8 +101,7 @@ const BarChart: React.FC = () => {
         setFilters((prev) => ({ ...prev, size: newSize, page: 0 }));
     };
 
-    // Memoize chart data to prevent unnecessary recalculations
-    const barChartData = useMemo(() => {
+    const barChartData = useMemo((): ChartData<"bar" | "line", number[], string> => {
         return {
             labels: usageTimeUsers.map((user) => user.username),
             datasets: [
@@ -115,12 +109,13 @@ const BarChart: React.FC = () => {
                     label: t('dashboard.barchart.label1'),
                     data: usageTimeUsers.map((user) => Math.floor(user.totalUsageTime / 60)),
                     backgroundColor: CHART_BACKGROUND_COLOR,
+                    type: "bar" as const,
                 },
                 {
                     label: t('dashboard.barchart.label2'),
                     data: usageTimeUsers.map(() => MAX_USAGE_TIME),
                     backgroundColor: MAX_USAGE_TIME_COLOR,
-                    type: "line",
+                    type: "line" as const,
                     borderColor: MAX_USAGE_TIME_BORDER_COLOR,
                     borderWidth: 2,
                     fill: false,
@@ -128,10 +123,9 @@ const BarChart: React.FC = () => {
                 },
             ],
         };
-    }, [usageTimeUsers]);
+    }, [usageTimeUsers, t]);
 
-    // Memoize chart options
-    const chartOptions = useMemo(() => {
+    const chartOptions = useMemo((): ChartOptions<"bar"> => {
         const formattedDate = isValid(new Date(filters.date))
             ? format(new Date(filters.date), "dd/MM/yyyy")
             : "";
@@ -141,14 +135,14 @@ const BarChart: React.FC = () => {
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: (context: any) => {
+                        label: (context) => {
                             const { datasetIndex, dataIndex } = context;
                             if (datasetIndex === 0) {
                                 const totalSeconds = usageTimeUsers[dataIndex]?.totalUsageTime || 0;
-                                return (t('dashboard.barchart.usageTime',{time:formatTime(totalSeconds)}));
+                                return t('dashboard.barchart.usageTime', { time: formatTime(totalSeconds) });
                             }
                             if (datasetIndex === 1) {
-                                return (t('dashboard.barchart.maximum',{time:MAX_USAGE_TIME}));
+                                return t('dashboard.barchart.maximum', { time: MAX_USAGE_TIME });
                             }
                             return "";
                         },
@@ -160,14 +154,14 @@ const BarChart: React.FC = () => {
                 title: {
                     display: true,
                     text: formattedDate
-                        ? (t('dashboard.barchart.text1',{date:formattedDate,role:filters.role}))
+                        ? t('dashboard.barchart.text1', { date: formattedDate, role: filters.role })
                         : t('dashboard.barchart.text2'),
                 },
             },
             scales: {
                 y: {
                     ticks: {
-                        stepSize: 60, // Step size in minutes
+                        stepSize: 60,
                     },
                     title: {
                         display: true,
@@ -177,14 +171,12 @@ const BarChart: React.FC = () => {
                 },
             },
         };
-    }, [filters.date, filters.role, usageTimeUsers]);
+    }, [filters.date, filters.role, usageTimeUsers, t]);
 
-    // Determine if data should be displayed
     const shouldDisplayData = filters.date && filters.role && usageTimeUsers.length > 0;
 
     return (
         <Box ml={3}>
-            {/* Filters */}
             <Typography variant="h5" className="pb-7">
                 {t('dashboard.barchart.title')}
             </Typography>
@@ -195,9 +187,10 @@ const BarChart: React.FC = () => {
                     value={filters.date}
                     onChange={handleDateChange}
                     slotProps={{
-                        inputLabel:{
-                        shrink: true,
-                    }}}
+                        inputLabel: {
+                            shrink: true,
+                        },
+                    }}
                     sx={{ minWidth: 200 }}
                 />
                 <FormControl sx={{ minWidth: 150 }}>
@@ -217,14 +210,12 @@ const BarChart: React.FC = () => {
                 </FormControl>
             </Box>
 
-            {/* Loading State */}
             {isLoading && (
                 <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
                     <CircularProgress />
                 </Box>
             )}
 
-            {/* Error or No Data Message */}
             {!isLoading && (error || (!shouldDisplayData && filters.date && filters.role)) && (
                 <Box textAlign="center" mt={2}>
                     <Typography color="textSecondary" variant="h6">
@@ -235,12 +226,14 @@ const BarChart: React.FC = () => {
                 </Box>
             )}
 
-            {/* Bar Chart */}
             {!isLoading && shouldDisplayData && (
-                <Bar data={barChartData} options={chartOptions} />
+                <Chart
+                    type="bar" // Kiểu chính của biểu đồ
+                    data={barChartData}
+                    options={chartOptions}
+                />
             )}
 
-            {/* Pagination */}
             {!isLoading && shouldDisplayData && (
                 <Box mt={2} display="flex" justifyContent="center">
                     <TablePagination

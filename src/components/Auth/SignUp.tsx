@@ -12,20 +12,18 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
-import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
-import {useCallback, useContext, useState} from 'react';
+import { styled } from '@mui/material/styles';
+import { useCallback, useState } from 'react';
 
-import { FacebookIcon, GoogleIcon } from "../../theme/CustomIcons";
-import { ThemeContext } from "../../theme/ThemeContext.tsx";
-import getThemeSignInSignUp from "../../theme/getThemeSignInSignUp.ts";
-import { registerUser } from "../../state/Authentication/Reducer.ts";
-import {RegisterRequest} from "../../state/Authentication/ActionType.ts";
-import { useAppDispatch} from "../../state/store.ts";
-import {useNavigate} from "react-router-dom";
-import logo from "@images/logo.png";
-import {useTranslation} from "react-i18next";
-import {AlertColor} from "@mui/material";
-import CustomAlert from "../Support/CustomAlert.tsx";
+import { FacebookIcon, GoogleIcon } from '../../theme/CustomIcons';
+import { registerUser } from '../../state/Authentication/Reducer.ts';
+import { RegisterRequest } from '../../state/Authentication/ActionType.ts';
+import { useAppDispatch } from '../../state/store.ts';
+import { useNavigate } from 'react-router-dom';
+import logo from '@images/logo.png';
+import { useTranslation } from 'react-i18next';
+import { AlertColor } from '@mui/material';
+import CustomAlert from '../Support/CustomAlert.tsx';
 
 const Card = styled(MuiCard)(({ theme }) => ({
     display: 'flex',
@@ -49,7 +47,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
 const SignUpContainer = styled(Stack)(({ theme }) => ({
     minHeight: '100%',
     padding: theme.spacing(2),
-    overflowY:'auto',
+    overflowY: 'auto',
     [theme.breakpoints.up('sm')]: {
         padding: theme.spacing(4),
     },
@@ -63,16 +61,9 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignUp() {
-    const {t}=useTranslation();
-
-    const navigate=useNavigate();
-    const { isDarkMode, showCustomTheme } = useContext(ThemeContext);
+    const { t } = useTranslation();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const mode = isDarkMode ? 'dark' : 'light';
-    const defaultTheme = createTheme({ palette: { mode } });
-    const SignUpTheme = createTheme(getThemeSignInSignUp(mode));
-
-
 
     const [alert, setAlert] = useState<{
         open: boolean;
@@ -80,16 +71,16 @@ export default function SignUp() {
         severity: AlertColor;
     }>({
         open: false,
-        message: "",
-        severity: "info",
+        message: '',
+        severity: 'info',
     });
 
-    const showAlert = (message: string, severity: "success" | "error" | "info") => {
-        setAlert({open: true, message, severity});
+    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
+        setAlert({ open: true, message, severity });
     };
 
     const handleCloseAlert = useCallback(() => {
-        setAlert((prev) => ({...prev, open: false}));
+        setAlert((prev) => ({ ...prev, open: false }));
     }, []);
 
     const [formData, setFormData] = React.useState<RegisterRequest>({
@@ -98,7 +89,7 @@ export default function SignUp() {
         username: '',
         email: '',
         password: '',
-        phoneNumber:'',
+        phoneNumber: '',
     });
 
     const [emailError, setEmailError] = React.useState(false);
@@ -113,9 +104,10 @@ export default function SignUp() {
     const [usernameErrorMessage, setUsernameErrorMessage] = React.useState('');
     const [phoneNumberError, setPhoneNumberError] = React.useState(false);
     const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = React.useState('');
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        setFormData(prevData => ({ ...prevData, [name]: value }));
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
     const validateInputs = () => {
@@ -165,6 +157,7 @@ export default function SignUp() {
             setUsernameError(false);
             setUsernameErrorMessage('');
         }
+
         if (!formData.phoneNumber || formData.phoneNumber.length > 11) {
             setPhoneNumberError(true);
             setPhoneNumberErrorMessage(t('signup.errors.phoneNumber'));
@@ -174,32 +167,30 @@ export default function SignUp() {
             setPhoneNumberErrorMessage('');
         }
 
-
         return isValid;
     };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (validateInputs()) {
-            showAlert("Đang xử lý đăng ký...", "info");
+            showAlert('Đang xử lý đăng ký...', 'info');
 
             dispatch(registerUser(formData))
                 .unwrap()
                 .then((response) => {
-                    showAlert(response.message, "success");
-                    setTimeout(function() {
-                        navigate("/check-email");
+                    showAlert(response.message, 'success');
+                    setTimeout(() => {
+                        navigate('/check-email');
                     }, 2000);
                 })
                 .catch((error) => {
-                    showAlert(error || "Đăng ký thất bại!", "error");
+                    showAlert(error || 'Đăng ký thất bại!', 'error');
                 });
         }
     };
 
-
     return (
-        <ThemeProvider theme={showCustomTheme ? SignUpTheme : defaultTheme}>
+        <>
             <CssBaseline />
             <SignUpContainer direction="column" justifyContent="space-between">
                 <Stack
@@ -269,7 +260,7 @@ export default function SignUp() {
                                     id="phoneNumber"
                                     error={phoneNumberError}
                                     helperText={phoneNumberErrorMessage}
-                                    color={phoneNumberError? 'error' : 'primary'}
+                                    color={phoneNumberError ? 'error' : 'primary'}
                                 />
                             </FormControl>
                             <FormControl>
@@ -326,11 +317,7 @@ export default function SignUp() {
                                 control={<Checkbox value="allowExtraEmails" color="primary" />}
                                 label={t('signup.allow_extra_email')}
                             />
-                            <Button
-                                type="submit"
-                                fullWidth
-                                variant="contained"
-                            >
+                            <Button type="submit" fullWidth variant="contained">
                                 {t('signup.button')}
                             </Button>
                             <Typography sx={{ textAlign: 'center' }}>
@@ -353,7 +340,7 @@ export default function SignUp() {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                onClick={() => alert('Sign up with Google')}
+                                onClick={() => showAlert('Sign up with Google', 'info')}
                                 startIcon={<GoogleIcon />}
                             >
                                 {t('signup.google')}
@@ -361,7 +348,7 @@ export default function SignUp() {
                             <Button
                                 fullWidth
                                 variant="outlined"
-                                onClick={() => alert('Sign up with Facebook')}
+                                onClick={() => showAlert('Sign up with Facebook', 'info')}
                                 startIcon={<FacebookIcon />}
                             >
                                 {t('signup.facebook')}
@@ -369,9 +356,13 @@ export default function SignUp() {
                         </Box>
                     </Card>
                 </Stack>
-                <CustomAlert open={alert.open} onClose={handleCloseAlert} message={alert.message}
-                             severity={alert.severity}/>
+                <CustomAlert
+                    open={alert.open}
+                    onClose={handleCloseAlert}
+                    message={alert.message}
+                    severity={alert.severity}
+                />
             </SignUpContainer>
-        </ThemeProvider>
+        </>
     );
 }

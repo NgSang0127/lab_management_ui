@@ -5,11 +5,11 @@ import {
     dataDisplayCustomizations,
     feedbackCustomizations,
     inputsCustomizations,
-    navigationCustomizations, surfacesCustomizations
+    navigationCustomizations, surfacesCustomizations,dataGridCustomizations
 } from "./customizations";
 
 
-export default function getThemeSignInSignUp(mode: PaletteMode): ThemeOptions {
+export default function getTheme(mode: PaletteMode): ThemeOptions {
     return {
         ...getDesignTokens(mode),
         components: {
@@ -18,6 +18,7 @@ export default function getThemeSignInSignUp(mode: PaletteMode): ThemeOptions {
             ...feedbackCustomizations,
             ...navigationCustomizations,
             ...surfacesCustomizations,
+            ...dataGridCustomizations
         },
     };
 }

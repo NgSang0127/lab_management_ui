@@ -1,28 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import {Avatar, Box, Button, TextField, Typography} from '@mui/material';
-import UploadIcon from '@mui/icons-material/Upload';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { Avatar, Box, Button, TextField, Typography } from "@mui/material";
+import UploadIcon from "@mui/icons-material/Upload";
+import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../../state/store.ts";
 import { uploadImageToCloudinary } from "../../../utils/uploadCloudinary.ts";
 import { updateInformationUser } from "../../../state/User/Reducer.ts";
 import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
 import CustomAlert from "../../Support/CustomAlert.tsx";
-import {useTranslation} from "react-i18next";
-
+import { useTranslation } from "react-i18next";
 
 const UserProfile: React.FC = () => {
-    const {t}=useTranslation()
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
-    const {user} = useSelector((state: RootState) => state.auth);
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { isLoading, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.user.updateInformation
+    );
 
-    // Consolidated state for user form
     const [userForm, setUserForm] = useState({
-        image: '',
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        username: '',
+        image: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        username: "",
     });
 
     const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -30,65 +31,67 @@ const UserProfile: React.FC = () => {
     const [alert, setAlert] = useState<{
         open: boolean;
         message: string;
-        severity: 'success' | 'error';
+        severity: "success" | "error";
     }>({
         open: false,
-        message: '',
-        severity: 'success',
+        message: "",
+        severity: "success",
     });
-
 
     useEffect(() => {
         if (user) {
             setUserForm({
-                image: user.image || '',
-                firstName: user.firstName || '',
-                lastName: user.lastName || '',
-                email: user.email || '',
-                phoneNumber: user.phoneNumber || '',
-                username: user.username || '',
+                image: user.image || "",
+                firstName: user.firstName || "",
+                lastName: user.lastName || "",
+                email: user.email || "",
+                phoneNumber: user.phoneNumber || "",
+                username: user.username || "",
             });
         }
     }, [user]);
 
-    // Function to open alert
-    const showAlert = (message: string, severity: 'success' | 'error') => {
-        setAlert({open: true, message, severity});
+    useEffect(() => {
+        if (successMessage || errorMessage) {
+            showAlert(
+                successMessage || errorMessage,
+                successMessage ? 'success' : 'error'
+            );
+        }
+    }, [successMessage, errorMessage]);
+
+    const showAlert = (message: string, severity: "success" | "error") => {
+        setAlert({ open: true, message, severity });
     };
 
-    // Function to close alert
     const handleCloseAlert = () => {
-        setAlert({...alert, open: false});
+        setAlert({ ...alert, open: false });
     };
 
-    // Function to update form fields
     const updateUserState = (field: string, value: string) => {
-        setUserForm((prev) => ({...prev, [field]: value}));
+        setUserForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    // Handle input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         updateUserState(name, value);
     };
 
-    // Handle file upload
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             setIsUploading(true);
             try {
                 const uploadedUrl = await uploadImageToCloudinary(e.target.files[0]);
-                updateUserState('image', uploadedUrl);
-                showAlert(t('setting.userProfile.success.upload_image'), 'success');
+                updateUserState("image", uploadedUrl);
+                showAlert(t("setting.userProfile.success.upload_image"), "success");
             } catch (error) {
-                showAlert(t('setting.userProfile.errors.upload_image'), 'error');
+                showAlert(t("setting.userProfile.errors.upload_image"), "error");
             } finally {
                 setIsUploading(false);
             }
         }
     };
 
-    // Handle form submission
     const handleSave = async () => {
         setLoading(true);
         try {
@@ -104,92 +107,71 @@ const UserProfile: React.FC = () => {
     return (
         <Box
             sx={{
-                padding: '24px',
-                margin: '20px',
-                maxWidth: '1400px',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                backgroundColor: '#ffffff',
+                bgcolor: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                p: 4,
+                mb: 4,
             }}
         >
             <Typography
-                variant="h5"
+                variant="h6"
                 sx={{
-                    marginBottom: '24px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
+                    fontWeight: "bold",
+                    color: "primary.main",
+                    mb: 3,
                 }}
             >
-                {t('setting.userProfile.title')}
+                {t("setting.userProfile.title")}
             </Typography>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginBottom: '24px',
-                    gap: '16px',
-                    flexWrap: 'wrap',
-                }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
                 <Avatar
                     src={userForm.image || user?.image || undefined}
                     alt="Profile"
                     sx={{
-                        width: 100,
-                        height: 100,
-                        border: '2px solid #ccc',
-                        fontSize: '2rem',
-                        backgroundColor: '#1976d2',
+                        width: 80,
+                        height: 80,
+                        border: "2px solid #ccc",
+                        bgcolor: "primary.main",
                     }}
                 >
                     {!(userForm.image || user?.image) && (
-                        <Typography variant="h6" sx={{color: '#fff', fontWeight: 'bold'}}>
-                            {user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
+                        <Typography variant="h6" sx={{ color: "#fff", fontWeight: "bold" }}>
+                            {user?.firstName ? user.firstName.charAt(0).toUpperCase() : "U"}
                         </Typography>
                     )}
                 </Avatar>
                 <Button
                     variant="outlined"
-                    startIcon={<UploadIcon/>}
+                    startIcon={<UploadIcon />}
                     component="label"
                     sx={{padding: '8px 16px', height: 'fit-content'}}
                     disabled={isUploading}
                     aria-label="Upload Image"
+
                 >
-                    {isUploading ? t('setting.userProfile.uploading') : t('setting.userProfile.button_upload')}
-                    <input hidden accept="image/*" type="file" onChange={handleFileChange}/>
+                    {isUploading ? t("setting.userProfile.uploading") : t("setting.userProfile.button_upload")}
+                    <input hidden accept="image/*" type="file" onChange={handleFileChange} />
                 </Button>
             </Box>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    gap: '16px',
-                    flexWrap: 'wrap',
-                    marginBottom: '24px',
-                }}
-            >
+            <Box sx={{ display: "flex", gap: 2, mb: 3, flexWrap: "wrap" }}>
                 <TextField
-                    label={t('setting.userProfile.firstName')}
+                    label={t("setting.userProfile.firstName")}
                     name="firstName"
                     value={userForm.firstName}
                     onChange={handleInputChange}
                     fullWidth
-                    sx={{flex: 1, minWidth: '200px'}}
-                    aria-label="First Name"
+                    sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }}
                 />
                 <TextField
-                    label={t('setting.userProfile.lastName')}
+                    label={t("setting.userProfile.lastName")}
                     name="lastName"
                     value={userForm.lastName}
                     onChange={handleInputChange}
                     fullWidth
-                    sx={{flex: 1, minWidth: '200px'}}
-                    aria-label="Last Name"
+                    sx={{ flex: 1, minWidth: { xs: "100%", sm: "200px" } }}
                 />
             </Box>
 
@@ -200,43 +182,41 @@ const UserProfile: React.FC = () => {
                 value={userForm.email}
                 onChange={handleInputChange}
                 fullWidth
-                sx={{marginBottom: '24px'}}
-                aria-label="Email"
+                sx={{ mb: 3 }}
             />
 
             <TextField
-                label={t('setting.userProfile.phone')}
+                label={t("setting.userProfile.phone")}
                 name="phoneNumber"
                 value={userForm.phoneNumber}
                 onChange={handleInputChange}
                 fullWidth
-                sx={{marginBottom: '24px'}}
-                aria-label="Phone Number"
+                sx={{ mb: 3 }}
             />
 
             <TextField
-                label={t('setting.userProfile.username')}
+                label={t("setting.userProfile.username")}
                 name="username"
                 value={userForm.username}
                 onChange={handleInputChange}
                 fullWidth
-                sx={{marginBottom: '24px'}}
-                aria-label="Username"
+                sx={{ mb: 3 }}
             />
 
             <Button
                 variant="contained"
-                color="primary"
-                size="large"
+                sx={{
+                    px: 4,
+                    py: 1.2,
+                    alignSelf: 'flex-end',
+                    mt: 2,
+                }}
                 onClick={handleSave}
-                sx={{width: '100%', padding: '12px'}}
                 disabled={loading || isUploading}
-                aria-label="Save Personal Information"
             >
-                {loading ? <LoadingIndicator open={loading}/> : t('setting.userProfile.button_save')}
+                {loading ? <LoadingIndicator open={loading} /> : t("setting.userProfile.button_save")}
             </Button>
 
-            {/* Alert for Notifications */}
             <CustomAlert
                 open={alert.open}
                 onClose={handleCloseAlert}
@@ -245,5 +225,6 @@ const UserProfile: React.FC = () => {
             />
         </Box>
     );
-}
+};
+
 export default UserProfile;

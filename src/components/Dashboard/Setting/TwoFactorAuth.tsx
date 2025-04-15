@@ -1,29 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Switch, TextField, Button, CircularProgress } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { RootState, useAppDispatch } from '../../../state/store.ts';
-import CustomAlert from '../../Support/CustomAlert.tsx';
+import React, { useEffect, useState } from "react";
+import { Box, Typography, Switch, TextField, Button, CircularProgress } from "@mui/material";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../../../state/store.ts";
+import CustomAlert from "../../Support/CustomAlert.tsx";
 import { toggleTfaFactor, verifyOtp } from "../../../state/Authentication/Reducer.ts";
 import { qrTfa } from "../../../state/User/Reducer.ts";
+import { useTranslation } from "react-i18next";
 
 const TwoFactorAuth: React.FC = () => {
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
     const { user, isLoading } = useSelector((state: RootState) => state.auth);
     const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(user?.twoFactorEnabled || false);
-    const [qrCodeImage, setQrCodeImage] = useState<string>('');
+    const [qrCodeImage, setQrCodeImage] = useState<string>("");
     const [loading, setLoading] = useState(false);
-    const [otp, setOtp] = useState('');
+    const [otp, setOtp] = useState("");
+    const [otpError, setOtpError] = useState("");
 
-    const [alert, setAlert] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    const [alert, setAlert] = useState<{
+        open: boolean;
+        message: string;
+        severity: "success" | "error";
+    }>({
         open: false,
-        message: '',
-        severity: 'success',
+        message: "",
+        severity: "success",
     });
 
     useEffect(() => {
         if (user?.twoFactorEnabled !== undefined) {
             setIsTwoFactorEnabled(user.twoFactorEnabled);
-            getQrCode();
+            if (user.twoFactorEnabled) {
+                getQrCode();
+            }
         }
     }, [user]);
 
@@ -45,25 +54,27 @@ const TwoFactorAuth: React.FC = () => {
         event.preventDefault();
 
         if (!user?.username) {
-            console.error('Username is missing!');
+            console.error("Username is missing!");
+            return;
+        }
+
+        if (!otp.trim()) {
+            setOtpError(t("setting.twoFactorAuth.errors.otpRequired"));
             return;
         }
 
         try {
-            // Gửi mã OTP đến API để xác minh
-            const result=await dispatch(verifyOtp({ code: otp, username: user?.username })).unwrap();
-
-            // Nếu OTP xác minh thành công, hiển thị thông báo thành công
-            showAlert('OTP verification successful!', 'success');
+            const result = await dispatch(verifyOtp({ code: otp, username: user?.username })).unwrap();
+            showAlert(t("setting.twoFactorAuth.success.verify"), "success");
+            setOtp("");
+            setOtpError("");
         } catch (error) {
-            console.error('OTP verification failed:', error);
-            // Nếu có lỗi, hiển thị thông báo lỗi
-            showAlert('OTP verification failed. Please try again.', 'error');
+            console.error("OTP verification failed:", error);
+            showAlert(t("setting.twoFactorAuth.errors.verify"), "error");
         }
     };
 
-
-    const showAlert = (message: string, severity: 'success' | 'error') => {
+    const showAlert = (message: string, severity: "success" | "error") => {
         setAlert({ open: true, message, severity });
     };
 
@@ -74,85 +85,112 @@ const TwoFactorAuth: React.FC = () => {
             if (response.secretImageUri) {
                 setQrCodeImage(response.secretImageUri);
                 setIsTwoFactorEnabled(true);
-                showAlert("Two-Factor Authentication has been enabled successfully.", 'success');
+                showAlert(t("setting.twoFactorAuth.success.enabled"), "success");
             } else {
-                setQrCodeImage('');
+                setQrCodeImage("");
                 setIsTwoFactorEnabled(false);
-                showAlert("Two-Factor Authentication has been disabled successfully.", 'success');
+                showAlert(t("setting.twoFactorAuth.success.disabled"), "success");
             }
         } catch (error) {
-            showAlert("An error occurred while toggling Two-Factor Authentication.", 'error');
+            showAlert(t("setting.twoFactorAuth.errors.toggle"), "error");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box sx={{ padding: '24px', border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#fff' }}>
-            <Typography variant="h5" sx={{
-                marginBottom: '24px',
-                fontWeight: '600',
-                textAlign: 'center',
-            }}>
-                Two-Factor Authentication
+        <Box
+            sx={{
+                bgcolor: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                p: 4,
+            }}
+        >
+            <Typography
+                variant="h6"
+                sx={{
+                    fontWeight: "bold",
+                    color: "primary.main",
+                    mb: 3,
+                }}
+            >
+                {t("setting.userProfile.twoFactorAuth")}
             </Typography>
 
-            {isLoading && <CircularProgress sx={{ display: 'block', margin: '0 auto' }} />}
+            {(isLoading || loading) && (
+                <CircularProgress sx={{ display: "block", margin: "0 auto", mb: 3 }} />
+            )}
 
-            <Box display="flex" alignItems="center" gap={2} marginBottom={2}>
-                <Typography variant="body1">Enable Two-Factor Authentication</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
+                <Typography variant="body1">{t("setting.userProfile.enableTwoFactorAuth")}</Typography>
                 <Switch
                     checked={isTwoFactorEnabled}
                     onChange={handleToggleTwoFactor}
-                    disabled={loading}
+                    disabled={loading || isLoading}
                     color="primary"
                 />
             </Box>
 
-            {qrCodeImage && (
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    marginBottom: '24px'
-                }}>
-                    <Typography variant="body2" sx={{ marginBottom: '16px' }}>
-                        Scan this QR Code with your authentication app:
+            {qrCodeImage && isTwoFactorEnabled && (
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+                    <Typography variant="body2" sx={{ mb: 2, color: "text.secondary" }}>
+                        {t("setting.twoFactorAuth.scanQrCode")}
                     </Typography>
                     <img
                         src={qrCodeImage}
                         alt="QR Code for Two-Factor Authentication"
-                        style={{ width: '350px', height: '350px', marginBottom: '16px' }}
+                        style={{ width: "400px", height: "400px" }}
                     />
-                    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '16px' }}>
-                        After scanning, enter the generated code in your authentication app to complete setup.
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                        {t("setting.twoFactorAuth.enterOtp")}
                     </Typography>
 
-                    <form onSubmit={handleSubmit} style={{ width: '100%' }}>
+                    <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: "300px" }}>
                         <TextField
-                            label="OTP Code"
+                            label={t("setting.twoFactorAuth.otpCode")}
                             variant="outlined"
                             fullWidth
                             type="text"
                             value={otp}
-                            onChange={(e) => setOtp(e.target.value)}
-                            placeholder="Enter OTP code"
-                            sx={{ marginBottom: 3 }}
+                            onChange={(e) => {
+                                setOtp(e.target.value);
+                                setOtpError("");
+                            }}
+                            placeholder={t("setting.twoFactorAuth.enterOtpPlaceholder")}
+                            error={!!otpError}
+                            helperText={otpError}
+                            sx={{
+
+                                "& .MuiOutlinedInput-root": {
+                                    "&:hover fieldset": { borderColor: "primary.main" },
+                                    "&.Mui-focused fieldset": { borderColor: "primary.main" },
+                                },
+                            }}
                         />
                         <Button
                             variant="contained"
                             type="submit"
                             fullWidth
+                            sx={{
+                                px: 4,
+                                py: 1.2,
+                                alignSelf: 'flex-end',
+                                mt: 2,
+                            }}
                         >
-                            Verify
+                            {t("setting.twoFactorAuth.verify")}
                         </Button>
                     </form>
                 </Box>
             )}
 
-            <CustomAlert open={alert.open} onClose={() => setAlert({ ...alert, open: false })} message={alert.message} severity={alert.severity} />
+            <CustomAlert
+                open={alert.open}
+                onClose={() => setAlert({ ...alert, open: false })}
+                message={alert.message}
+                severity={alert.severity}
+            />
         </Box>
     );
 };

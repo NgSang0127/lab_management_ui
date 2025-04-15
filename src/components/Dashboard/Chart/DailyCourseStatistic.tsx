@@ -3,7 +3,7 @@ import {
     Container, CircularProgress, Card, CardContent,
     Typography
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import { Line, Bar } from 'react-chartjs-2';
 import {
     Chart as ChartJS,

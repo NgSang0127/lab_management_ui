@@ -8,9 +8,18 @@ i18n
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        fallbackLng: "vn",
+        fallbackLng: "en",
         debug: true,
         interpolation: { escapeValue: false },
+        detection: {
+            order: ["localStorage", "navigator"],
+            lookupLocalStorage: "language",
+            caches: ["localStorage"],
+        },
     });
+i18n.on('languageChanged', (lng) => {
+    localStorage.setItem('language', lng);
+});
 
 export default i18n;
+

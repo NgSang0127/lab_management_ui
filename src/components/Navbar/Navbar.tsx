@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext, memo } from 'react';
 import {
     AppBar,
     Toolbar,
@@ -8,67 +8,115 @@ import {
     Avatar,
     Box,
     Button,
-    Drawer,
     useTheme,
-    useMediaQuery, ToggleButtonGroup, ToggleButton,
+    useMediaQuery,
+    ToggleButtonGroup,
+    ToggleButton,
+    Menu,
+    MenuItem,
+    Collapse,
 } from '@mui/material';
-import {
-    Search as SearchIcon,
-    AccountCircle,
-    Menu as MenuIcon,
-} from '@mui/icons-material';
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../../state/store";
-import { blue } from "@mui/material/colors";
-import { logout } from "../../state/Authentication/Reducer";
-import logo from "@images/logo.png";
-import SidebarAdmin from "../Dashboard/SidebarAdmin.tsx";
-import {SidebarContext} from "../../context/SidebarContext.tsx";
-import {useTranslation} from "react-i18next";
-import {styled} from "@mui/material/styles";
-import NotificationIcon from "./NotificationIcon.tsx";
-import Stack from "@mui/material/Stack";
-import { Link as ScrollLink } from "react-scroll";
+import { Search as SearchIcon, AccountCircle, Menu as MenuIcon, MoreVert as MoreVertIcon } from '@mui/icons-material';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../state/store';
+import { blue } from '@mui/material/colors';
+import { logout } from '../../state/Authentication/Reducer';
+import logo from '@images/logo.png';
+import SidebarAdmin from '../Dashboard/SidebarAdmin.tsx';
+import { SidebarContext } from '../../context/SidebarContext.tsx';
+import { useTranslation } from 'react-i18next';
+import { styled } from '@mui/material/styles';
+import NotificationIcon from './NotificationIcon.tsx';
+import Stack from '@mui/material/Stack';
 
-// eslint-disable-next-line no-empty-pattern
-const CustomToggleButtonGroup = styled(ToggleButtonGroup)(({ }) => ({
-    borderRadius: "20px",
-    marginRight: "30px",
-    overflow: "hidden",
-    backgroundColor: "#c4dfdf",
-    "& .MuiToggleButton-root": {
-        border: "none",
-        padding: "8px 16px",
-        minWidth: "50px",
-        color: "#555",
-        fontWeight: "bold",
-        transition: "all 0.3s",
+const CustomToggleButtonGroup = styled(ToggleButtonGroup)({
+    borderRadius: '20px',
+    overflow: 'hidden',
+    backgroundColor: '#c4dfdf',
+    marginRight: '12px',
+    '& .MuiToggleButton-root': {
+        border: 'none',
+        padding: '6px 12px',
+        minWidth: '40px',
+        color: '#555',
+        fontWeight: 'bold',
+        transition: 'all 0.3s',
     },
-    "& .MuiToggleButton-root.Mui-selected": {
-        backgroundColor: "#004e7f",
-        color: "#fff",
+    '& .MuiToggleButton-root.Mui-selected': {
+        backgroundColor: '#004e7f',
+        color: '#f1f6f9',
     },
-    "& .MuiToggleButton-root:hover": {
-        backgroundColor: "#20e3ca",
+});
+
+const SearchBar = styled(Box)({
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.25)' },
+    borderRadius: 20,
+    paddingX: 1,
+    marginLeft: 2,
+});
+
+const NavButtonStyles = {
+    color: 'white',
+    textTransform: 'none',
+    fontWeight: 500,
+    padding: '8px 16px',
+    borderRadius: '8px',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        textDecoration: 'none',
     },
-}));
+    '&.active': {
+        color: '#FFD700',
+    },
+};
+
+const NavLink: React.FC<{ item: { text: string; path?: string; scrollTo?: string } }> = memo(({ item }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const handleScrollClick = (scrollTo: string) => {
+        if (location.pathname !== '/') {
+            navigate('/', { state: { scrollTo } });
+            setTimeout(() => {
+                document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        } else {
+            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    return item.scrollTo ? (
+        <Box onClick={() => handleScrollClick(item.scrollTo)} sx={{ ...NavButtonStyles, cursor: 'pointer' }}>
+            {item.text}
+        </Box>
+    ) : (
+        <Button component={Link} to={item.path ?? '/'} sx={NavButtonStyles}>
+            {item.text}
+        </Button>
+    );
+});
 
 const Navbar: React.FC = () => {
-    const [mobileOpen, setMobileOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { user } = useSelector((state: RootState) => state.auth);
-    const { toggleSidebar } = useContext(SidebarContext);
+    const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { t, i18n } = useTranslation();
+    const [language, setLanguage] = useState(i18n.language || 'en');
 
-    const {t,i18n}=useTranslation();
-    const [language, setLanguage] = useState(i18n.language || "vn");
 
     useEffect(() => {
-        i18n.changeLanguage(language);  // Ensure i18n is updated with the initial language
+        i18n.changeLanguage(language);
     }, [language, i18n]);
 
     const handleLanguageChange = (_event: React.MouseEvent<HTMLElement>, newLanguage: string | null) => {
@@ -78,263 +126,274 @@ const Navbar: React.FC = () => {
         }
     };
 
-    // Define navigation items
     const navItems = [
-        { text: t("navbar.about_us"), path: "/about" },
-        { text: t("navbar.view_timetable"), path: "/timetable/by-week" },
-        { text: t("navbar.featured"), scrollTo: "features-section" },
-        { text: t("navbar.contact_me"),  scrollTo: "contact-section" },
-        { text: t('attendance.title'), path: "/attendance/checkAttendance" },
+        { text: t('navbar.about_us'), path: '/about-us' },
+        { text: t('navbar.view_timetable'), path: '/timetable/by-week' },
+        { text: t('navbar.featured'), scrollTo: 'features-section' },
+        { text: t('navbar.contact_me'), scrollTo: 'contact-section' },
+        { text: t('attendance.title'), path: '/attendance/checkAttendance' },
     ];
 
+    const handleDrawerToggle = useCallback(() => {
+        if (user?.enabled) {
+            toggleSidebar();
+        } else {
+            navigate('/account/signin');
+        }
+    }, [user?.enabled, navigate, toggleSidebar]);
 
-    // Handle opening and closing of mobile drawer
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
-
-    // Handle avatar/menu clicks based on user role
     const handleAvatarClick = useCallback(() => {
-        if (user?.role === "ADMIN" || user?.role === "OWNER" || user?.role === "CO_OWNER") {
-            navigate("/admin/hcmiu");
-        } else if (user?.role === "TEACHER" || user?.role === "STUDENT") {
-            navigate("/profile/dashboard");
-        } else {
-            navigate("/profile");
-        }
-    }, [navigate, user]);
+        const roleRoutes: Record<string, string> = {
+            ADMIN: '/admin/hcmiu',
+            OWNER: '/admin/hcmiu',
+            CO_OWNER: '/admin/hcmiu',
+            TEACHER: '/profile/dashboard',
+            STUDENT: '/profile/dashboard',
+        };
+        navigate(roleRoutes[user?.role || ''] || '/profile');
+    }, [navigate, user?.role]);
 
-    const handleScrollClick = (scrollTo: string) => {
-        if (location.pathname !== "/") {
-            navigate("/", { state: { scrollTo } });
-            setTimeout(() => {
-                document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
-            }, 300);
-        } else {
-            document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const handleSearch = useCallback(() => {
+        if (searchQuery.trim()) {
+            navigate(`/search?query=${encodeURIComponent(searchQuery)}`);
+            setSearchQuery('');
+            setIsSearchOpen(false);
         }
+    }, [searchQuery, navigate]);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
     };
 
-    // Handle storage changes for logout
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
     useEffect(() => {
         const handleStorageChange = (event: StorageEvent) => {
-            if (event.key === 'accessToken' && event.newValue === null) {
+            if (event.key === 'accessToken' && !event.newValue) {
                 dispatch(logout() as never);
             }
         };
-
         window.addEventListener('storage', handleStorageChange);
         return () => window.removeEventListener('storage', handleStorageChange);
     }, [dispatch]);
-
-    // Render navigation links for desktop
-    const renderNavLinks = () => (
-        <Box display="flex" gap={2}>
-            {navItems.map((item) =>
-                item.scrollTo ? (
-                    <Box
-                        key={item.text}
-                        onClick={() => handleScrollClick(item.scrollTo)}
-                        sx={{
-                            cursor: "pointer",
-                            color: "white",
-                            textTransform: "none",
-                            fontWeight: 500,
-                            padding: "8px 16px",
-                            borderRadius: "8px",
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                                textDecoration: "none",
-                            },
-                        }}
-                    >
-                        {item.text}
-                    </Box>
-                ) : (
-                    <Button
-                        key={item.text}
-                        component={Link}
-                        to={item.path}
-                        sx={{
-                            color: "white",
-                            textTransform: "none",
-                            fontWeight: 500,
-                            padding: "8px 16px",
-                            borderRadius: "8px",
-                            transition: "all 0.3s ease",
-                            "&:hover": {
-                                backgroundColor: "rgba(255, 255, 255, 0.1)",
-                                textDecoration: "none",
-                            },
-                            "&.active": {
-                                color: "#FFD700",
-                            },
-                        }}
-                    >
-                        {item.text}
-                    </Button>
-                )
-            )}
-        </Box>
-    );
-
-
-    // Drawer content for mobile
-    const drawer = ( <SidebarAdmin />);
 
     return (
         <AppBar
             position="sticky"
             sx={{
                 zIndex: theme.zIndex.drawer + 1,
-                background: 'linear-gradient(290deg, #0093E9 0%, #80D0C7 100%)',
+                background: 'linear-gradient(294deg, #0093E9 0%, #80D0C7 100%)',
                 boxShadow: 'none',
             }}
         >
-            <Toolbar
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}
-            >
-                {/* Mobile Menu Icon */}
-                {isMobile && (
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={toggleSidebar}
-                        sx={{ mr: 2 }}
+            {isMobile ? (
+                <>
+                    <Toolbar
+                        sx={{
+                            justifyContent: 'center',
+                            py: 1,
+                            background: 'linear-gradient(294deg, #0093E9 0%, #80D0C7 100%)',
+                        }}
                     >
-                        <MenuIcon />
-                    </IconButton>
-                )}
-
-                {/* Logo and Title */}
-                <Button
-                    onClick={() => navigate("/")}
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: 0,
-                        '&:hover': { backgroundColor: 'transparent' },
-                        cursor: 'pointer',
-                    }}
-                    disableRipple
-                >
-                    <Box
-                        component="img"
-                        src={logo}
-                        alt="Logo"
-                        sx={{ width: 60, height: 60, mr: 1 }}
-                    />
-                    <Typography
-                        variant="h6"
-                        color="inherit"
-                        sx={{ fontWeight: 'bold', display: { xs: 'none', sm: 'block' } }}
-                    >
-                        LAB MANAGEMENT IT
-                    </Typography>
-                </Button>
-
-                {/* Navigation Links and Search for Desktop */}
-                {!isMobile && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        {renderNavLinks()}
-
-                        {/* Search Bar */}
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.25)' },
-                                borderRadius: 1,
-                                paddingX: 1,
-                                marginLeft: 2,
-                            }}
+                        <Button
+                            onClick={() => navigate('/')}
+                            sx={{ display: 'flex', alignItems: 'center', padding: 0, '&:hover': { backgroundColor: 'transparent' } }}
+                            disableRipple
                         >
-                            <SearchIcon />
+                            <Box component="img" src={logo} alt="Logo" sx={{ width: 40, height: 40, mr: 1 }} />
+                            <Typography variant="h6" color="inherit" sx={{ fontWeight: 'bold' }}>
+                                LAB MANAGEMENT IT
+                            </Typography>
+                        </Button>
+                    </Toolbar>
+
+                    <Toolbar sx={{ justifyContent: 'space-between', py: 0.5, bgcolor: '#dadee1', color: '#000000' }}>
+                        <CustomToggleButtonGroup value={language} exclusive onChange={handleLanguageChange} size="small">
+                            <ToggleButton value="en">EN</ToggleButton>
+                            <ToggleButton value="vi-VN">VN</ToggleButton>
+                        </CustomToggleButtonGroup>
+
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            {user?.enabled &&<NotificationIcon />}
+                            {user?.enabled ? (
+                                <IconButton onClick={handleAvatarClick} sx={{ padding: 0 }}>
+                                    <Avatar sx={{ bgcolor: blue.A400, width: 37, height: 37 }} src={user?.image || undefined}>
+                                        {!user?.image && user?.firstName ? user.firstName.charAt(0).toUpperCase() : <AccountCircle />}
+                                    </Avatar>
+                                </IconButton>
+                            ) : (
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
+                                        <Typography sx={{ color: '#011f31', fontWeight: 'bold', textTransform: 'none' }}>
+                                            {"Đăng ký"}
+                                        </Typography>
+                                    </Box>
+                                    <Typography sx={{ color: '#011f31', fontWeight: 'bold',pl:0.3,pr:0.3 }}>|</Typography>
+                                    <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
+                                        <Typography sx={{ color: '#011f31', fontWeight: 'bold', textTransform: 'none' }}>
+                                            {"Đăng nhập"}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            )}
+                        </Stack>
+                    </Toolbar>
+
+                    <Toolbar sx={{ justifyContent: 'space-between', py: 0.5, bgcolor: '#0093E9', color: '#000000' }}>
+                        <IconButton onClick={handleDrawerToggle}>
+                            <MenuIcon />
+                        </IconButton>
+
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <IconButton onClick={() => setIsSearchOpen((prev) => !prev)}>
+                                <SearchIcon />
+                            </IconButton>
+                            <IconButton onClick={handleMenuOpen}>
+                                <MoreVertIcon />
+                            </IconButton>
+                        </Stack>
+                    </Toolbar>
+
+                    <Collapse in={isSearchOpen}>
+                        <Box sx={{ px: 2, pb: 1, bgcolor: '#0093E9' }}>
+                            <SearchBar>
+                                <SearchIcon sx={{ marginLeft: 1 }} />
+                                <InputBase
+                                    placeholder={t('navbar.search')}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                    sx={{ ml: 1, width: '100%' }}
+                                    inputProps={{ 'aria-label': 'search' }}
+                                />
+                            </SearchBar>
+                        </Box>
+                    </Collapse>
+
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                        slotProps={{
+                            paper: {
+                                sx: { bgcolor: '#f1f6f9', color: '#004e7f' },
+                            },
+                        }}
+                    >
+                        {navItems.map((item) => (
+                            <MenuItem
+                                key={item.text}
+                                onClick={() => {
+                                    if (item.scrollTo) {
+                                        const scrollTo = item.scrollTo;
+                                        if (location.pathname !== '/') {
+                                            navigate('/', { state: { scrollTo } });
+                                            setTimeout(() => {
+                                                document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }, 300);
+                                        } else {
+                                            document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }
+                                    } else {
+                                        navigate(item.path ?? '/');
+                                    }
+                                    handleMenuClose();
+                                }}
+                            >
+                                {item.text}
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                </>
+            ) : (
+                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Button
+                        onClick={() => navigate('/')}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: 0,
+                            '&:hover': { backgroundColor: 'transparent' },
+                        }}
+                        disableRipple
+                    >
+                        <Box component="img" src={logo} alt="Logo" sx={{ width: 60, height: 60, mr: 1 }} />
+                        <Typography
+                            variant="h6"
+                            color="inherit"
+                            sx={{ fontWeight: 'bold', display: { xs: 'none', sm: 'block' } }}
+                        >
+                            LAB MANAGEMENT IT
+                        </Typography>
+                    </Button>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box display="flex" gap={2}>
+                            {navItems.map((item) => (
+                                <NavLink key={item.text} item={item} />
+                            ))}
+                        </Box>
+
+                        <SearchBar>
+                            <SearchIcon sx={{ marginLeft: 1 }} />
                             <InputBase
                                 placeholder={t('navbar.search')}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        // Handle search submission
-                                        console.log('Search Query:', searchQuery);
-                                        // Navigate to search results page if exists
-                                        // navigate(`/search?query=${searchQuery}`);
-                                    }
-                                }}
-                                sx={{ ml: 1, color: 'inherit' }}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                                sx={{ ml: 3, color: 'inherit' }}
                                 inputProps={{ 'aria-label': 'search' }}
                             />
-                        </Box>
+                        </SearchBar>
                     </Box>
-                )}
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CustomToggleButtonGroup
-                        value={language}
-                        exclusive
-                        onChange={handleLanguageChange}
-                        size="small"
-                    >
-                        <ToggleButton value="en">EN</ToggleButton>
-                        <ToggleButton value="vn">VN</ToggleButton>
-                    </CustomToggleButtonGroup>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CustomToggleButtonGroup value={language} exclusive onChange={handleLanguageChange} size="small">
+                            <ToggleButton value="en">EN</ToggleButton>
+                            <ToggleButton value="vi-VN">VN</ToggleButton>
+                        </CustomToggleButtonGroup>
 
-                    {user?.enabled ? (
                         <Stack direction="row" alignItems="center" spacing={2}>
-                            {/* Icon thông báo */}
-                            <NotificationIcon />
-
-                            {/* Avatar người dùng */}
-                            <IconButton
-                                onClick={handleAvatarClick}
-                                color="inherit"
-                                aria-label="account of current user"
-                                sx={{ padding: 0 }}
-                            >
-                                <Avatar
-                                    sx={{ bgcolor: blue.A400 }}
-                                    src={user?.image || undefined}
-                                >
-                                    {!user?.image && user?.firstName
-                                        ? user.firstName.charAt(0).toUpperCase()
-                                        : <AccountCircle />}
-                                </Avatar>
-                            </IconButton>
+                            {user?.enabled  && <NotificationIcon />}
+                            {user?.enabled ? (
+                                <IconButton onClick={handleAvatarClick} sx={{ padding: 0 }}>
+                                    <Avatar sx={{ bgcolor: blue.A400, width: 37, height: 37 }} src={user?.image || undefined}>
+                                        {!user?.image && user?.firstName ? user.firstName.charAt(0).toUpperCase() : <AccountCircle />}
+                                    </Avatar>
+                                </IconButton>
+                            ) : (
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                    <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
+                                        <Typography sx={{ color: '#fff', fontWeight: 'bold', textTransform: 'none' }}>
+                                            {"Đăng ký"}
+                                        </Typography>
+                                    </Box>
+                                    <Typography sx={{ color: '#fff', fontWeight: 'bold',pl:0.3,pr:0.3 }}>|</Typography>
+                                    <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
+                                        <Typography sx={{ color: '#fff', fontWeight: 'bold', textTransform: 'none' }}>
+                                            {"Đăng nhập"}
+                                        </Typography>
+                                    </Box>
+                                </Stack>
+                            )}
                         </Stack>
-                    ) : (
-                        <IconButton
-                            edge="end"
-                            onClick={() => navigate("/account/signin")}
-                            color="inherit"
-                            aria-label="sign in"
-                        >
-                            <AccountCircle sx={{ fontSize: "2rem" }} />
-                        </IconButton>
-                    )}
-                </Box>
-            </Toolbar>
+                    </Box>
+                </Toolbar>
+            )}
 
-            {/* Mobile Drawer */}
-            <Drawer
-                anchor="left"
-                open={mobileOpen}
-                onClose={handleDrawerToggle}
-                ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
+            {/* Drawer điều khiển bởi isSidebarOpen từ SidebarContext */}
+            <Box
+                sx={{
+                    display: { xs: "block", sm: "none" },
+                    transition: "width 0.3s ease-in-out",
                 }}
             >
-                {drawer}
-            </Drawer>
+                <SidebarAdmin />
+            </Box>
         </AppBar>
     );
 };
 
-export default Navbar;
+export default memo(Navbar);

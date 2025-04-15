@@ -10,7 +10,7 @@ import {
     Link,
     Avatar,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import {styled} from '@mui/material/styles';
 import ComputerIcon from '@mui/icons-material/Computer';
 import ScienceIcon from '@mui/icons-material/Science';
@@ -23,9 +23,8 @@ import Stats from "./Stats.tsx";
 import Gallery from "./Gallery.tsx";
 import FAQ from "./FAQ.tsx";
 import {useTranslation} from "react-i18next";
+import {stringToColor} from "../../utils/randomColors.ts";
 
-
-// Styled components
 const FeatureCard = styled(Card)(({theme}) => ({
     maxWidth: 345,
     textAlign: 'center',
@@ -67,14 +66,14 @@ const TestimonialCard = styled(Card)(({theme}) => ({
 const Home: React.FC = () => {
     const {t} = useTranslation();
     return (
-        <Box>
+        <Box >
             {/* Introduction Section */}
             <Box py={8} bgcolor="#f9f9f9">
                 <Container maxWidth="md">
                     <Typography variant="h3" align="center" gutterBottom sx={{fontWeight: 'bold'}}>
                         {t('home.introduction.welcome')}
                     </Typography>
-                    <Typography variant="h6" align="center" color="textSecondary" paragraph>
+                    <Typography variant="h6" align="center" color="textSecondary" component="p">
                         {t('home.introduction.introduce')}
                     </Typography>
                     <Box textAlign="center" mt={4}>
@@ -213,7 +212,7 @@ const Home: React.FC = () => {
                                     <Avatar
                                         alt={testimonial.name}
                                         src={testimonial.avatar}
-                                        sx={{width: 80, height: 80, margin: '0 auto', mb: 2}}
+                                        sx={{width: 80, height: 80, margin: '0 auto', mb: 2,bgcolor:stringToColor(testimonial.name)}}
                                     />
                                     <Typography variant="h6" gutterBottom sx={{fontWeight: 'medium'}}>
                                         {testimonial.name}

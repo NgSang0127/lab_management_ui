@@ -10,78 +10,108 @@ import CategoryPage from "../components/Asset/CategoryPage.tsx";
 import AssetPage from "../components/Asset/AssetPage.tsx";
 import LocationPage from "../components/Asset/LocationPage.tsx";
 import AssetDashboard from "../components/Asset/AssetDashboard.tsx";
-import AssetManager from "../components/Asset/AssetManager.tsx";
+import AssetManager from "../components/Asset/AssetHistoryManagement.tsx";
 import MaintenancePage from "../components/Asset/MaintenancePage.tsx";
 import AssetImportExport from "../components/Asset/AssetImportExport.tsx";
-// @ts-ignore
-import UserNotificationCenter from "../components/Notification/UserNotificationCenter.tsx";
 import AdminNotificationCenter from "../components/Notification/AdminNotificationCenter.tsx";
+import Events from "../components/Event/Event.tsx";
+import AdminGuardRoute from "./AdminGuardRoute.tsx";
+import RoomPage from "../components/Asset/RoomPage.tsx";
+import SoftwarePage from "../components/Asset/SoftwarePage.tsx";
+import AssetBorrowingManagement from "../components/Asset/AssetBorrowingManagement.tsx";
+import UserAssetManagement from "../components/Asset/UserAssetManagement.tsx";
+import AssetHistoryManagement from "../components/Asset/AssetHistoryManagement.tsx";
 
 
 const adminRoutes = [
     {
-        path:'admin/hcmiu',
-        element: <DashboardAdmin/>,
+        path: 'admin/hcmiu',
+        element: <AdminGuardRoute/>,
         children: [
             {
                 path: "",
-                element: <DashboardContent/>
-            },
-            {
-                path: 'book',
-                element: <CreateTimetable/>
-            },
-            {
-                path:'timetable/cancel',
-                element: <CancelTimetable/>
-            },
-            {
-              path: 'notification',
-              element: <AdminNotificationCenter/>
-            },
-            {
-                path: 'timetable/import',
-                element: <ImportTimetable/>
-            },
-            {
-                path: 'setting',
-                element: <SettingPage/>
-            },
-            {
-                path:'user-management',
-                element: <UserManagement/>
-            },
-            {
-                path:'asset-management',
-                element: <AssetDashboard/>,
+                element: <DashboardAdmin/>,
                 children: [
                     {
-                        path: 'asset',
-                        element: <AssetPage/>
+                        path: "",
+                        element: <DashboardContent/>
                     },
                     {
-                        path: 'location',
-                        element: <LocationPage/>
+                        path: 'book',
+                        element: <CreateTimetable/>
                     },
                     {
-                        path: 'category',
-                        element: <CategoryPage/>
+                        path: 'timetable/cancel',
+                        element: <CancelTimetable/>
                     },
                     {
-                        path: 'manager',
-                        element: <AssetManager/>
+                        path: 'events',
+                        element: <Events/>
                     },
                     {
-                        path:'maintenance',
-                        element: <MaintenancePage/>
+                        path: 'notification',
+                        element: <AdminNotificationCenter/>
                     },
                     {
-                        path:'import-export',
-                        element: <AssetImportExport/>
+                        path: 'timetable/import',
+                        element: <ImportTimetable/>
+                    },
+                    {
+                        path: 'setting',
+                        element: <SettingPage/>
+                    },
+                    {
+                        path: 'user-management',
+                        element: <UserManagement/>
+                    },
+                    {
+                        path: 'asset-management',
+                        element: <AssetDashboard/>,
+                        children: [
+                            {
+                                path: 'asset',
+                                element: <AssetPage/>
+                            },
+                            {
+                                path: 'location',
+                                element: <LocationPage/>
+                            },
+                            {
+                                path: 'category',
+                                element: <CategoryPage/>
+                            },
+                            {
+                                path: 'manager',
+                                element: <AssetManager/>
+                            },
+                            {
+                                path: 'maintenance',
+                                element: <MaintenancePage/>
+                            },
+                            {
+                                path: 'room',
+                                element: <RoomPage/>
+                            },
+                            {
+                                path: 'borrow',
+                                element: <AssetBorrowingManagement/>
+                            },
+                            {
+                                path: 'software',
+                                element: <SoftwarePage/>
+                            },
+                            {
+                                path: 'asset-user',
+                                element: <UserAssetManagement/>
+                            },
+                            {
+                                path: 'import-export',
+                                element: <AssetImportExport/>
+                            },
+                        ]
                     },
                 ]
             },
-
         ]
     }
 ];

@@ -15,7 +15,6 @@ import CheckEmail from "../components/Email/CheckEmail.tsx";
 import ResetCodeInput from "../components/Auth/ResetCodeInput.tsx";
 import ResetPassword from "../components/Auth/ResetPassword.tsx";
 import ScheduleTable from "../components/Timetable/Schedule/ScheduleTable.tsx";
-import DashboardAdmin from "../components/Dashboard/DashboardAdmin.tsx";
 import DashboardContent from "../components/Dashboard/DashboardContent.tsx";
 import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
 import UserNotificationCenter from "../components/Notification/UserNotificationCenter.tsx";
@@ -24,6 +23,9 @@ import Dashboard from "../components/Dashboard/Dashboard.tsx";
 import AttendanceCheck from "../components/Attendance/AttendanceCheck.tsx";
 import VerifyOtp from "../components/Auth/VerifyOtp.tsx";
 import VerifyEmailOTP from "../components/Auth/VerifyEmailOTP.tsx";
+import Events from "../components/Event/Event.tsx";
+import Unauthorized from "../components/Auth/Unauthorized.tsx";
+import AboutUs from "../components/Home/AboutUs.tsx";
 
 
 const router = createBrowserRouter([
@@ -42,12 +44,16 @@ const router = createBrowserRouter([
                 element: <ScheduleTable/>,
             },
             {
+                path: 'signin',
+                element: <SignIn/>
+            },
+            {
                 path: 'account/signin',
                 element: <SignIn/>,
             },
             {
-              path: 'account/reset-code',
-              element: <ResetCodeInput/>
+                path: 'account/reset-code',
+                element: <ResetCodeInput/>
             },
             {
                 path: 'account/signup',
@@ -67,7 +73,11 @@ const router = createBrowserRouter([
                 element: <VerifyEmailOTP/>
             },
             {
-                path:'profile/dashboard',
+                path: 'about-us',
+                element: <AboutUs/>
+            },
+            {
+                path: 'profile/dashboard',
                 element: <Dashboard/>,
                 children: [
                     {
@@ -77,6 +87,10 @@ const router = createBrowserRouter([
                     {
                         path: 'book',
                         element: <CreateTimetable/>
+                    },
+                    {
+                        path: 'events',
+                        element: <Events/>
                     },
                     {
                         path: 'notification',
@@ -90,17 +104,17 @@ const router = createBrowserRouter([
                         path: 'by-week',
                         element: <ScheduleTable/>,
                     },
-                    ]
+                ]
             },
             {
                 path: 'courses',
-                children:[
+                children: [
                     {
-                        path:':courseId/:NH/:TH?/:studyTime',
+                        path: ':courseId/:NH/:TH?/:studyTime',
                         element: <CardDetailsCourse/>
                     },
                     {
-                        path:':timetableName',
+                        path: ':timetableName',
                         element: <Extracurricular/>
                     }
                 ]
@@ -108,16 +122,20 @@ const router = createBrowserRouter([
             },
             {
                 path: 'attendance',
-                children:[
+                children: [
                     {
-                        path:':checkAttendance',
+                        path: ':checkAttendance',
                         element: <AttendanceCheck/>
                     },
                 ]
 
             },
             {
-                path:"check-email",
+                path: '/unauthorized',
+                element: <Unauthorized/>
+            },
+            {
+                path: "check-email",
                 element: <CheckEmail/>
             },
             {

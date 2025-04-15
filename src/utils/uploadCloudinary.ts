@@ -1,6 +1,6 @@
-const upload_preset = "lab_management";
-const cloud_name = "dsboloq8v";
-const api_url = `https://api.cloudinary.com/v1_1/${cloud_name}/image/upload`;
+const upload_preset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const cloud_name = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const api_url = import.meta.env.VITE_CLOUDINARY_API_URL;
 
 export const uploadImageToCloudinary = async (file: File): Promise<string> => {
     const data = new FormData();

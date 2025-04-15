@@ -1,22 +1,15 @@
-
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    TablePagination,
-    Typography,
-    CircularProgress,
+    Typography, Box,
 } from "@mui/material";
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { RootState, useAppDispatch } from "../../../state/store";
 import { getLogsBetween } from "../../../state/Dashboard/Reducer";
 import CustomAlert from "../../Support/CustomAlert";
-import {useTranslation} from "react-i18next";
+import { useTranslation } from "react-i18next";
+import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
+import { CustomNoRowsOverlay } from "../../../utils/CustomNoRowsOverlay.tsx"; // Giả sử bạn có component này
 
 interface DetailsTableProps {
     startDate: string;
@@ -26,7 +19,7 @@ interface DetailsTableProps {
 }
 
 const DetailsTable: React.FC<DetailsTableProps> = ({ startDate, endDate, setError, setErrorOpen }) => {
-    const {t}=useTranslation();
+    const { t } = useTranslation();
     const dispatch = useAppDispatch();
 
     const { logs, isLoading, error, totalElements } = useSelector(
@@ -34,7 +27,7 @@ const DetailsTable: React.FC<DetailsTableProps> = ({ startDate, endDate, setErro
     );
 
     const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-    const [page, setPage] = useState<number>(0); // Local state for page
+    const [page, setPage] = useState<number>(0);
 
     useEffect(() => {
         if (startDate && endDate) {
@@ -54,88 +47,111 @@ const DetailsTable: React.FC<DetailsTableProps> = ({ startDate, endDate, setErro
         }
     }, [dispatch, startDate, endDate, page, rowsPerPage, setError, setErrorOpen]);
 
-    const handleChangePage = (_event: unknown, newPage: number) => {
-        setPage(newPage);
-    };
+    const columns: GridColDef[] = [
+        {
+            field: 'timestamp',
+            headerName: t('dashboard.detailsTable.timestamp'),
+            minWidth: 200,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'endpoint',
+            headerName: t('dashboard.detailsTable.endpoint'),
+            minWidth: 200,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'action',
+            headerName: t('dashboard.detailsTable.action'),
+            minWidth: 200,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'user',
+            headerName: t('dashboard.detailsTable.user'),
+            minWidth: 200,
+            align: 'center',
+            headerAlign: 'center',
+            valueGetter: (value) => (value ? value.username : "N/A"),
+        },
+        {
+            field: 'course',
+            headerName: t('dashboard.detailsTable.course'),
+            minWidth: 300,
 
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newSize = parseInt(event.target.value, 10);
-        setRowsPerPage(newSize);
-        setPage(0); // Reset to first page
-    };
+            align: 'center',
+            headerAlign: 'center',
+            valueGetter: (value) => (value ? value.name : "N/A"),
+        },
+        {
+            field: 'ipAddress',
+            headerName: t('dashboard.detailsTable.ip'),
+            minWidth: 150,
+            align: 'center',
+            headerAlign: 'center',
+        },
+        {
+            field: 'userAgent',
+            headerName: t('dashboard.detailsTable.userAgent'),
+            minWidth: 500,
+
+            align: 'center',
+            headerAlign: 'center',
+        },
+    ];
 
     return (
         <div className="h-full px-7">
             <Typography variant="h5" className="pb-7">
                 {t('dashboard.detailsTable.title')}
             </Typography>
+
+            <LoadingIndicator open={isLoading} />
             <CustomAlert
-                open={error.getLogsBetween ? true : false}
-                message={error.getLogsBetween || ''}
+                open={!!error.getLogsBetween}
+                message={error.getLogsBetween || ""}
                 severity="error"
                 onClose={() => setErrorOpen(false)}
             />
-            {/* Display Logs */}
-            {isLoading ? (
-                <div className="flex justify-center items-center">
-                    <CircularProgress />
-                </div>
-            ) : error.getLogsBetween ? (
-                <div className="flex justify-center items-center">
-                    <span>Error: {error.getLogsBetween}</span>
-                </div>
-            ) : (
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="logs table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>{t('dashboard.detailsTable.timestamp')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.endpoint')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.action')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.user')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.course')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.ip')}</TableCell>
-                                <TableCell>{t('dashboard.detailsTable.userAgent')}</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {logs.length > 0 ? (
-                                logs.map((log) => (
-                                    <TableRow key={log.id}>
-                                        <TableCell>{log.timestamp}</TableCell>
-                                        <TableCell>{log.endpoint}</TableCell>
-                                        <TableCell>{log.action}</TableCell>
-                                        <TableCell>{log.user.username}</TableCell>
-                                        <TableCell>{log.course ? log.course.name : "N/A"}</TableCell>
-                                        <TableCell>{log.ipAddress}</TableCell>
-                                        <TableCell>{log.userAgent}</TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={7} align="center">
-                                        {t('dashboard.detailsTable.no_data')}
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                    <TablePagination
-                        labelRowsPerPage={t("pagination.rowsPerPage")}
-                        className="pr-5"
-                        rowsPerPageOptions={[5, 10, 25]}
-                        component="div"
-                        count={totalElements}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onPageChange={handleChangePage}
-                        onRowsPerPageChange={handleChangeRowsPerPage}
-                        showFirstButton
-                        showLastButton
-                        sx={{ position: "relative", left: "-10px" }}
-                    />
-                </TableContainer>
-            )}
+
+            <Box sx={{ height: '700px', width: '100%', mt: 4 }}>
+                <DataGrid
+                    rows={logs}
+                    columns={columns}
+                    paginationMode="server"
+                    rowCount={totalElements}
+                    paginationModel={{ page, pageSize: rowsPerPage }}
+                    onPaginationModelChange={(newModel) => {
+                        setPage(newModel.page);
+                        setRowsPerPage(newModel.pageSize);
+                    }}
+                    pageSizeOptions={[5, 10, 25]}
+                    loading={isLoading}
+                    slots={{
+                        toolbar: GridToolbar,
+                        noRowsOverlay: CustomNoRowsOverlay,
+                    }}
+                    slotProps={{
+                        pagination: {
+                            showFirstButton: true,
+                            showLastButton: true,
+                        },
+                    }}
+                    sx={{
+                        '& .MuiDataGrid-columnHeaderTitle': {
+                            color: '#1976d2',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                        },
+                        '--DataGrid-overlayHeight': '300px',
+                    }}
+                    disableRowSelectionOnClick
+
+                />
+            </Box>
         </div>
     );
 };

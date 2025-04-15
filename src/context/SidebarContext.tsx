@@ -1,3 +1,4 @@
+import {useMediaQuery, useTheme} from '@mui/material';
 import React, {createContext, useState, ReactNode} from 'react';
 interface SidebarContextProps {
     isSidebarOpen: boolean;
@@ -12,7 +13,9 @@ interface SidebarProviderProps {
     children: ReactNode;
 }
 export const SidebarProvider: React.FC<SidebarProviderProps> = ({children}) => {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Detect mobile view
+    const [isSidebarOpen, setIsSidebarOpen] = useState(!isMobile);
     const toggleSidebar = () => {
         setIsSidebarOpen((prev) => !prev);
     };

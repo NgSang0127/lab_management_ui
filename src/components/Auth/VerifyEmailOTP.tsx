@@ -135,6 +135,13 @@ const VerifyEmailOTP = () => {
                                         variant="contained"
                                         fullWidth
                                         disabled={!otp || otp.length !== 6}
+                                        sx={{
+                                            color: (!otp || otp.length !== 6) ? "#757575" : "#fff",
+                                            "&:disabled": {
+                                                backgroundColor: "#bdbdbd", // Màu nền khi disabled
+                                                color: "#757575" // Màu chữ khi disabled
+                                            }
+                                        }}
                                     >
                                         Xác thực OTP
                                     </Button>

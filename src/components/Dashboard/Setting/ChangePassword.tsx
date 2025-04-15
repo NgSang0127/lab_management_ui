@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, { useEffect, useState, useCallback } from "react";
 import {
     TextField,
     Button,
@@ -6,35 +6,41 @@ import {
     Box,
     InputAdornment,
     IconButton,
-} from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import {useSelector} from 'react-redux';
-import {RootState, useAppDispatch} from '../../../state/store.ts';
-import {ChangePasswordRequest} from '../../../state/User/Action.ts';
-import {changePassword} from '../../../state/User/Reducer.ts';
+} from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../../../state/store.ts";
+import { ChangePasswordRequest } from "../../../state/User/Action.ts";
+import { changePassword } from "../../../state/User/Reducer.ts";
 import CustomAlert from "../../Support/CustomAlert.tsx";
 import LoadingIndicator from "../../Support/LoadingIndicator.tsx";
-import {AlertColor} from '@mui/material/Alert';
-import {useTranslation} from "react-i18next";
+import { AlertColor } from "@mui/material/Alert";
+import { useTranslation } from "react-i18next";
 
 const PASSWORD_MIN_LENGTH = 8;
 
 const ChangePassword: React.FC = () => {
-    const {t} = useTranslation();
-    const MISMATCH_ERROR = t('setting.errors.mismatch');
-    const LENGTH_ERROR = t('setting.errors.length',{length:PASSWORD_MIN_LENGTH});
-
+    const { t } = useTranslation();
+    const MISMATCH_ERROR = t("setting.errors.mismatch");
+    const LENGTH_ERROR = t("setting.errors.length", { length: PASSWORD_MIN_LENGTH });
+    const REQUIRED_ERROR = t("setting.changePassword.errors.allFields");
 
     const dispatch = useAppDispatch();
-    const {isLoading, successMessage, errorMessage} = useSelector(
-        (state: RootState) => state.user
+    const { isLoading, successMessage, errorMessage } = useSelector(
+        (state: RootState) => state.user.changePassword
     );
 
     const [passwordState, setPasswordState] = useState<ChangePasswordRequest>({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
+
+    const [errors, setErrors] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
     });
 
     const [visibilityState, setVisibilityState] = useState({
@@ -53,16 +59,13 @@ const ChangePassword: React.FC = () => {
         severity: "info",
     });
 
-
-    const showAlert = (message: string, severity: 'success' | 'error' | 'info') => {
-        setAlert({open: true, message, severity});
+    const showAlert = (message: string, severity: "success" | "error" | "info") => {
+        setAlert({ open: true, message, severity });
     };
 
-
     const handleCloseAlert = useCallback(() => {
-        setAlert((prev) => ({...prev, open: false}));
+        setAlert((prev) => ({ ...prev, open: false }));
     }, []);
-
 
     useEffect(() => {
         if (successMessage || errorMessage) {
@@ -76,92 +79,111 @@ const ChangePassword: React.FC = () => {
                     newPassword: '',
                     confirmPassword: '',
                 });
+                setErrors({ currentPassword: '', newPassword: '', confirmPassword: '' });
             }
         }
     }, [successMessage, errorMessage]);
 
-
-    const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const {name, value} = e.target;
-        setPasswordState((prev) => ({...prev, [name]: value}));
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPasswordState((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: "" }));
     };
-
 
     const togglePasswordVisibility = (field: keyof typeof visibilityState) => {
-        setVisibilityState((prev) => ({...prev, [field]: !prev[field]}));
+        setVisibilityState((prev) => ({ ...prev, [field]: !prev[field] }));
     };
 
+    const validateForm = () => {
+        let isValid = true;
+        const newErrors = { currentPassword: "", newPassword: "", confirmPassword: "" };
+
+        // Check for empty fields
+        if (!passwordState.currentPassword.trim()) {
+            newErrors.currentPassword = REQUIRED_ERROR;
+            isValid = false;
+        }
+        if (!passwordState.newPassword.trim()) {
+            newErrors.newPassword = REQUIRED_ERROR;
+            isValid = false;
+        }
+        if (!passwordState.confirmPassword.trim()) {
+            newErrors.confirmPassword = REQUIRED_ERROR;
+            isValid = false;
+        }
+
+        // Check password length
+        if (passwordState.newPassword && passwordState.newPassword.length < PASSWORD_MIN_LENGTH) {
+            newErrors.newPassword = LENGTH_ERROR;
+            isValid = false;
+        }
+
+        // Check if passwords match
+        if (passwordState.newPassword && passwordState.newPassword !== passwordState.confirmPassword) {
+            newErrors.confirmPassword = MISMATCH_ERROR;
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    };
 
     const handleSave = () => {
-        const {newPassword, confirmPassword, currentPassword} = passwordState;
-
-        if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
-            showAlert(t('setting.changePassword.errors.allFields'), 'error');
+        if (!validateForm()) {
             return;
         }
 
-        if (newPassword !== confirmPassword) {
-            showAlert(MISMATCH_ERROR, 'error');
-            return;
-        }
-
-        if (newPassword.length < PASSWORD_MIN_LENGTH) {
-            showAlert(LENGTH_ERROR, 'error');
-            return;
-        }
-
-        // Dispatch changePassword action
         dispatch(changePassword(passwordState));
     };
 
     return (
         <Box
             sx={{
-                padding: '24px',
-                margin: '20px',
-                maxWidth: '900px',
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                backgroundColor: '#ffffff',
+                bgcolor: "white",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                p: 4,
+                mb: 4,
             }}
         >
-            {/* Loading Indicator */}
-            {isLoading && <LoadingIndicator open={isLoading}/>}
-
             <Typography
-                variant="h5"
+                variant="h6"
                 sx={{
-                    marginBottom: '24px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
+                    fontWeight: "bold",
+                    color: "primary.main",
+                    mb: 3,
                 }}
             >
-                {t('setting.userProfile.security')}
+                {t("setting.userProfile.security")}
             </Typography>
 
-            {/* Password Fields */}
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
-                {['currentPassword', 'newPassword', 'confirmPassword'].map((field) => (
+            {isLoading && <LoadingIndicator open={isLoading} />}
+
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
                     <TextField
                         key={field}
                         label={
-                            field === 'currentPassword'
-                                ? t('setting.changePassword.currentPassword')
-                                : field === 'newPassword'
-                                    ? t('setting.changePassword.newPassword')
-                                    : t('setting.changePassword.confirmPassword')
+                            field === "currentPassword"
+                                ? t("setting.changePassword.currentPassword")
+                                : field === "newPassword"
+                                    ? t("setting.changePassword.newPassword")
+                                    : t("setting.changePassword.confirmPassword")
                         }
                         name={field}
-                        type={visibilityState[field as keyof typeof visibilityState] ? 'text' : 'password'}
+                        type={visibilityState[field as keyof typeof visibilityState] ? "text" : "password"}
                         value={passwordState[field as keyof ChangePasswordRequest]}
                         onChange={handleInputChange}
                         fullWidth
                         required
+                        error={!!errors[field as keyof typeof errors]}
+                        helperText={errors[field as keyof typeof errors]}
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                "&:hover fieldset": { borderColor: "primary.main" },
+                                "&.Mui-focused fieldset": { borderColor: "primary.main" },
+                            },
+                        }}
                         slotProps={{
                             input: {
                                 endAdornment: (
@@ -169,46 +191,31 @@ const ChangePassword: React.FC = () => {
                                         <IconButton
                                             onClick={() => togglePasswordVisibility(field as keyof typeof visibilityState)}
                                             edge="end"
-                                            aria-label={`Toggle ${
-                                                field === 'currentPassword'
-                                                    ? 'current password'
-                                                    : field === 'newPassword'
-                                                        ? 'new password'
-                                                        : 'confirm password'
-                                            } visibility`}
                                         >
-                                            {visibilityState[field as keyof typeof visibilityState] ? <VisibilityOff/> :
-                                                <Visibility/>}
+                                            {visibilityState[field as keyof typeof visibilityState] ? <VisibilityOff /> : <Visibility />}
                                         </IconButton>
                                     </InputAdornment>
-                                )
+                                ),
                             },
                         }}
-                        aria-label={
-                            field === 'currentPassword'
-                                ? t('setting.changePassword.currentPassword')
-                                : field === 'newPassword'
-                                    ? t('setting.changePassword.newPassword')
-                                    : t('setting.changePassword.confirmPassword')
-                        }
                     />
                 ))}
             </Box>
 
-            {/* Save Button */}
             <Button
                 variant="contained"
-                color="primary"
-                size="large"
+                sx={{
+                    px: 4,
+                    py: 1.2,
+                    alignSelf: 'flex-end',
+                    mt: 2,
+                }}
                 onClick={handleSave}
-                sx={{width: '100%', padding: '12px', marginTop: '24px'}}
                 disabled={isLoading}
-                aria-label="Save Password"
             >
-                {t('setting.changePassword.button_save')}
+                {t("setting.changePassword.button_save")}
             </Button>
 
-            {/* Custom Alert for Notifications */}
             <CustomAlert
                 open={alert.open}
                 onClose={handleCloseAlert}
@@ -217,7 +224,6 @@ const ChangePassword: React.FC = () => {
             />
         </Box>
     );
-
 };
 
 export default ChangePassword;
