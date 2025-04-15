@@ -5,20 +5,21 @@ import ScheduleCell from "./ScheduleCell.tsx";
 import {getCourseColor} from "../../../utils/courseColors.ts";
 import Tooltip from "@mui/material/Tooltip";
 import {useTranslation} from "react-i18next";
+import {RoomResponse} from "../../../api/asset/roomApi.ts";
 
 
 interface ScheduleRowProps {
-    room: string;
+    room: RoomResponse;
     period: number;
     daysOfWeek: string[];
     getScheduleItems: (
         dayOfWeek: string,
         period: number,
         roomName: string
-    ) => Timetable[]; // Replace with appropriate type
-    timetables: Timetable[]; // Replace with appropriate type
+    ) => Timetable[];
+    timetables: Timetable[];
     selectedWeek: { startDate: string; endDate: string } | null;
-    getLessonTime: (period: number) => any; // Replace with appropriate type
+    getLessonTime: (period: number) => any;
     handleCourseClick: (
         courseId: string | null,
         NH: string | null,
@@ -82,17 +83,17 @@ const ScheduleRow: React.FC<ScheduleRowProps> = ({
                         }, // Giảm chiều cao ô
                     }}
                 >
-                    {room}
+                    {room.name}
                 </TableCell>
             )}
             {daysOfWeek.map((dayOfWeek) => {
-                const scheduleItems = getScheduleItems(dayOfWeek, period, room);
+                const scheduleItems = getScheduleItems(dayOfWeek, period, room.name);
                 return (
                     <ScheduleCell
                         key={`${dayOfWeek}-${room}-${period}`}
                         dayOfWeek={dayOfWeek}
                         period={period}
-                        roomName={room}
+                        roomName={room.name}
                         scheduleItems={scheduleItems}
                         selectedWeek={selectedWeek}
                         getCourseColor={getCourseColor}

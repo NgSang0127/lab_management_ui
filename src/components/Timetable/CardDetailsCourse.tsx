@@ -24,7 +24,7 @@ import {useTranslation} from "react-i18next";
 const CardDetailsCourse = () => {
     const {t}=useTranslation();
     const {courseId, NH, TH,studyTime} = useParams<{ courseId: string, NH: string, TH: string,studyTime: string,timetableName: string;}>();
-    const decodeStudyTime=decodeURIComponent(studyTime);
+    const decodeStudyTime = studyTime ? decodeURIComponent(studyTime) : "";
     const dispatch = useAppDispatch();
     const {course} = useSelector((state: RootState) => state.timetable);
     const previousParams = useRef<string | null>(null);
@@ -38,7 +38,7 @@ const CardDetailsCourse = () => {
             (previousParams.current !== `${courseId}-${NH}-${TH}`)
         ) {
             dispatch(fetchCourseDetails({ courseId, NH, TH,decodeStudyTime }));
-            console.log("Gọi API lần đầu tiên");
+            console.log("Gọi API lần đầu tiên",course);
             previousParams.current = `${courseId}-${NH}-${TH}`;
         }
     }, [courseId, NH, TH,decodeStudyTime, dispatch]);

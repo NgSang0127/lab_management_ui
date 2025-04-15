@@ -1,150 +1,92 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {
     cancelTimetable, createTimetable,
     fetchCourseDetails,
     fetchTimetableByDate,
-    fetchTimetables, getFourSemesterRecent,
-    getRangeWeek,
-    importTimetable
-} from "./Reducer.ts";
+    fetchTimetables,
+    getFourSemesterRecent,
+    getRangeWeek
+} from "./Reducer.ts"; // Adjust based on your API setup
 
-
-export interface TimetableRequest {
-    timetableName: string;
-    roomName: string;
-    startLesson: number;
-    endLesson: number;
-    date: string;
-    instructorId: string;
-    description: string;
+export interface Week {
+    startDate: string;
+    endDate: string;
 }
 
+export interface Semester {
+    id: number;
+    name: string;
+    academicYear: string;
+    startDate: string;
+    endDate: string;
+}
 
 export interface Timetable {
     id: number;
     dayOfWeek: string;
-    timetableName:string;
+    timetableName: string;
     courses: Array<{
         name: string;
         code: string;
         nh: string;
-        th:string;
-        credits:number;
+        th: string;
+        credits: number;
     }>;
-    numberOfStudents:number;
-    startLessonTime: {
-        startTime: string;
-        lessonNumber: number;
-    };
-    endLessonTime: {
-        endTime: string;
-        lessonNumber: number;
-    };
-    room: {
-        name: string;
-    };
-    instructor: {
-        instructorId:string,
-        user: {
-            fullName: string;
-        };
-    };
-    startLesson:number;
+    numberOfStudents: number;
+    startLessonTime: { startTime: string; lessonNumber: number };
+    endLessonTime: { endTime: string; lessonNumber: number };
+    room: { name: string };
+    instructor: { instructorId: string; user: { fullName: string } };
+    startLesson: number;
     totalLessonDay: number;
     totalLessonSemester: number;
     classId: string;
     studyTime: string;
-    cancelDates:string[];
-    description:string;
-
+    cancelDates: string[];
+    description: string;
 }
-
-export interface Semester{
-    id:number;
-    name:string;
-    academicYear:string;
-    startDate:string;
-    endDate:string;
-}
-
 
 interface TimetableState {
     weekRange: { firstWeekStart: string; lastWeekEnd: string } | null;
-    semester:Semester[];
+    semesters: Semester[];
+    selectedSemesterId: number | null;
     timetables: Timetable[];
-    course:Timetable | null;
-    timetableDate:Timetable[];
-    selectedWeek: { startDate: string; endDate: string } | null;
+    course: Timetable | null;
+    timetableDate: Timetable[];
+    selectedWeek: Week | null;
     isLoading: boolean;
     error: string | null;
-    timetable:Timetable | null;
-
+    timetable: Timetable | null;
 }
 
-
-
 const initialState: TimetableState = {
-    weekRange:null,
-    semester:[],
-    course:null,
-    timetableDate:[],
-    selectedWeek:null,
+    weekRange: null,
+    semesters: [],
+    selectedSemesterId: null,
     timetables: [],
+    course: null,
+    timetableDate: [],
+    selectedWeek: null,
     isLoading: false,
     error: null,
-    timetable:null
-
+    timetable: null,
 };
-
 
 const timetableSlice = createSlice({
     name: 'timetable',
     initialState,
     reducers: {
-        setSelectedWeek(state, action) {
+        setSelectedWeek(state, action: PayloadAction<Week | null>) {
             state.selectedWeek = action.payload;
+        },
+        setSelectedSemesterId(state, action: PayloadAction<number | null>) {
+            state.selectedSemesterId = action.payload;
+            state.weekRange = null; // Reset weekRange when semester changes
+            state.selectedWeek = null; // Reset selectedWeek when semester changes
         },
     },
     extraReducers: (builder) => {
         builder
-            //importTimetable
-            .addCase(importTimetable.pending,(state)=>{
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(importTimetable.fulfilled,(state)=>{
-                state.isLoading=true;
-            })
-            .addCase(importTimetable.rejected,(state,action)=>{
-                state.isLoading=false;
-                state.error=action.payload as string;
-            })
-            //fetchtimetable
-            .addCase(fetchTimetables.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(fetchTimetables.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.timetables = action.payload;
-            })
-            .addCase(fetchTimetables.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload as string;
-            })
-            // getRangeWeek
-            .addCase(getRangeWeek.pending, (state) => {
-                state.isLoading = true;
-                state.error = null;
-            })
-            .addCase(getRangeWeek.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.weekRange = action.payload;
-            })
-            .addCase(getRangeWeek.rejected, (state, action) => {
-                state.isLoading = false;
-                state.error = action.payload as string;
-            })
             //getCourseDetails
             .addCase(fetchCourseDetails.pending,(state)=>{
                 state.isLoading=true;
@@ -195,21 +137,58 @@ const timetableSlice = createSlice({
                 state.isLoading=false;
                 state.error=action.payload as string;
             })
-            //semester
-            .addCase(getFourSemesterRecent.pending,(state)=>{
-                state.isLoading=true;
-                state.error=null;
+            // getFourSemesterRecent
+            .addCase(getFourSemesterRecent.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
             })
-            .addCase(getFourSemesterRecent.fulfilled,(state,action)=>{
-                state.isLoading=false;
-                state.semester=action.payload;
+            .addCase(getFourSemesterRecent.fulfilled, (state, action) => {
+                state.isLoading = false;
+
+                // So sánh kỹ để tránh re-render vô hạn
+                const isSame = JSON.stringify(state.semesters) === JSON.stringify(action.payload);
+                if (!isSame) {
+                    state.semesters = action.payload;
+                }
+
+                if (action.payload.length > 0 && state.selectedSemesterId === null) {
+                    state.selectedSemesterId = action.payload[0].id;
+                }
             })
-            .addCase(getFourSemesterRecent.rejected,(state,action)=> {
+
+            .addCase(getFourSemesterRecent.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload as string;
             })
-    }
+            // getRangeWeek
+            .addCase(getRangeWeek.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getRangeWeek.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.weekRange = action.payload;
+            })
+            .addCase(getRangeWeek.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            })
+            // fetchTimetables
+            .addCase(fetchTimetables.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchTimetables.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.timetables = action.payload;
+            })
+            .addCase(fetchTimetables.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload as string;
+            });
+        // Add other cases (createTimetable, cancelTimetable, etc.) as needed
+    },
 });
 
-export const { setSelectedWeek } = timetableSlice.actions;
+export const { setSelectedWeek, setSelectedSemesterId } = timetableSlice.actions;
 export default timetableSlice;

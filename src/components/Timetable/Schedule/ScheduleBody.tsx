@@ -2,19 +2,20 @@ import React from 'react';
 import { TableBody } from '@mui/material';
 import {Timetable} from "../../../state/Timetable/Action.ts";
 import ScheduleRow from "./ScheduleRow.tsx";
+import {RoomResponse} from "../../../api/asset/roomApi.ts";
 
 interface ScheduleBodyProps {
-    rooms: string[];
+    rooms: RoomResponse[];
     periods: number[];
     daysOfWeek: string[];
-    timetables: Timetable[]; // Replace with appropriate type
+    timetables: Timetable[];
     selectedWeek: { startDate: string; endDate: string } | null;
     getScheduleItems: (
         dayOfWeek: string,
         period: number,
         roomName: string
     ) => Timetable[]; // Replace with appropriate type
-    getLessonTime: (period: number) => any; // Replace with appropriate type
+    getLessonTime: (period: number) => any;
     handleCourseClick: (
         courseId: string | null,
         NH: string | null,

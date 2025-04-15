@@ -1,10 +1,11 @@
 import React from 'react';
 import { TableHead, TableRow, TableCell } from '@mui/material';
 import {useTranslation} from "react-i18next";
+import {RoomResponse} from "../../../api/asset/roomApi.ts";
 
 interface ScheduleHeaderProps {
     daysOfWeek: string[];
-    rooms: string[];
+    rooms: RoomResponse[];
 }
 
 const ScheduleHeader: React.FC<ScheduleHeaderProps> = ({ daysOfWeek }) => {

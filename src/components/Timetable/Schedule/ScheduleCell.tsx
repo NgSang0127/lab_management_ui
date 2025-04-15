@@ -46,7 +46,7 @@ const ScheduleCell: React.FC<ScheduleCellProps> = ({
                             xs: '2px',
                             sm: '3px',
                             md: '0px',
-                        }, // Giảm padding
+                        },
 
                         fontSize: {
                             xs: '0.6rem',
@@ -98,7 +98,11 @@ const ScheduleCell: React.FC<ScheduleCellProps> = ({
                                             : scheduleItem.timetableName}
                                     </span>
                                     <span className=" pt-2 text-xs italic text-green-600">
-                                        {scheduleItem.instructor.user.fullName}
+                                                {scheduleItem.instructor &&
+                                                scheduleItem.instructor.user &&
+                                                scheduleItem.instructor.user.fullName
+                                                    ? scheduleItem.instructor.user.fullName
+                                                    : 'Instructor not assigned'}
                                     </span>
                                 </Box>
                             </CustomTooltip>

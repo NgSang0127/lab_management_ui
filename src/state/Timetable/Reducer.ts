@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import {api, API_URL} from '../../config/api.ts';
-import {Semester, TimetableRequest} from "./Action.ts";
+import {Semester, Timetable} from "./Action.ts";
 
 
 interface TimetableApiResponse {
@@ -78,13 +78,35 @@ export const fetchTimetables = createAsyncThunk(
     'timetable/fetchTimetables',
     async (params: { startDate: string; endDate: string }, { rejectWithValue }) => {
         try {
-            const { data } = await api.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
+            console.log(`Fetching timetables for week: ${params.startDate} to ${params.endDate}`);
+
+            // Use a direct axios request without authentication for this public endpoint
+            const { data } = await axios.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
                 params: { startDate: params.startDate, endDate: params.endDate },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: false
             });
-            console.log("timetable",data);
+
+            console.log(`Timetable data fetched: ${data.length} items for week ${params.startDate} to ${params.endDate}`);
+
+            if (data.length === 0) {
+                console.log('No timetable data returned from the API for the selected week.');
+            }
+
             return data;
         } catch (error) {
+            console.error('Error fetching timetables:', error);
             if (axios.isAxiosError(error)) {
+                console.error('API Error details:', {
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data,
+                    url: error.config?.url,
+                    params: error.config?.params
+                });
+
                 if (error.response && error.response.data) {
                     const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
                     return rejectWithValue(backendError);
@@ -100,13 +122,18 @@ export const getRangeWeek = createAsyncThunk(
     'timetable/getRangeWeek',
     async (param: { semesterId:number }, { rejectWithValue }) => {
         try {
-            const response = await api.get(`${API_URL}/timetable/weeks-range`,{
+            // Use a direct axios request without authentication for this public endpoint
+            const response = await axios.get(`${API_URL}/timetable/weeks-range`,{
                 params:{
                     semesterId:param.semesterId
-                }
+                },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: false
             });
-            console.log("rangeweek",response);
-            return response.data; // Trả về dữ liệu cho reducer
+            console.log(`Week range fetched for semester ${param.semesterId}`);
+            return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response && error.response.data) {
@@ -166,9 +193,13 @@ export const fetchCourseDetails = createAsyncThunk(
                 requestParams.timetableName = params.timetableName;
             }
 
-            // Gửi yêu cầu với các tham số phù hợp
-            const { data } = await api.get(`${API_URL}/timetable/course-details`, {
+            // Use direct axios request without authentication
+            const { data } = await axios.get(`${API_URL}/timetable/course-details`, {
                 params: requestParams,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: false
             });
 
             console.log(data);
@@ -241,7 +272,7 @@ export const cancelTimetable = createAsyncThunk(
 
 export const createTimetable = createAsyncThunk(
     'timetable/createTimetable',
-    async (request :TimetableRequest, { rejectWithValue }) => {
+    async (request :Timetable, { rejectWithValue }) => {
         try {
             const {data} = await api.post('/timetable/create',request);
             console.log(data);
@@ -258,6 +289,3 @@ export const createTimetable = createAsyncThunk(
         }
     }
 );
-
-
-
