@@ -50,12 +50,12 @@ const NotificationIcon: React.FC = () => {
                 await dispatch(markAsRead(notif.id)).unwrap();
                 dispatch(markNotificationAsRead(notif.id));
             } catch (error) {
-                console.error("❌ Error marking notification as read:", error);
+                console.error("Error marking notification as read:", error);
             }
         }
     };
 
-    const handleViewDetail = (id: number) => {
+    const handleViewDetail = () => {
         navigate(`/admin/hcmiu/notification`);
         handleClose();
     };
@@ -93,9 +93,11 @@ const NotificationIcon: React.FC = () => {
                     vertical: "top",
                     horizontal: "right",
                 }}
-                PaperProps={{
+                slotProps={{
+                    paper:{
                     elevation: 0,
                     sx: { overflow: "visible" },
+                        }
                 }}
             >
                 {/* Tiêu đề */}
@@ -141,7 +143,7 @@ const NotificationIcon: React.FC = () => {
                             transition={{ delay: index * 0.05 }}
                         >
                             <MenuItem
-                                onClick={() => handleViewDetail(notif.id)}
+                                onClick={() => handleViewDetail}
                                 sx={{
                                     flexDirection: "column",
                                     alignItems: "flex-start",
