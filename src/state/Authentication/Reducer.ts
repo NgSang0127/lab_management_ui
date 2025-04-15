@@ -8,6 +8,7 @@ import {
     ResetPasswordRequest, VerificationCodeRequest
 } from "./ActionType.ts";
 import axios from "axios";
+import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 
 
 export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
@@ -18,39 +19,35 @@ export const registerUser = createAsyncThunk<AuthResponseData, RegisterRequest>(
 
             return data;
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
-            }
-            return rejectWithValue('Unknown error');
+            const err = handleAxiosError(error);
+            return rejectWithValue(err.message);
         }
     }
 );
 
 export const loginUser = createAsyncThunk<AuthResponseData, LoginRequestData, { rejectValue: string }>(
     'auth/loginUser',
-    async (reqData, {rejectWithValue}) => {
+    async (reqData, { rejectWithValue }) => {
         try {
-            const {data} = await api.post<AuthResponseData>(`${API_URL}/auth/login`, reqData);
-            if (data.access_token) localStorage.setItem('accessToken', data.access_token);
+            const { data } = await api.post<AuthResponseData>(`${API_URL}/auth/login`, reqData);
 
-            console.log(data)
+            if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+                api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
+
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+            }
+
             return data;
         } catch (error) {
-            if (axios.isAxiosError(error)) {
-                if (error.response && error.response.data) {
-                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
-                    return rejectWithValue(backendError);
-                }
-                return rejectWithValue('No response from server');
-            }
-            return rejectWithValue('Unknown error');
+            const err = handleAxiosError(error);
+            return rejectWithValue(err.message);
         }
     }
-)
+);
+
 export const getUser = createAsyncThunk(
     'auth/getUser',
     async (_, {rejectWithValue}) => {
@@ -131,7 +128,14 @@ export const logout = createAsyncThunk(
     async (_, {rejectWithValue}) => {
         try {
             await api.get(`${API_URL}/auth/logout`);
-            //localStorage.clear();
+
+            // Clear tokens from localStorage
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+
+            // Clear authorization headers
+            api.defaults.headers.common['Authorization'] = '';
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response && error.response.data) {
@@ -150,7 +154,14 @@ export const verifyOtp = createAsyncThunk(
     async (request:VerificationCodeRequest, { rejectWithValue }) => {
         try {
             const { data } = await api.post<AuthResponseData>(`${API_URL}/auth/verify-qr`, request);
-            if (data.access_token) localStorage.setItem('accessToken', data.access_token);
+            if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+
+                // Store refresh token if available
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+            }
             return data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -170,7 +181,7 @@ export const toggleTfaFactor = createAsyncThunk(
     async (_, { rejectWithValue }) => {
         try {
             const { data } = await api.post<AuthResponseData>(`${API_URL}/user/toggle-tfa`);
-            if (data.access_token) localStorage.setItem('accessToken', data.access_token);
+            if (data.accessToken) localStorage.setItem('accessToken', data.accessToken);
             return data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -210,7 +221,14 @@ export const verifyTFAEmail = createAsyncThunk(
     async (request:VerificationCodeRequest, { rejectWithValue }) => {
         try {
             const { data } = await api.post(`${API_URL}/auth/verify-otp`,request);
-            if (data.access_token) localStorage.setItem('accessToken', data.access_token);
+            if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+
+                // Store refresh token if available
+                if (data.refreshToken) {
+                    localStorage.setItem('refreshToken', data.refreshToken);
+                }
+            }
 
             return data;
         } catch (error) {
@@ -225,8 +243,3 @@ export const verifyTFAEmail = createAsyncThunk(
         }
     }
 )
-
-
-
-
-

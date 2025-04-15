@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import {api} from "../../config/api.ts";
+import { API_URL } from "../../config/api.ts";
 import axios from "axios";
 
 
@@ -16,9 +16,15 @@ export const fetchLessonTimes = createAsyncThunk<LessonTime[]>(
     'lessonTimes/fetchLessonTimes',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get<LessonTime[]>('/lesson-time');
-            console.log(response.data);
-            return response.data; // Trả về dữ liệu tiết học
+            // Use a direct axios request without authentication for this public endpoint
+            const response = await axios.get<LessonTime[]>(`${API_URL}/lesson-time`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: false
+            });
+            console.log("Lesson times fetched successfully:", response.data);
+            return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response && error.response.data) {
