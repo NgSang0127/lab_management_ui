@@ -28,10 +28,10 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../state/store.ts";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import { fetchNotifications, fetchUnreadNotifications, markAsRead } from "../../state/Notification/Reducer.ts";
-import { NotificationResponse } from "../../api/notification/notification.ts";
+import { fetchNotifications, fetchUnreadNotifications, markAsRead } from "../../state/notification/thunk.ts";
+import { NotificationResponse } from "../../services/notification/notification.ts";
 import { motion } from "framer-motion";
-import {markNotificationAsRead} from "../../state/Notification/Action.ts";
+import {markNotificationAsRead} from "../../state/notification/notificationSlice.ts";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -59,7 +59,7 @@ const UserNotificationCenter: React.FC = () => {
                         // Reset về trang đầu tiên khi có thông báo mới
                         dispatch(fetchNotifications({ page: 0, size: ITEMS_PER_PAGE }));
                     } catch (error) {
-                        console.error("Error parsing JSON:", error);
+                        console.error("error parsing JSON:", error);
                     }
                 });
             },
@@ -111,7 +111,7 @@ const UserNotificationCenter: React.FC = () => {
             // Cập nhật state client-side
             dispatch(markNotificationAsRead(id));
         } catch (error) {
-            console.error("Error marking notification as read:", error);
+            console.error("error marking notification as read:", error);
         }
     };
 
@@ -150,7 +150,7 @@ const UserNotificationCenter: React.FC = () => {
             <CardContent>
                 <List
                     ref={listRef}
-                    sx={{ overflow: "auto", bgcolor: "#fff", borderRadius: 2 }}
+                    sx={{ overflow: "auto", bgcolor: "background.default", borderRadius: 2 }}
                 >
                     {notifications?.length === 0 ? (
                         <Typography variant="body2" sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>

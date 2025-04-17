@@ -1,6 +1,6 @@
-import UserProfile from "../components/Profile/UserProfile.tsx";
-import ProfileSettings from "../components/Profile/ProfileSettings.tsx";
-import Profile from "../components/Profile/Profile.tsx";
+import UserProfile from "../components/profile/UserProfile.tsx";
+import ProfileSettings from "../components/profile/ProfileSettings.tsx";
+import Profile from "../components/profile/Profile.tsx";
 import UserNotificationCenter from "../components/Notification/UserNotificationCenter.tsx";
 
 const teacherRoutes = [

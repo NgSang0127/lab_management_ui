@@ -64,7 +64,7 @@ api.interceptors.response.use(
                     !window.location.pathname.includes('/signup')) {
                     window.location.href = '/account/signin';
                 }
-                return Promise.reject(new Error('Authentication failed after multiple attempts'));
+                return Promise.reject(new Error('auth failed after multiple attempts'));
             }
 
             // If we're already refreshing, add this request to the queue
@@ -186,7 +186,7 @@ api.interceptors.response.use(
                 }
 
                 processQueue(error);
-                console.error("Error refreshing token:", error);
+                console.error("error refreshing token:", error);
 
                 // Only clear credentials if we've tried multiple times
                 if (refreshAttemptCount >= MAX_REFRESH_ATTEMPTS) {

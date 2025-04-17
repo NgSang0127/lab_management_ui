@@ -1,0 +1,93 @@
+.error-text-container {
+    flex: 1;
+    padding-right: 2rem;
+    order: 2; /* Văn bản hiển thị sau trên mobile */
+}
+
+.error-image-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    order: 1; /* Hình ảnh hiển thị trước trên mobile */
+}
+
+.error-image {
+    max-width: 100%;
+    height: auto;
+    width: 500px; /* Kích thước hình ảnh trên desktop */
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Khoảng cách giữa hai nút */
+    align-items: center; /* Căn giữa các nút */
+}
+
+.go-back-button {
+    background-color: #68dece !important; /* Màu xanh lam */
+    color: #fff !important; /* Chữ trắng */
+    padding: 0.75rem 2rem !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    transition: background-color 0.3s ease, transform 0.2s ease !important;
+    width: 200px; /* Đặt chiều rộng cố định cho nút */
+}
+
+.go-back-button:hover {
+    background-color: #0267d1 !important; /* Màu xanh đậm hơn khi hover */
+    transform: translateY(-2px) !important;
+}
+
+.sign-in-button {
+    background-color: #e0f1ff !important; /* Màu xanh lam nhạt */
+    color: #037cfb !important; /* Chữ xanh lam */
+    padding: 0.75rem 2rem !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    transition: background-color 0.3s ease, transform 0.2s ease !important;
+    width: 200px; /* Đặt chiều rộng cố định cho nút */
+}
+
+.sign-in-button:hover {
+    background-color: #cce4ff !important; /* Màu xanh nhạt hơn khi hover */
+    transform: translateY(-2px) !important;
+}
+
+@media (max-width: 768px) {
+    .error-text-container {
+        padding-right: 0;
+        margin-top: 2rem;
+        order: 2; /* Văn bản ở dưới */
+    }
+
+    .error-image-container {
+        order: 1; /* Hình ảnh ở trên */
+    }
+
+    .error-image {
+        width: 250px; /* Kích thước nhỏ hơn trên mobile */
+    }
+
+    .button-container {
+        width: 100%;
+        align-items: center;
+    }
+}
+
+@media (min-width: 769px) {
+    .error-text-container {
+        order: 1; /* Văn bản ở bên trái trên desktop */
+    }
+
+    .error-image-container {
+        order: 2; /* Hình ảnh ở bên phải trên desktop */
+    }
+
+    .button-container {
+        align-items: flex-start; /* Căn trái trên desktop */
+    }
+}

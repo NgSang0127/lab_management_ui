@@ -1,3 +1,4 @@
+
 import { createTheme, alpha, Shadows, PaletteMode } from '@mui/material/styles';
 
 declare module '@mui/material/Paper' {
@@ -5,6 +6,7 @@ declare module '@mui/material/Paper' {
         highlighted: true;
     }
 }
+
 declare module '@mui/material/styles/createPalette' {
     interface ColorRange {
         50: string;
@@ -20,6 +22,15 @@ declare module '@mui/material/styles/createPalette' {
     }
 
     interface PaletteColor extends ColorRange {}
+    interface Palette {
+        brand: PaletteColor;
+        grey: PaletteColor;
+    }
+
+    interface PaletteOptions {
+        brand?: PaletteColor;
+        grey?: PaletteColor;
+    }
 }
 
 const customTheme = createTheme();
@@ -105,7 +116,7 @@ export const getDesignTokens = (mode: PaletteMode) => ({
             }),
         },
         info: {
-            light: brand[100],
+            light: gray[50],
             main: brand[300],
             dark: brand[600],
             contrastText: gray[50],
@@ -148,6 +159,9 @@ export const getDesignTokens = (mode: PaletteMode) => ({
         },
         grey: {
             ...gray,
+        },
+        brand:{
+          ...brand,
         },
         divider: mode === 'dark' ? alpha(gray[700], 0.6) : alpha(gray[300], 0.4),
         background: {

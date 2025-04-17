@@ -1,19 +1,19 @@
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import Navbar from './components/Navbar/Navbar';
+import Navbar from './components/navbar/Navbar';
 import './App.css';
 import { ThemeContext } from './theme/ThemeContext.tsx';
 import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import {RootState, useAppDispatch} from './state/store.ts'; // Thêm useAppSelector
-import { getUser } from './state/Authentication/Reducer.ts';
-import ScrollToTopButton from './components/Home/ScrollToTopButton.tsx';
-import Footer from './components/Home/Footer.tsx';
-import MultiItemCarousel from './components/Home/MultiItemCarousel.tsx';
+import { getUser } from './state/auth/thunk.ts';
+import ScrollToTopButton from './components/home/ScrollToTopButton.tsx';
+import Footer from './components/home/Footer.tsx';
+import MultiItemCarousel from './components/home/MultiItemCarousel.tsx';
 import { createTheme } from '@mui/material/styles';
 import getTheme from './theme/getTheme.ts';
 import { SidebarProvider } from './context/SidebarContext.tsx';
 import {useSelector} from "react-redux";
-import LoadingIndicator from "./components/Support/LoadingIndicator.tsx";
+import LoadingIndicator from "./components/support/LoadingIndicator.tsx";
 
 const App: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -49,8 +49,8 @@ const App: React.FC = () => {
     const { isDarkMode, showCustomTheme } = useContext(ThemeContext);
     const mode = isDarkMode ? 'dark' : 'light';
     const defaultTheme = createTheme({ palette: { mode } });
-    const signInSignUpTheme = createTheme(getTheme(mode));
-    const themeToApply = showCustomTheme ? signInSignUpTheme : defaultTheme;
+    const theme = createTheme(getTheme(mode));
+    const themeToApply = showCustomTheme ? theme : defaultTheme;
     const isHomePage = location.pathname === '/';
 
     if ((isLoading || authLoading) && !isAuthPage) {

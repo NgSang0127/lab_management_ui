@@ -1,0 +1,487 @@
+:root {
+    --blue: #006f75;
+    --white: #fff;
+    --primary: #68dece;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.notFoundContainer {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(90deg, rgba(47, 54, 64, 1) 23%, rgba(24, 27, 32, 1) 100%);
+}
+
+.moon {
+    background: linear-gradient(90deg, rgba(208, 208, 208, 1) 48%, rgba(145, 145, 145, 1) 100%);
+    position: absolute;
+    top: -10vmin;
+    left: -30vmin;
+    width: 90vmin;
+    height: 90vmin;
+    border-radius: 100%;
+    box-shadow: 0 0 3vmin -0.4vmin rgba(0, 0, 0, 0.5);
+}
+
+.moonCrater {
+    position: absolute;
+    border-radius: 100%;
+    background: linear-gradient(90deg, rgba(122, 122, 122, 1) 38%, rgba(195, 195, 195, 1) 100%);
+    opacity: 0.6;
+}
+
+.moonCrater1 {
+    top: 25vmin;
+    left: 50vmin;
+    width: 6vmin;
+    height: 18vmin;
+}
+
+.moonCrater2 {
+    top: 65vmin;
+    left: 34vmin;
+    width: 4vmin;
+    height: 8vmin;
+    transform: rotate(55deg);
+}
+
+.moonCrater3 {
+    top: -2vmin;
+    left: 4vmin;
+    width: 6.5vmin;
+    height: 12vmin;
+    transform: rotate(250deg);
+}
+
+.star {
+    background: grey;
+    position: absolute;
+    width: 0.5vmin;
+    height: 0.5vmin;
+    border-radius: 100%;
+    transform: rotate(250deg);
+    opacity: 0.4;
+    animation: shimmer 1.5s infinite alternate;
+}
+
+@keyframes shimmer {
+    from { opacity: 0; }
+    to { opacity: 0.7; }
+}
+
+.star1 { top: 40%; left: 50%; animation-delay: 1s; }
+.star2 { top: 60%; left: 90%; animation-delay: 3s; }
+.star3 { top: 10%; left: 70%; animation-delay: 2s; }
+.star4 { top: 90%; left: 40%; }
+.star5 { top: 20%; left: 30%; animation-delay: 0.5s; }
+
+.error {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    font-family: 'Righteous', cursive;
+    color: #006f75;
+    text-align: left;
+    max-width: 90%;
+}
+
+.errorTitle {
+    font-size: 15vmin;
+    line-height: 1;
+}
+
+.errorSubtitle {
+    font-size: 4vmin;
+    margin-top: 1vmin;
+}
+
+.errorDescription {
+    color: var(--white);
+    font-size: 2.5vmin;
+    opacity: 0.5;
+    margin-top: 2vmin;
+}
+
+.errorButtonContainer {
+    margin-top: 3vmin;
+}
+
+.btn {
+    z-index: 1;
+    overflow: hidden;
+    background: transparent;
+    position: relative;
+    padding: 1.5vmin 5vmin;
+    border-radius: 5vmin;
+    cursor: pointer;
+    font-size: 2.5vmin;
+    letter-spacing: 0.2vmin;
+    transition: 0.2s ease;
+    font-weight: bold;
+}
+
+.orange {
+    border: 0.4vmin solid var(--primary);
+    color: var(--blue);
+}
+
+.orange:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    background: var(--primary);
+    z-index: -1;
+    transition: 0.2s ease;
+}
+
+.orange:hover {
+    color: var(--white);
+    background: var(--primary);
+}
+
+.orange:hover:before {
+    width: 100%;
+}
+
+.astronaut {
+    position: absolute;
+    width: 185px;
+    height: 300px;
+    left: 70%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(20deg) scale(1.2);
+}
+
+.astronautHead {
+    background-color: white;
+    position: absolute;
+    top: 6vmin;
+    left: 6vmin;
+    width: 6vmin;
+    height: 6vmin;
+    border-radius: 2vmin;
+}
+
+.astronautHeadVisorFlare1 {
+    background-color: #7f8fa6;
+    position: absolute;
+    top: 2.8vmin;
+    left: 4vmin;
+    width: 1vmin;
+    height: 1vmin;
+    border-radius: 2vmin;
+    opacity: 0.5;
+}
+
+.astronautHeadVisorFlare2 {
+    background-color: #718093;
+    position: absolute;
+    top: 4vmin;
+    left: 3.8vmin;
+    width: 0.5vmin;
+    height: 0.5vmin;
+    border-radius: 2vmin;
+    opacity: 0.3;
+}
+
+.astronautBackpack {
+    background-color: #bfbfbf;
+    position: absolute;
+    top: 9vmin;
+    left: 4.7vmin;
+    width: 8.6vmin;
+    height: 9vmin;
+    border-radius: 0.8vmin;
+}
+
+.astronautBody {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 11.5vmin;
+    left: 5.5vmin;
+    width: 7vmin;
+    height: 8vmin;
+    border-radius: 0.8vmin;
+}
+
+.astronautBodyChest {
+    background-color: #d9d9d9;
+    position: absolute;
+    top: 14vmin;
+    left: 6.8vmin;
+    width: 4.5vmin;
+    height: 2.5vmin;
+    border-radius: 0.6vmin;
+}
+
+.astronautArmLeft1 {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 12.7vmin;
+    left: 0.9vmin;
+    width: 6.5vmin;
+    height: 2vmin;
+    border-radius: 0.8vmin;
+    transform: rotate(-30deg);
+}
+
+.astronautArmLeft2 {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 10.2vmin;
+    left: 0.7vmin;
+    width: 2vmin;
+    height: 4.5vmin;
+    border-radius: 0.8vmin;
+    transform: rotate(-12deg);
+    border-top-left-radius: 8em;
+    border-top-right-radius: 8em;
+}
+
+.astronautArmRight1 {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 11.3vmin;
+    left: 10vmin;
+    width: 6.5vmin;
+    height: 2vmin;
+    border-radius: 0.8vmin;
+    transform: rotate(-10deg);
+}
+
+.astronautArmRight2 {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 7.8vmin;
+    left: 14.1vmin;
+    width: 2vmin;
+    height: 4.5vmin;
+    border-radius: 0.8vmin;
+    transform: rotate(-10deg);
+    border-top-left-radius: 8em;
+    border-top-right-radius: 8em;
+}
+
+.astronautArmThumbLeft {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 11vmin;
+    left: 2.1vmin;
+    width: 1vmin;
+    height: 0.6vmin;
+    border-radius: 8em;
+    transform: rotate(-35deg);
+}
+
+.astronautArmThumbRight {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 9vmin;
+    left: 13.3vmin;
+    width: 1vmin;
+    height: 0.6vmin;
+    border-radius: 8em;
+    transform: rotate(20deg);
+}
+
+.astronautWristLeft {
+    background-color: #e67e22;
+    position: absolute;
+    top: 12.2vmin;
+    left: 0.65vmin;
+    width: 2.1vmin;
+    height: 0.4vmin;
+    border-radius: 8em;
+    transform: rotate(-15deg);
+}
+
+.astronautWristRight {
+    background-color: #e67e22;
+    position: absolute;
+    top: 9.8vmin;
+    left: 14.1vmin;
+    width: 2.1vmin;
+    height: 0.4vmin;
+    border-radius: 8em;
+    transform: rotate(-10deg);
+}
+
+.astronautLegLeft {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 18.8vmin;
+    left: 5vmin;
+    width: 2.3vmin;
+    height: 7.5vmin;
+    transform: rotate(10deg);
+}
+
+.astronautLegRight {
+    background-color: #e6e6e6;
+    position: absolute;
+    top: 18.8vmin;
+    left: 10.8vmin;
+    width: 2.3vmin;
+    height: 7.5vmin;
+    transform: rotate(-10deg);
+}
+
+.astronautFootLeft {
+    background-color: white;
+    position: absolute;
+    top: 24vmin;
+    left: 4.3vmin;
+    width: 2.8vmin;
+    height: 2vmin;
+    transform: rotate(10deg);
+    border-radius: 0.3vmin;
+    border-top-left-radius: 8em;
+    border-top-right-radius: 8em;
+    border-bottom: 0.4vmin solid #e67e22;
+}
+
+.astronautFootRight {
+    background-color: white;
+    position: absolute;
+    top: 24vmin;
+    left: 11.1vmin;
+    width: 2.8vmin;
+    height: 2vmin;
+    transform: rotate(-10deg);
+    border-radius: 0.3vmin;
+    border-top-left-radius: 8em;
+    border-top-right-radius: 8em;
+    border-bottom: 0.4vmin solid #e67e22;
+}
+
+/* Media Queries for Mobile */
+@media (max-width: 768px) {
+    .moon {
+        top: -20vmin;
+        left: -40vmin;
+        width: 100vmin;
+        height: 100vmin;
+    }
+
+    .moonCrater1 {
+        top: 30vmin;
+        left: 60vmin;
+        width: 8vmin;
+        height: 20vmin;
+    }
+
+    .moonCrater2 {
+        top: 70vmin;
+        left: 40vmin;
+        width: 5vmin;
+        height: 10vmin;
+    }
+
+    .moonCrater3 {
+        top: 0;
+        left: 5vmin;
+        width: 8vmin;
+        height: 15vmin;
+    }
+
+    .error {
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        max-width: 80%;
+    }
+
+    .errorTitle {
+        font-size: 20vmin;
+    }
+
+    .errorSubtitle {
+        font-size: 6vmin;
+        margin-top: 2vmin;
+    }
+
+    .errorDescription {
+        font-size: 4vmin;
+        margin-top: 3vmin;
+    }
+
+    .errorButtonContainer {
+        margin-top: 5vmin;
+    }
+
+    .btn {
+        padding: 3vmin 8vmin;
+        font-size: 5vmin;
+        border-width: 0.5vmin;
+    }
+
+    .astronaut {
+        width: 30vmin;
+        height: 48vmin;
+        left: 50%;
+        top: 85%;
+        transform: translateX(-50%) rotate(20deg) scale(1);
+    }
+
+    .astronautHead,
+    .astronautBackpack,
+    .astronautBody,
+    .astronautBodyChest,
+    .astronautArmLeft1,
+    .astronautArmLeft2,
+    .astronautArmRight1,
+    .astronautArmRight2,
+    .astronautArmThumbLeft,
+    .astronautArmThumbRight,
+    .astronautWristLeft,
+    .astronautWristRight,
+    .astronautLegLeft,
+    .astronautLegRight,
+    .astronautFootLeft,
+    .astronautFootRight {
+        transform: scale(1);
+    }
+
+    .astronautCord canvas {
+        width: 40vmin;
+        height: 40vmin;
+    }
+
+    .astronautHead canvas {
+        width: 4.8vmin;
+        height: 4.8vmin;
+    }
+}
+
+@media (max-width: 480px) {
+    .errorTitle {
+        font-size: 18vmin;
+    }
+
+    .errorSubtitle {
+        font-size: 5vmin;
+    }
+
+    .errorDescription {
+        font-size: 3.5vmin;
+    }
+
+    .btn {
+        padding: 3vmin 7vmin;
+        font-size: 4.5vmin;
+    }
+
+    .astronaut {
+        width: 25vmin;
+        height: 40vmin;
+        top: 80%;
+    }
+}

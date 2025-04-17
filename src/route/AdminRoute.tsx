@@ -1,26 +1,25 @@
-import CreateTimetable from "../components/Timetable/CreateTimetable.tsx";
-import CancelTimetable from "../components/Timetable/CancelTimetable.tsx";
-import ImportTimetable from "../components/Timetable/ImportTimetable.tsx";
-
-import DashboardAdmin from "../components/Dashboard/DashboardAdmin.tsx";
-import DashboardContent from "../components/Dashboard/DashboardContent.tsx";
-import SettingPage from "../components/Dashboard/Setting/SettingPage.tsx";
-import UserManagement from "../components/Dashboard/UserManagement/UserManagement.tsx";
-import CategoryPage from "../components/Asset/CategoryPage.tsx";
-import AssetPage from "../components/Asset/AssetPage.tsx";
-import LocationPage from "../components/Asset/LocationPage.tsx";
-import AssetDashboard from "../components/Asset/AssetDashboard.tsx";
-import AssetManager from "../components/Asset/AssetHistoryManagement.tsx";
-import MaintenancePage from "../components/Asset/MaintenancePage.tsx";
-import AssetImportExport from "../components/Asset/AssetImportExport.tsx";
-import AdminNotificationCenter from "../components/Notification/AdminNotificationCenter.tsx";
-import Events from "../components/Event/Event.tsx";
+import CreateTimetable from "../pages/timetable/CreateTimetable.tsx";
+import CancelTimetable from "../pages/timetable/CancelTimetable.tsx";
+import ImportTimetable from "../pages/timetable/ImportTimetable.tsx";
+import DashboardAdmin from "../pages/dashboard/DashboardAdmin.tsx";
+import DashboardContent from "../pages/dashboard/DashboardContent.tsx";
+import SettingPage from "../pages/setting/SettingPage.tsx";
+import UserManagement from "../pages/userManagement/UserManagement.tsx";
+import Category from "../pages/asset/Category.tsx";
+import Asset from "../pages/asset/Asset.tsx";
+import Location from "../pages/asset/Location.tsx";
+import AssetDashboard from "../pages/asset/AssetDashboard.tsx";
+import AssetManager from "../pages/asset/AssetHistoryManagement.tsx";
+import Maintenance from "../pages/asset/Maintenance.tsx";
+import AssetImportExport from "../pages/asset/AssetImportExport.tsx";
+import AdminNotificationCenter from "../pages/notification/AdminNotificationCenter.tsx";
+import Events from "../pages/event/Event.tsx";
 import AdminGuardRoute from "./AdminGuardRoute.tsx";
-import RoomPage from "../components/Asset/RoomPage.tsx";
-import SoftwarePage from "../components/Asset/SoftwarePage.tsx";
-import AssetBorrowingManagement from "../components/Asset/AssetBorrowingManagement.tsx";
-import UserAssetManagement from "../components/Asset/UserAssetManagement.tsx";
-import AssetHistoryManagement from "../components/Asset/AssetHistoryManagement.tsx";
+import Room from "../pages/asset/Room.tsx";
+import Software from "../pages/asset/Software.tsx";
+import AssetBorrowingManagement from "../pages/asset/AssetBorrowingManagement.tsx";
+import UserAssetManagement from "../pages/asset/UserAssetManagement.tsx";
+
 
 
 const adminRoutes = [
@@ -70,15 +69,15 @@ const adminRoutes = [
                         children: [
                             {
                                 path: 'asset',
-                                element: <AssetPage/>
+                                element: <Asset/>
                             },
                             {
                                 path: 'location',
-                                element: <LocationPage/>
+                                element: <Location/>
                             },
                             {
                                 path: 'category',
-                                element: <CategoryPage/>
+                                element: <Category/>
                             },
                             {
                                 path: 'manager',
@@ -86,11 +85,11 @@ const adminRoutes = [
                             },
                             {
                                 path: 'maintenance',
-                                element: <MaintenancePage/>
+                                element: <Maintenance/>
                             },
                             {
                                 path: 'room',
-                                element: <RoomPage/>
+                                element: <Room/>
                             },
                             {
                                 path: 'borrow',
@@ -98,7 +97,7 @@ const adminRoutes = [
                             },
                             {
                                 path: 'software',
-                                element: <SoftwarePage/>
+                                element: <Software/>
                             },
                             {
                                 path: 'asset-user',

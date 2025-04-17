@@ -1,13 +1,13 @@
-import {authSlice} from "./Authentication/Action.ts";
+import {authSlice} from "./auth/authSlice.ts";
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {useDispatch} from "react-redux";
-import lessonTimeSlice from "./LessonTime/Action.ts";
-import timetableSlice from "./Timetable/Action.ts";
-import logsSlice from "./Dashboard/Action.ts";
-import userSlice from "./User/Action.ts";
-import {adminSlice} from "./Admin/Action.ts";
-import usageTimeUsersSlice from "./Dashboard/UsageTimeUsersSlice.ts";
-import {notifySlice} from "./Notification/Action.ts";
+import lessonTimeSlice from "./lessonTime/lessonTimeSlice.ts";
+import timetableSlice from "./timetable/timetableSlice.ts";
+import logsSlice from "./dashboard/dashboardSlice.ts";
+import userSlice from "./user/userSlice.ts";
+import {adminSlice} from "./admin/adminSlice.ts";
+import usageTimeUsersSlice from "./dashboard/UsageTimeUsersSlice.ts";
+import {notifySlice} from "./notification/notificationSlice.ts";
 
 export type AppDispatch = typeof store.dispatch;
 

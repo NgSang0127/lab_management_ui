@@ -2,7 +2,7 @@
 import { useAppDispatch } from "../state/store.ts";
 import { useEffect, useRef, useCallback } from "react";
 import { API_URL } from "../config/api.ts";
-import { endSession } from "../state/User/Reducer.ts";
+import { endSession } from "../state/user/thunk.ts";
 
 const useUserActivityCheck = () => {
     const dispatch = useAppDispatch();
@@ -32,7 +32,7 @@ const useUserActivityCheck = () => {
             }).then(response => {
                 console.log('Fetch response:', response);
             }).catch((error) => {
-                console.error('Error ending session:', error);
+                console.error('error ending session:', error);
             });
         }
     }, []);
@@ -49,7 +49,7 @@ const useUserActivityCheck = () => {
     }, [dispatch, sendEndSessionRequest]);
 
     const handlePageHide = useCallback(() => {
-        console.log('Page is being hidden or unloaded.');
+        console.log('page is being hidden or unloaded.');
         sendEndSessionRequest();
     }, [sendEndSessionRequest]);
 
