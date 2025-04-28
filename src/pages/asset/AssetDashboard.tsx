@@ -73,6 +73,7 @@ const AssetDashboard: React.FC = () => {
     const currentUser = useSelector((state: RootState) => state.auth.user);
 
     // Danh sách mục dashboard
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const dashboardItems = [
         {
             label: 'Asset',
@@ -165,6 +166,30 @@ const AssetDashboard: React.FC = () => {
                     minWidth: '100%', // Loại bỏ minWidth cố định
                 }}
             >
+                <Box sx={{ mb: 5, textAlign: { xs: 'center', sm: 'left' } }}>
+                    <Typography
+                        variant="h3"
+                        component="h1"
+                        sx={{
+                            fontWeight: 700,
+                            color: 'text.primary',
+                            mb: 1.5,
+                            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                        }}
+                    >
+                        Asset Management
+                    </Typography>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: 'text.secondary',
+                            maxWidth: '600px',
+                            fontSize: { xs: '1rem', sm: '1.1rem' },
+                        }}
+                    >
+                        Streamline scheduling and semester planning with intuitive tools designed for efficiency.
+                    </Typography>
+                </Box>
                 <Grid container spacing={{xs: 2, sm: 3}} sx={{mb: 4}}>
                     {dashboardItems.map((item) => {
                         // Ẩn mục admin-only nếu không phải admin

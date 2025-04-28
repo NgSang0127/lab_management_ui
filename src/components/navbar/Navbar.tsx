@@ -224,13 +224,13 @@ const Navbar: React.FC = () => {
                             ) : (
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
-                                        <Typography sx={{ color: 'text.primary', fontWeight: 'bold', textTransform: 'none' }}>
+                                        <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
                                             {"Đăng ký"}
                                         </Typography>
                                     </Box>
-                                    <Typography sx={{ color: 'text.primary', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
+                                    <Typography sx={{ color: 'grey.50', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
                                     <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
-                                        <Typography sx={{ color: 'text.primary', fontWeight: 'bold', textTransform: 'none' }}>
+                                        <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
                                             {"Đăng nhập"}
                                         </Typography>
                                     </Box>
@@ -364,13 +364,13 @@ const Navbar: React.FC = () => {
                             ) : (
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
-                                        <Typography sx={{ color: 'text.primary', fontWeight: 'bold', textTransform: 'none' }}>
+                                        <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
                                             {"Đăng ký"}
                                         </Typography>
                                     </Box>
-                                    <Typography sx={{ color: 'text.primary', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
+                                    <Typography sx={{ color: 'grey.50', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
                                     <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
-                                        <Typography sx={{ color: 'text.primary', fontWeight: 'bold', textTransform: 'none' }}>
+                                        <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
                                             {"Đăng nhập"}
                                         </Typography>
                                     </Box>

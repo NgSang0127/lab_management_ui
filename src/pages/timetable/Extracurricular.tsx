@@ -21,7 +21,7 @@ const Extracurricular = () => {
     const {t}=useTranslation();
     const {timetableName} = useParams<{ timetableName: string }>();
     const dispatch = useAppDispatch();
-    const {timetable} = useSelector((state: RootState) => state.timetable);
+    const {course} = useSelector((state: RootState) => state.timetable);
     const location = useLocation();
     const { convertDayOfWeek } = useConvertDayOfWeek();
 
@@ -72,7 +72,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.daysOfWeek')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {convertDayOfWeek(timetable?.dayOfWeek || 'Undefined')}
+                                {convertDayOfWeek(course?.dayOfWeek || 'Undefined')}
                             </Typography>
                         </Typography>
                     </Box>
@@ -84,7 +84,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.startLesson')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.startLesson}
+                                {course?.startLesson}
                             </Typography>
                         </Typography>
                     </Box>
@@ -96,7 +96,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.numberOfLesson')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.totalLessonDay}
+                                {course?.totalLessonDay}
                             </Typography>
                         </Typography>
                     </Box>
@@ -108,7 +108,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.room')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.room.name}
+                                {course?.room.name}
                             </Typography>
                         </Typography>
                     </Box>
@@ -120,7 +120,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.instructorId')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.instructor.instructorId}
+                                {course?.instructor.instructorId}
                             </Typography>
                         </Typography>
                     </Box>
@@ -132,7 +132,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.instructor')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.instructor.user.fullName}
+                                {course?.instructor.user.fullName}
                             </Typography>
                         </Typography>
                     </Box>
@@ -144,7 +144,7 @@ const Extracurricular = () => {
                                 {t('timetable.extracurricular.description')}
                             </Typography>
                             <Typography component="span" sx={{ ml: 1, color: 'success.main' }}>
-                                {timetable?.description}
+                                {course?.description}
                             </Typography>
                         </Typography>
                     </Box>

@@ -168,7 +168,7 @@ const AboutUs: React.FC = () => {
                             {[
                                 {
                                     icon: <People/>,
-                                    role: 'admin',
+                                    role: 'Admin',
                                     desc: 'Manages the entire system, oversees lab operations, and ensures compliance with university policies.',
                                 },
                                 {

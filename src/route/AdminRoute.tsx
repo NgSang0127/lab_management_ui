@@ -19,7 +19,10 @@ import Room from "../pages/asset/Room.tsx";
 import Software from "../pages/asset/Software.tsx";
 import AssetBorrowingManagement from "../pages/asset/AssetBorrowingManagement.tsx";
 import UserAssetManagement from "../pages/asset/UserAssetManagement.tsx";
-
+import Semester from "../pages/semester/Semester.tsx";
+import CreateTimetableAdmin from "../pages/semester/CreateTimetableAdmin.tsx";
+import TimetableManager from "../pages/semester/TimetableManager.tsx";
+import TimetableDashboard from "../pages/semester/TimetableDashboard.tsx";
 
 
 const adminRoutes = [
@@ -109,6 +112,20 @@ const adminRoutes = [
                             },
                         ]
                     },
+                    {
+                        path: 'timetable-management',
+                        element: <TimetableDashboard/>,
+                        children: [
+                            {
+                                path: 'timetable',
+                                element: <TimetableManager/>
+                            },
+                            {
+                                path:'semester',
+                                element: <Semester/>
+                            }
+                        ]
+                    }
                 ]
             },
         ]
