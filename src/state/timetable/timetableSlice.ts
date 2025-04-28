@@ -7,10 +7,30 @@ import {
     getFourSemesterRecent,
     getRangeWeek
 } from "./thunk.ts";
+import {CourseRequest} from "../../services/course/courseApi.ts";
 
 export interface Week {
     startDate: string;
     endDate: string;
+}
+
+
+export interface TimetableRequest {
+    timetableName?: string;
+    semesterId: number;
+    instructorId: number;
+    dayOfWeek: string;
+    roomId: number;
+    numberOfStudents?: number;
+    totalLessonSemester?: number;
+    totalLessonDay?: number;
+    classId?: string;
+    studyTime: string;
+    startLessonTimeId: number;
+    endLessonTimeId: number;
+    description?: string;
+    courses?: Array<{ id: number } | CourseRequest>;
+    cancelDates?: string[];
 }
 
 export interface Semester {

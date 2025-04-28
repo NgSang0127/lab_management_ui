@@ -8,6 +8,7 @@ export interface UsageTimeUsers{
 }
 
 
+
 interface UsageTimeUsersState {
     usageTimeUsers: UsageTimeUsers[];
     page: number;
@@ -56,6 +57,7 @@ const usageTimeUsersSlice = createSlice({
                 state.isLoading = false;
                 state.error = action.payload as string;
             });
+
     }
 });
 

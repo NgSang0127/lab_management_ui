@@ -1,30 +1,47 @@
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Grid, Button } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { format, isAfter, startOfWeek, endOfWeek } from 'date-fns';
+import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
+import DailyCourseStatistic from '../../components/dashboard/DailyCourseStatistic.tsx';
 import DetailsTable from '../../components/dashboard/DetailsTable.tsx';
-import BarChart from "../../components/dashboard/BarChart.tsx";
-import {TextField, Button, Typography, Box} from '@mui/material';
-import CustomAlert from "../../components/support/CustomAlert.tsx";
-import Grid from '@mui/material/Grid';
-import React, {useState} from "react";
-import DailyCourseStatistic from "../../components/dashboard/DailyCourseStatistic.tsx";
-import {useTranslation} from "react-i18next";
-import {Helmet} from "react-helmet-async";
-
-
+import BarChart from '../../components/dashboard/BarChart.tsx';
+import LabUsageChart from '../../components/dashboard/LabUsageChart.tsx';
+import CustomAlert from '../../components/support/CustomAlert.tsx';
 
 const DashboardContent = () => {
-    const {t}=useTranslation();
-    const [startDate, setStartDate] = useState<string>('');
-    const [endDate, setEndDate] = useState<string>('');
-
+    const { t } = useTranslation();
+    const [startDate, setStartDate] = useState<Date | null>(startOfWeek(new Date(), { weekStartsOn: 1 }));
+    const [endDate, setEndDate] = useState<Date | null>(endOfWeek(new Date(), { weekStartsOn: 1 }));
+    const [appliedStartDate, setAppliedStartDate] = useState<Date | null>(startOfWeek(new Date(), { weekStartsOn: 1 }));
+    const [appliedEndDate, setAppliedEndDate] = useState<Date | null>(endOfWeek(new Date(), { weekStartsOn: 1 }));
     const [errorOpen, setErrorOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    useEffect(() => {
+        handleApplyDates();
+    }, []);
+
     const handleApplyDates = () => {
-        if (new Date(startDate) > new Date(endDate)) {
+        if (!startDate || !endDate) {
+            setErrorMessage(t('dashboard.errors.invalidDates'));
+            setErrorOpen(true);
+            return;
+        }
+
+        if (isAfter(startDate, endDate)) {
             setErrorMessage(t('dashboard.errors.startDate_big_endDate'));
             setErrorOpen(true);
             return;
         }
 
+        setAppliedStartDate(startDate);
+        setAppliedEndDate(endDate);
+        setErrorOpen(false);
+        setErrorMessage('');
     };
 
     const handleCloseError = () => {
@@ -33,64 +50,77 @@ const DashboardContent = () => {
     };
 
     return (
-        <Box className="mx-auto ">
-            <Helmet>
-                <title>Dashboard | Lab Management IT</title>
-            </Helmet>
-            <Typography variant="h4" gutterBottom className="pb-5 pl-5">
-                {t('dashboard.title')}
-            </Typography>
-            <CustomAlert
-                open={errorOpen}
-                message={errorMessage}
-                severity="error"
-                onClose={handleCloseError}
-            />
-            {/* Bộ lọc ngày */}
-            <Grid container spacing={2} alignItems="center" className="mb-8 ml-5 ">
-                <Grid >
-                    <TextField
-                        label={t('dashboard.startDate')}
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        slotProps={{
-                            inputLabel: {
-                            shrink: true,
-                        }}}
-                        variant="outlined"
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Box sx={{ mx: 'auto', p: 4 }}>
+                <Helmet>
+                    <title>Dashboard | Lab Management IT</title>
+                </Helmet>
+                <Typography variant="h4" gutterBottom sx={{ pb: 5, pl: 5 }}>
+                    {t('dashboard.title')}
+                </Typography>
+                <CustomAlert
+                    open={errorOpen}
+                    message={errorMessage}
+                    severity="error"
+                    onClose={handleCloseError}
+                />
+                {/* Date filter */}
+                <Grid container spacing={2} alignItems="center" sx={{ mb: 8, ml: 5 }}>
+                    <Grid size={{ xs: 12, sm: 2 }}>
+                        <DatePicker
+                            label={t('dashboard.startDate')}
+                            value={startDate}
+                            onChange={(newValue) => setStartDate(newValue)}
+                            slotProps={{ textField: { fullWidth: true } }}
+                            format="dd/MM/yyyy"
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 2 }}>
+                        <DatePicker
+                            label={t('dashboard.endDate')}
+                            value={endDate}
+                            onChange={(newValue) => setEndDate(newValue)}
+                            slotProps={{ textField: { fullWidth: true } }}
+                            format="dd/MM/yyyy"
+                        />
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 1 }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleApplyDates}
+                            fullWidth
+                        >
+                            {t('dashboard.applyButton')}
+                        </Button>
+                    </Grid>
+                </Grid>
+                {/* Child components receiving appliedStartDate and appliedEndDate as props */}
+                <Box sx={{ mb: 8 }}>
+                    <DailyCourseStatistic
+                        startDate={appliedStartDate ? format(appliedStartDate, 'dd/MM/yyyy') : ''}
+                        endDate={appliedEndDate ? format(appliedEndDate, 'dd/MM/yyyy') : ''}
+                        setError={setErrorMessage}
+                        setErrorOpen={setErrorOpen}
                     />
-                </Grid>
-                <Grid >
-                    <TextField
-                        label={t('dashboard.endDate')}
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        slotProps={{
-                            inputLabel:{
-                            shrink: true,
-                        }}}
-                        variant="outlined"
+                </Box>
+                <Box sx={{ mb: 8 }}>
+                    <DetailsTable
+                        startDate={appliedStartDate ? format(appliedStartDate, 'dd/MM/yyyy') : ''}
+                        endDate={appliedEndDate ? format(appliedEndDate, 'dd/MM/yyyy') : ''}
+                        setError={setErrorMessage}
+                        setErrorOpen={setErrorOpen}
                     />
-                </Grid>
-                <Grid >
-                    <Button variant="contained" color="primary" onClick={handleApplyDates}>
-                        {t('dashboard.applyButton')}
-                    </Button>
-                </Grid>
-            </Grid>
-            {/* Các component con nhận startDate và endDate qua props */}
-            <div className="mb-8">
-                <DailyCourseStatistic startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
-            </div>
-            <div className="mb-8">
-                <DetailsTable startDate={startDate} endDate={endDate} setError={setErrorMessage} setErrorOpen={setErrorOpen}/>
-            </div>
-            <div>
-                <BarChart />
-            </div>
-        </Box>
+                </Box>
+                <Box sx={{ mb: 8 }}>
+                    <BarChart />
+                </Box>
+                <Box sx={{ mb: 8, minHeight: 600 }}>
+                    <LabUsageChart
+                    />
+                </Box>
+            </Box>
+        </LocalizationProvider>
     );
 };
 
