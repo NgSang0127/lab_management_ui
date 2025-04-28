@@ -1,5 +1,4 @@
 import {api} from "../../config/api.ts";
-import axios from "axios";
 import {handleAxiosError} from "../../utils/handleAxiosError.ts";
 import {PageResponse} from "../../state/page/types.ts";
 

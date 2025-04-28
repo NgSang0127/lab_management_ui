@@ -1,22 +1,22 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import {createAsyncThunk} from '@reduxjs/toolkit';
 import axios from 'axios';
 import {api, API_URL} from '../../config/api.ts';
-import {Semester, Timetable} from "./timetableSlice.ts";
+import {Semester, Timetable, TimetableRequest} from "./timetableSlice.ts";
 
 
 interface TimetableApiResponse {
     id: number;
     dayOfWeek: string;
-    timetableName:string;
+    timetableName: string;
     courses: Array<{
         name: string;
         code: string;
-        nh:string;
-        th:string;
-        credits:number;
+        nh: string;
+        th: string;
+        credits: number;
 
     }>;
-    numberOfStudents:number;
+    numberOfStudents: number;
     startLessonTime: {
         startTime: string;
         lessonNumber: number;
@@ -29,23 +29,23 @@ interface TimetableApiResponse {
         name: string;
     };
     instructor: {
-        instructorId:string;
+        instructorId: string;
         user: {
             fullName: string;
         };
     };
-    startLesson:number;
+    startLesson: number;
     totalLessonDay: number;
     totalLessonSemester: number;
     classId: string;
     studyTime: string;
-    cancelDates:string[];
-    description:string;
+    cancelDates: string[];
+    description: string;
 }
 
 export const importTimetable = createAsyncThunk(
     'timetable/importTimetable',
-    async (formData: FormData, { rejectWithValue }) => {
+    async (formData: FormData, {rejectWithValue}) => {
         try {
             const response = await api.post(`${API_URL}/timetable/import`, formData, {
                 headers: {
@@ -73,16 +73,15 @@ export const importTimetable = createAsyncThunk(
 );
 
 
-
 export const fetchTimetables = createAsyncThunk(
     'timetable/fetchTimetables',
-    async (params: { startDate: string; endDate: string }, { rejectWithValue }) => {
+    async (params: { startDate: string; endDate: string }, {rejectWithValue}) => {
         try {
             console.log(`Fetching timetables for week: ${params.startDate} to ${params.endDate}`);
 
             // Use a direct axios request without authentication for this public endpoint
-            const { data } = await axios.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
-                params: { startDate: params.startDate, endDate: params.endDate },
+            const {data} = await axios.get<TimetableApiResponse[]>(`${API_URL}/timetable/by-week`, {
+                params: {startDate: params.startDate, endDate: params.endDate},
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -120,12 +119,12 @@ export const fetchTimetables = createAsyncThunk(
 
 export const getRangeWeek = createAsyncThunk(
     'timetable/getRangeWeek',
-    async (param: { semesterId:number }, { rejectWithValue }) => {
+    async (param: { semesterId: number }, {rejectWithValue}) => {
         try {
             // Use a direct axios request without authentication for this public endpoint
-            const response = await axios.get(`${API_URL}/timetable/weeks-range`,{
-                params:{
-                    semesterId:param.semesterId
+            const response = await axios.get(`${API_URL}/timetable/weeks-range`, {
+                params: {
+                    semesterId: param.semesterId
                 },
                 headers: {
                     'Content-Type': 'application/json'
@@ -149,10 +148,10 @@ export const getRangeWeek = createAsyncThunk(
 
 export const getFourSemesterRecent = createAsyncThunk(
     'timetable/getFourSemesterRecent',
-    async (_, { rejectWithValue }) => {
+    async (_, {rejectWithValue}) => {
         try {
             const response = await api.get<Semester[]>('/timetable/semester');
-            console.log("four semester",response.data)
+            console.log("four semester", response.data)
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -170,13 +169,19 @@ export const getFourSemesterRecent = createAsyncThunk(
 
 export const fetchCourseDetails = createAsyncThunk(
     'timetable/fetchCourseDetails',
-    async (params: { courseId?: string; NH?: string; TH?: string;decodeStudyTime?:string; timetableName?: string }, { rejectWithValue }) => {
+    async (params: {
+        courseId?: string;
+        NH?: string;
+        TH?: string;
+        decodeStudyTime?: string;
+        timetableName?: string
+    }, {rejectWithValue}) => {
         try {
             type RequestParams = {
                 courseId?: string;
                 NH?: string;
                 TH?: string;
-                studyTime?:string;
+                studyTime?: string;
                 timetableName?: string;
             };
 
@@ -187,14 +192,14 @@ export const fetchCourseDetails = createAsyncThunk(
                 requestParams.courseId = params.courseId;
                 requestParams.NH = params.NH;
                 requestParams.TH = params.TH;
-                requestParams.studyTime=params.decodeStudyTime;
+                requestParams.studyTime = params.decodeStudyTime;
             } else if (params.timetableName) {
                 // Nếu không có courseId, thì truyền timetableName
                 requestParams.timetableName = params.timetableName;
             }
 
             // Use direct axios request without authentication
-            const { data } = await axios.get(`${API_URL}/timetable/course-details`, {
+            const {data} = await axios.get(`${API_URL}/timetable/course-details`, {
                 params: requestParams,
                 headers: {
                     'Content-Type': 'application/json'
@@ -220,11 +225,11 @@ export const fetchCourseDetails = createAsyncThunk(
 
 export const fetchTimetableByDate = createAsyncThunk(
     'timetable/fetchTimetableByDate',
-    async (params:{date:string}, { rejectWithValue }) => {
+    async (params: { date: string }, {rejectWithValue}) => {
         try {
-            const {data} = await api.get(`${API_URL}/timetable/by-date`,{
-                params:{
-                    date:params.date
+            const {data} = await api.get(`${API_URL}/timetable/by-date`, {
+                params: {
+                    date: params.date
                 }
             });
             console.log(data);
@@ -244,14 +249,19 @@ export const fetchTimetableByDate = createAsyncThunk(
 
 export const cancelTimetable = createAsyncThunk(
     'timetable/cancelTimetable',
-    async (params:{cancelDate:string,startLesson:number,roomName:string,timetableId:number}, { rejectWithValue }) => {
+    async (params: {
+        cancelDate: string,
+        startLesson: number,
+        roomName: string,
+        timetableId: number
+    }, {rejectWithValue}) => {
         try {
-            const {data} = await api.post(`${API_URL}/timetable/cancel`,null,{
-                params:{
-                    cancelDate:params.cancelDate,
-                    startLesson:params.startLesson,
-                    roomName:params.roomName,
-                    timetableId:params.timetableId
+            const {data} = await api.post(`${API_URL}/timetable/cancel`, null, {
+                params: {
+                    cancelDate: params.cancelDate,
+                    startLesson: params.startLesson,
+                    roomName: params.roomName,
+                    timetableId: params.timetableId
                 }
             });
             console.log(data);
@@ -272,9 +282,9 @@ export const cancelTimetable = createAsyncThunk(
 
 export const createTimetable = createAsyncThunk(
     'timetable/createTimetable',
-    async (request :Timetable, { rejectWithValue }) => {
+    async (request: Timetable, {rejectWithValue}) => {
         try {
-            const {data} = await api.post('/timetable/create',request);
+            const {data} = await api.post('/timetable/create', request);
             console.log(data);
             return data;
         } catch (error) {
@@ -289,3 +299,100 @@ export const createTimetable = createAsyncThunk(
         }
     }
 );
+
+export const createTimetableByAdmin = createAsyncThunk(
+    'timetable/createTimetableByAdmin',
+    async (request: TimetableRequest, {rejectWithValue}) => {
+        try {
+            const {data} = await api.post('/timetable/createAdmin', request);
+            console.log(data);
+            return data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const updateTimetable = createAsyncThunk(
+    'timetable/updateTimetable',
+    async ({id, request}: { id: number, request: TimetableRequest }, {rejectWithValue}) => {
+        try {
+            const {data} = await api.put(`/timetable/${id}`, request);
+            console.log(data);
+            return data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const deleteTimetable = createAsyncThunk(
+    'timetable/deleteTimetable',
+    async (id: number, {rejectWithValue}) => {
+        try {
+            const {data} = await api.delete(`/timetable/${id}`);
+            console.log(data);
+            return data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const getTimetables = createAsyncThunk(
+    'timetable/getTimetables',
+    async (
+        params: { page: number; size: number;keyword:string;roomName:string;semesterIds:string;sortBy:string;sortOrder:string },
+        {rejectWithValue}
+    ) => {
+        try {
+            const {data} = await api.get('timetable', {
+                params: {
+                    page: params.page,
+                    size: params.size,
+                    keyword:params.keyword,
+                    roomName:params.roomName,
+                    semesterIds:params.semesterIds,
+                    sortBy:params.sortBy,
+                    sortOrder:params.sortOrder,
+                },
+            });
+            return data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError =
+                        error.response.data.error ||
+                        error.response.data.message ||
+                        'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+);
+
+

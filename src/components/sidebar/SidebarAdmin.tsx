@@ -27,6 +27,7 @@ import {
     Close,
     SearchOff,
     Event,
+    AddToQueue
 } from '@mui/icons-material';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -72,7 +73,10 @@ const SidebarAdmin: FC = () => {
                 { link: 'import-export' },
             ],
         },
-        { text: t('sidebar.booking'), icon: <ManageSearch />, link: 'book' },
+        { text: t('sidebar.booking'), icon: <ManageSearch />, link: 'book'},
+        {text : t('sidebar.semester'),icon : <AddToQueue/>,link :'timetable-management',subMenu: [
+                { link: 'timetable' },
+                { link: 'semester' }] },
         { text: t('sidebar.notification'), icon: <Notifications />, link: 'notification' },
         { text: t('sidebar.events'), icon: <Event />, link: 'events' },
         { text: t('sidebar.cancel'), icon: <SearchOff />, link: 'timetable/cancel' },

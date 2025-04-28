@@ -15,17 +15,15 @@ const StyledPaper = styled(Paper)(({theme}) => ({
 interface UserSelectProps {
     assignedUserId: number | null;
     setAssignedUserId: (id: number | null) => void;
-}
-
-const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserId}) => {
+}const UserSelect: React.FC<UserSelectProps> = ({ assignedUserId, setAssignedUserId }) => {
     const dispatch = useAppDispatch();
-    const {isLoading} = useSelector((state: RootState) => state.admin);
-
+    const { isLoading } = useSelector((state: RootState) => state.admin);
     const [inputValue, setInputValue] = useState<string>('');
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
     const [open, setOpen] = useState<boolean>(false);
     const [page, setPage] = useState<number>(0);
     const [hasMoreUsers, setHasMoreUsers] = useState<boolean>(true);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     const fetchUsers = async (searchKeyword: string = '', pageNum: number = 0, append: boolean = false) => {
         try {
@@ -45,17 +43,24 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
             );
             setFilteredUsers(uniqueUsers);
             setHasMoreUsers(result.totalElements > uniqueUsers.length);
+
+            if (assignedUserId && !selectedUser) {
+                const matchedUser = uniqueUsers.find(user => user.id === assignedUserId);
+                if (matchedUser) {
+                    setSelectedUser(matchedUser);
+                    setInputValue(matchedUser.username || '');
+                }
+            }
         } catch (err: any) {
             console.error(err.message || 'Failed to fetch users.');
         }
     };
 
     const debouncedFetchUsers = useMemo(
-        () =>
-            debounce((keyword: string) => {
-                setPage(0);
-                fetchUsers(keyword, 0, false);
-            }, 300),
+        () => debounce((keyword: string) => {
+            setPage(0);
+            fetchUsers(keyword, 0, false);
+        }, 300),
         []
     );
 
@@ -89,6 +94,7 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
     };
 
     const handleChange = (_event: any, newValue: User | null) => {
+        setSelectedUser(newValue);
         setAssignedUserId(newValue ? newValue.id : null);
         setInputValue(newValue ? newValue.username || '' : '');
     };
@@ -101,10 +107,10 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
             onClose={() => setOpen(false)}
             getOptionLabel={(option) => option.username || ''}
             getOptionKey={(option) => option.id}
-            filterOptions={(x) => x} // Rely on backend filtering
+            filterOptions={(x) => x}
             options={filteredUsers}
             loading={isLoading}
-            value={filteredUsers.find(user => user.id === assignedUserId) || null}
+            value={selectedUser}
             onChange={handleChange}
             onInputChange={handleInputChange}
             noOptionsText={inputValue.length < 1 && !filteredUsers.length ? 'Type to search users' : 'No users found'}
@@ -120,7 +126,7 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
                             ...params.InputProps,
                             endAdornment: (
                                 <InputAdornment position="end">
-                                    {isLoading && <CircularProgress color="inherit" size={20}/>}
+                                    {isLoading && <CircularProgress color="inherit" size={20} />}
                                     {params.InputProps.endAdornment}
                                 </InputAdornment>
                             ),
@@ -130,9 +136,7 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
             )}
             slotProps={{
                 paper: {
-                    sx: {
-                        backgroundColor: (theme) => theme.palette.background.paper,
-                    },
+                    sx: { backgroundColor: (theme) => theme.palette.background.paper },
                 },
                 listbox: {
                     onScroll: (event: React.UIEvent) => {
@@ -153,5 +157,4 @@ const UserSelect: React.FC<UserSelectProps> = ({assignedUserId, setAssignedUserI
         />
     );
 };
-
 export default UserSelect;
