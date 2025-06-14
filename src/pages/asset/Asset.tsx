@@ -1464,7 +1464,7 @@ const Asset: React.FC = () => {
                         fontSize: isMobile ? '1.2rem' : '1.5rem',
                     }}
                 >
-                    {t('manager_asset.asset.details_title')}
+                    Asset Details
                 </DialogTitle>
                 <DialogContent dividers sx={{ p: { xs: 2, md: 3 } }}>
                     {selectedAsset && (
@@ -1806,7 +1806,7 @@ const Asset: React.FC = () => {
                         sx={{ borderRadius: '20px', textTransform: 'none', px: 3 }}
                         size={isMobile ? 'small' : 'medium'}
                     >
-                        {t('manager_asset.asset.button_close')}
+                        Close
                     </Button>
                 </DialogActions>
             </Dialog>

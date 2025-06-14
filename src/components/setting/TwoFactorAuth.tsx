@@ -115,7 +115,7 @@ const TwoFactorAuth: React.FC = () => {
                     mb: 3,
                 }}
             >
-                {t("setting.userProfile.twoFactorAuth")}
+                {t("Two Factor Auth")}
             </Typography>
 
             {(isLoading || loading) && (
@@ -123,7 +123,7 @@ const TwoFactorAuth: React.FC = () => {
             )}
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-                <Typography variant="body1">{t("setting.userProfile.enableTwoFactorAuth")}</Typography>
+                <Typography variant="body1">{t("Set Two Factor Auth")}</Typography>
                 <Switch
                     checked={isTwoFactorEnabled}
                     onChange={handleToggleTwoFactor}

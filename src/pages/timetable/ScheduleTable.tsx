@@ -168,12 +168,12 @@ const ScheduleTable: React.FC = () => {
 
                 <Box sx={{ flex: 1, maxWidth: 400, ml: 'auto' }}>
                     <FormControl fullWidth variant="outlined">
-                        <InputLabel>{t('timetable.scheduleTable.selectRooms')}</InputLabel>
+                        <InputLabel>{t('Selected Room')}</InputLabel>
                         <Select
                             multiple
                             value={selectedRooms}
                             onChange={handleRoomChange}
-                            label={t('timetable.scheduleTable.selectRooms')}
+                            label={t('Selected Room')}
                             renderValue={(selected) => (selected as string[]).join(', ')}
                         >
                             {rooms.map((room) => (

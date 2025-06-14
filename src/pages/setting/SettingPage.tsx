@@ -194,7 +194,7 @@ const SettingPage: React.FC = () => {
                                         "&:hover": { bgcolor: "primary.light", borderColor: "primary.main" },
                                     }}
                                 >
-                                    {t("setting.userProfile.edit")}
+                                    {t("Edit")}
                                 </Button>
                             </Box>
 
@@ -205,7 +205,7 @@ const SettingPage: React.FC = () => {
                                 {[
                                     { label: t("setting.userProfile.title"), ref: userProfileRef },
                                     { label: t("setting.userProfile.security"), ref: changePasswordRef },
-                                    { label: t("setting.userProfile.twoFactorAuth"), ref: twoFactorAuthRef },
+                                    { label: t("Two Factor Auth"), ref: twoFactorAuthRef },
                                 ].map((item) => (
                                     <ListItem
                                         key={item.label}

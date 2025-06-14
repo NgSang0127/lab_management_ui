@@ -225,13 +225,13 @@ const Navbar: React.FC = () => {
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
                                         <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
-                                            {"Đăng ký"}
+                                            {"Sign Up"}
                                         </Typography>
                                     </Box>
                                     <Typography sx={{ color: 'grey.50', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
                                     <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
                                         <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
-                                            {"Đăng nhập"}
+                                            {"Sign In"}
                                         </Typography>
                                     </Box>
                                 </Stack>
@@ -365,13 +365,13 @@ const Navbar: React.FC = () => {
                                 <Stack direction="row" alignItems="center" spacing={1}>
                                     <Box onClick={() => navigate('/account/signup')} sx={{ cursor: 'pointer' }}>
                                         <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
-                                            {"Đăng ký"}
+                                            {"Sign Up"}
                                         </Typography>
                                     </Box>
                                     <Typography sx={{ color: 'grey.50', fontWeight: 'bold', pl: 0.3, pr: 0.3 }}>|</Typography>
                                     <Box onClick={() => navigate('/account/signin')} sx={{ cursor: 'pointer' }}>
                                         <Typography sx={{ color: 'grey.50', fontWeight: 'bold', textTransform: 'none' }}>
-                                            {"Đăng nhập"}
+                                            {"Sign In"}
                                         </Typography>
                                     </Box>
                                 </Stack>

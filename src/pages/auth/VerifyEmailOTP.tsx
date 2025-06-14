@@ -95,7 +95,7 @@ const VerifyEmailOTP = () => {
                     <Card sx={{ borderRadius: 3, boxShadow: theme => theme.shadows[5], backgroundColor: 'background.paper' }}>
                         <CardContent>
                             <Typography variant="h5" align="center" sx={{ fontWeight: "bold", mb: 3, color: 'primary.main' }}>
-                                Xác thực Email bằng OTP
+                                Email Authentication with OTP
                             </Typography>
 
                             <LoadingIndicator open={isLoading} />
@@ -108,7 +108,7 @@ const VerifyEmailOTP = () => {
                                     fullWidth
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="Nhập username của bạn"
+                                    placeholder="Enter your username"
                                     disabled={!!initialUsername}
                                 />
 
@@ -118,7 +118,7 @@ const VerifyEmailOTP = () => {
                                     onClick={handleSendEmail}
                                     disabled={!username}
                                 >
-                                    Gửi mã OTP qua Email
+                                    Send OTP code via Email
                                 </Button>
 
                                 <Box component="form" onSubmit={(e) => {
@@ -127,13 +127,13 @@ const VerifyEmailOTP = () => {
                                 }}>
                                     <Stack spacing={2}>
                                         <TextField
-                                            label="Nhập mã OTP"
+                                            label="Enter OTP Code"
                                             variant="outlined"
                                             fullWidth
                                             type="text"
                                             value={otp}
                                             onChange={(e) => setOtp(e.target.value)}
-                                            placeholder="Nhập mã OTP"
+                                            placeholder="Enter OTP code"
                                             slotProps={{htmlInput:{ maxLength: 6 }}}
                                         />
 
@@ -150,7 +150,7 @@ const VerifyEmailOTP = () => {
                                                 }
                                             }}
                                         >
-                                            Xác thực OTP
+                                            OTP Authentication
                                         </Button>
                                     </Stack>
                                 </Box>
@@ -158,7 +158,7 @@ const VerifyEmailOTP = () => {
                         </CardContent>
                         <CardActions sx={{ justifyContent: "center", mt: 1 }}>
                             <Typography variant="caption" color="text.secondary">
-                                Nếu bạn không nhận được mã, hãy kiểm tra thư rác hoặc thử lại sau.
+                                If you don't receive the code, check your spam or try again later.
                             </Typography>
                         </CardActions>
                     </Card>

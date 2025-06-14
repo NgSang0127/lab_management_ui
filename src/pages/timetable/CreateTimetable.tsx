@@ -250,7 +250,7 @@ const CreateTimetable: React.FC = () => {
                                 >
                                     {periods.map((period, index) => (
                                         <MenuItem key={index} value={period}>
-                                            {t('timetable.createTimetable.period')} {period}
+                                            Period {period}
                                         </MenuItem>
                                     ))}
                                 </Select>
@@ -267,7 +267,7 @@ const CreateTimetable: React.FC = () => {
                                 >
                                     {periods.map((period, index) => (
                                         <MenuItem key={index} value={period}>
-                                            {t('timetable.createTimetable.period')} {period}
+                                            Period {period}
                                         </MenuItem>
                                     ))}
                                 </Select>
