@@ -148,7 +148,7 @@ const Navbar: React.FC = () => {
             TEACHER: '/profile/dashboard',
             Student: '/profile/dashboard',
         };
-        navigate(roleRoutes[user?.role || ''] || '/profile');
+        navigate(roleRoutes[user?.role || ''] || '/profile/dashboard');
     }, [navigate, user?.role]);
 
     const handleSearch = useCallback(() => {

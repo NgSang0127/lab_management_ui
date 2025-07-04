@@ -41,6 +41,7 @@ interface TimetableApiResponse {
     studyTime: string;
     cancelDates: string[];
     description: string;
+    status: string;
 }
 
 export const importTimetable = createAsyncThunk(
@@ -247,6 +248,71 @@ export const fetchTimetableByDate = createAsyncThunk(
     }
 );
 
+
+export const fetchTimetableByDateAndRoom = createAsyncThunk(
+    'timetable/fetchTimetableByDateAndRoom',
+    async (params: { date: string, roomName: string }, {rejectWithValue}) => {
+        try {
+            const {data} = await api.get(`${API_URL}/timetable/by-date-room`, {
+                params: {
+                    date: params.date,
+                    roomName: params.roomName
+                }
+            });
+            console.log(data);
+            return data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+);
+
+export const approveTimetable = createAsyncThunk(
+    'timetable/approveTimetable',
+    async (id: number, {rejectWithValue}) => {
+        try {
+            const {data} = await api.patch(`${API_URL}/timetable/${id}/approve`);
+            return data;
+        }catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+export const rejectTimetable = createAsyncThunk(
+    'timetable/rejectTimetable',
+    async (id: number, {rejectWithValue}) => {
+        try {
+            const {data} = await api.patch(`${API_URL}/timetable/${id}/reject`);
+            return data;
+        }catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.data) {
+                    const backendError = error.response.data.error || error.response.data.message || 'Unknown backend error';
+                    return rejectWithValue(backendError);
+                }
+                return rejectWithValue('No response from server');
+            }
+            return rejectWithValue('Unknown error');
+        }
+    }
+)
+
+
 export const cancelTimetable = createAsyncThunk(
     'timetable/cancelTimetable',
     async (params: {
@@ -363,7 +429,16 @@ export const deleteTimetable = createAsyncThunk(
 export const getTimetables = createAsyncThunk(
     'timetable/getTimetables',
     async (
-        params: { page: number; size: number;keyword:string;roomName:string;semesterIds:string;sortBy:string;sortOrder:string },
+        params: {
+            page: number;
+            size: number;
+            keyword: string;
+            roomName: string;
+            semesterIds: string;
+            sortBy: string;
+            sortOrder: string;
+            status:string;
+        },
         {rejectWithValue}
     ) => {
         try {
@@ -371,11 +446,12 @@ export const getTimetables = createAsyncThunk(
                 params: {
                     page: params.page,
                     size: params.size,
-                    keyword:params.keyword,
-                    roomName:params.roomName,
-                    semesterIds:params.semesterIds,
-                    sortBy:params.sortBy,
-                    sortOrder:params.sortOrder,
+                    keyword: params.keyword,
+                    roomName: params.roomName,
+                    semesterIds: params.semesterIds,
+                    sortBy: params.sortBy,
+                    sortOrder: params.sortOrder,
+                    status:params.status,
                 },
             });
             return data;

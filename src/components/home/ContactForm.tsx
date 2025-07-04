@@ -109,7 +109,7 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <TextField
-                        label={t('home.contact_form.email')}
+                        label="Email"
                         name="email"
                         type="email"
                         variant="outlined"
@@ -130,7 +130,7 @@ const ContactForm: React.FC = () => {
                         required
                     />
                     <Button type="submit" variant="contained" color="primary" disabled={loading}>
-                        {loading ? t('home.contact_form.sending') : t('home.contact_form.submit')}
+                        {loading ? t('home.contact_form.sending') : t('home.contact_form.button')}
                     </Button>
                 </Stack>
             </form>

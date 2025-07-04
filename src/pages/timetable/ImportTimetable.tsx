@@ -144,9 +144,35 @@ const ImportTimetable: React.FC = () => {
                 <LoadingIndicator open={loading}/>
 
                 <Paper elevation={3} sx={{padding: 4, borderRadius: 2}}>
-                    <Typography variant="h4" align="center" gutterBottom>
-                        {t('timetable.importTimetable.title')}
+                    <Typography
+                        variant="h3"
+                        gutterBottom
+                        align="center"
+                        sx={{
+                            fontWeight: 800,
+                            fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                            background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            mb: { xs: 1, sm: 2 },
+                            letterSpacing: -0.5,
+                        }}
+                    >
+                        {t("timetable.importTimetable.title")}
                     </Typography>
+
+                    <Typography
+                        variant="body1"
+                        align="center"
+                        sx={{
+                            color: "rgba(0, 0, 0, 0.6)",
+                            mb: { xs: 2, sm: 3, md: 4 },
+                            fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
+                        }}
+                    >
+                        Select a file excel/csv to import
+                    </Typography>
+
 
                     <Box
                         onDrop={handleDrop}

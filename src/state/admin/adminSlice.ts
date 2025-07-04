@@ -1,4 +1,4 @@
-import {User} from "../auth/authSlice.ts";
+import {Role, User} from "../auth/authSlice.ts";
 import {createSlice} from "@reduxjs/toolkit";
 import {createUser, deleteUser, getUsers, promoteUser, transferOwnership, updateUser} from "./thunk.ts";
 
@@ -41,7 +41,15 @@ const initialState:AdminState={
 export const adminSlice=createSlice({
     name:'admin',
     initialState,
-    reducers:{},
+    reducers:{
+        resetUserRole(state) {
+            if (state.user) {
+                state.user.forEach((u) => {
+                    u.role = Role.ADMIN; // Reset role to STUDENT as default
+                });
+            }
+        },
+    },
     extraReducers:(builder=>{
         builder
             //getUsers
@@ -137,4 +145,5 @@ export const adminSlice=createSlice({
             })
     })
 })
+export const { resetUserRole } = adminSlice.actions;
 export default adminSlice;

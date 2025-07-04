@@ -64,6 +64,7 @@ export interface Timetable {
     studyTime: string;
     cancelDates: string[];
     description: string;
+    status:string;
 }
 
 interface TimetableState {

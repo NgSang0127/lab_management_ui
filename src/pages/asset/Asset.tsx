@@ -839,6 +839,7 @@ const Asset: React.FC = () => {
 
     return (
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+
             <Typography variant={isMobile ? 'h5' : 'h4'} fontWeight="bold" mb={3}>
                 {t('manager_asset.asset.title')}
             </Typography>

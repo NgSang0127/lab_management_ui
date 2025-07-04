@@ -125,12 +125,15 @@
       "title": "Contact Us",
       "information": "Contact Information",
       "address": "Address: Quarter 6, Linh Trung Ward, Thu Duc City, Ho Chi Minh City",
-      "phone": "Phone Number : (028) 37244270"
+      "phone": "Phone Number : (028) 37244270",
+      "email": "Email",
+      "button": "Submit"
     },
     "contact_form": {
       "title": "Send Message",
       "name": "Your Name",
-      "message": "Message"
+      "message": "Message",
+      "button": "Submit"
     },
     "footer": {
       "title": "International University - Vietnam National University HCMC",
@@ -367,6 +370,9 @@
     "scheduleTable": {
       "title": "Timetable Week Range {{startDate}} - {{endDate}}",
       "defaultTitle": "Timetable",
+      "selectSemester": {
+        "title": "Semester"
+      },
       "errors": {
         "lessonTime": "An error occurred while loading LessonTimes {{error}}",
         "timetable": "An error occurred while loading Timetables {{error}}"

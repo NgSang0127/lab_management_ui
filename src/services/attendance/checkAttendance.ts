@@ -14,7 +14,7 @@ export async function postCheckAttendance(request: checkAttendanceRequest): Prom
             const message =
                 error.response?.data?.message ||
                 (typeof error.response?.data === "string" ? error.response.data : null) ||
-                "No response from server";
+                "Not allowed access method";
             throw new Error(message);
         }
         throw new Error("Unknown error");

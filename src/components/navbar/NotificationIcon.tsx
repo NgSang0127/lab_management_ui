@@ -23,6 +23,7 @@ import { motion } from "framer-motion";
 import { markNotificationAsRead } from "../../state/notification/notificationSlice.ts";
 
 const NotificationIcon: React.FC = () => {
+    const { user } = useSelector((state: RootState) => state.auth);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -56,7 +57,20 @@ const NotificationIcon: React.FC = () => {
     };
 
     const handleViewDetail = () => {
-        navigate(`/admin/hcmiu/notification`);
+        if(user.role === 'STUDENT' || user.role === 'TEACHER'){
+            navigate(`/profile/dashboard/notification`);
+        } else {
+            navigate(`/admin/hcmiu/notification`);
+        }
+        handleClose();
+    };
+
+    const handleViewAllNotifications = () => {
+        if(user.role === 'STUDENT' || user.role === 'TEACHER'){
+            navigate(`/profile/dashboard/notification`);
+        } else {
+            navigate(`/admin/hcmiu/notification`);
+        }
         handleClose();
     };
 
@@ -72,7 +86,7 @@ const NotificationIcon: React.FC = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
                 sx={{
-                    ".MuiPaper-root": {
+                    "& .MuiPaper-root": {
                         padding: 0,
                         background: "linear-gradient(145deg, #ffffff, #f0f4f8)",
                         minWidth: { xs: "280px", sm: "400px" },
@@ -81,8 +95,14 @@ const NotificationIcon: React.FC = () => {
                         boxShadow: "0px 6px 20px rgba(0, 0, 0, 0.15)",
                         transform: { xs: "translateX(-10px)", sm: "translateX(-20px)" },
                     },
-                    ".MuiMenu-list": {
-                        padding: "0px",
+                    "& .MuiMenu-list": {
+                        padding: "0px !important",
+                        margin: "0px !important",
+                    },
+                    "& .MuiMenuItem-root": {
+                        padding: "0px !important",
+                        margin: "0px !important",
+                        minHeight: "auto !important",
                     },
                 }}
                 anchorOrigin={{
@@ -100,7 +120,7 @@ const NotificationIcon: React.FC = () => {
                     },
                 }}
             >
-                {/* Tiêu đề */}
+                {/* Header */}
                 <Box
                     sx={{
                         padding: { xs: 1.5, sm: 2 },
@@ -115,7 +135,12 @@ const NotificationIcon: React.FC = () => {
                     <Typography
                         variant="h6"
                         fontWeight="bold"
-                        sx={{ display: "flex", alignItems: "center", gap: 1, color: "primary.main" }}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            color: "primary.main"
+                        }}
                     >
                         <NotificationsIcon />
                         Thông báo
@@ -125,7 +150,11 @@ const NotificationIcon: React.FC = () => {
                             size="small"
                             startIcon={<MarkAsReadIcon />}
                             onClick={handleMarkAllAsRead}
-                            sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                            sx={{
+                                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                minWidth: "auto",
+                                px: 1,
+                            }}
                         >
                             Đánh dấu tất cả
                         </Button>
@@ -133,7 +162,7 @@ const NotificationIcon: React.FC = () => {
                 </Box>
                 <Divider />
 
-                {/* Danh sách thông báo chưa đọc (tối đa 5) */}
+                {/* Notification List */}
                 {displayedNotifications.length > 0 ? (
                     displayedNotifications.map((notif, index) => (
                         <motion.div
@@ -143,36 +172,47 @@ const NotificationIcon: React.FC = () => {
                             transition={{ delay: index * 0.05 }}
                         >
                             <MenuItem
-                                onClick={() => handleViewDetail}
+                                onClick={handleViewDetail}
                                 sx={{
-                                    flexDirection: "column",
-                                    alignItems: "flex-start",
+                                    display: "block",
+                                    width: "100%",
+                                    padding: "0px !important",
+                                    margin: "0px !important",
+                                    minHeight: "auto !important",
                                     backgroundColor: "background.default",
                                     "&:hover": {
                                         backgroundColor: "grey.50",
                                         transform: "translateY(-1px)",
                                         transition: "all 0.2s ease-in-out",
                                     },
-                                    py: 1.5,
-                                    px: { xs: 1.5, sm: 2 },
-                                    borderRadius: "0px",
                                 }}
                             >
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "100%" }}>
+                                <Box sx={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: 1.5,
+                                    width: "100%",
+                                    py: 1.5,
+                                    px: { xs: 1.5, sm: 2 },
+                                }}>
                                     <Avatar
                                         sx={{
                                             bgcolor: "primary.main",
                                             width: { xs: 32, sm: 36 },
                                             height: { xs: 32, sm: 36 },
+                                            flexShrink: 0,
                                         }}
                                     >
                                         <NotificationsIcon fontSize="small" />
                                     </Avatar>
-                                    <Box sx={{ flex: 1 }}>
+                                    <Box sx={{ flex: 1, minWidth: 0 }}>
                                         <Typography
                                             variant="subtitle1"
                                             fontWeight="bold"
-                                            sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                                            sx={{
+                                                fontSize: { xs: "0.9rem", sm: "1rem" },
+                                                mb: 0.5,
+                                            }}
                                         >
                                             {notif.title}
                                         </Typography>
@@ -185,11 +225,17 @@ const NotificationIcon: React.FC = () => {
                                                 WebkitBoxOrient: "vertical",
                                                 overflow: "hidden",
                                                 fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                                                mb: 0.5,
                                             }}
                                         >
                                             {notif.message}
                                         </Typography>
-                                        <Box sx={{ display: "flex", gap: 1, mt: 0.5, alignItems: "center" }}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            gap: 1,
+                                            alignItems: "center",
+                                            flexWrap: "wrap",
+                                        }}>
                                             <Typography
                                                 variant="caption"
                                                 color="text.secondary"
@@ -203,17 +249,31 @@ const NotificationIcon: React.FC = () => {
                                                 label="Chưa đọc"
                                                 size="small"
                                                 color="primary"
-                                                sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}
+                                                sx={{
+                                                    fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                                                    height: "20px",
+                                                }}
                                             />
                                         </Box>
                                     </Box>
                                 </Box>
                             </MenuItem>
-                            <Divider sx={{ bgcolor: "grey.200" }} />
+                            {index < displayedNotifications.length - 1 && (
+                                <Divider sx={{
+                                    bgcolor: "grey.200",
+                                    margin: "0px !important",
+                                    height: "1px",
+                                }} />
+                            )}
                         </motion.div>
                     ))
                 ) : (
-                    <MenuItem sx={{ justifyContent: "center", py: 2 }}>
+                    <MenuItem sx={{
+                        justifyContent: "center",
+                        py: 3,
+                        margin: 0,
+                        minHeight: "auto",
+                    }}>
                         <Box sx={{ textAlign: "center" }}>
                             <NotificationsIcon sx={{ fontSize: 40, color: "grey.400", mb: 1 }} />
                             <Typography variant="body2" color="text.secondary">
@@ -223,24 +283,27 @@ const NotificationIcon: React.FC = () => {
                     </MenuItem>
                 )}
 
-                {/* Nút Xem tất cả */}
-                <Box sx={{ p: 1, textAlign: "center", bgcolor: "grey.50", borderRadius: "0 0 12px 12px" }}>
+                {/* View All Button */}
+                <Box sx={{
+                    p: 1,
+                    textAlign: "center",
+                    bgcolor: "grey.50",
+                    borderRadius: "0 0 12px 12px"
+                }}>
                     <Button
                         size="small"
-                        onClick={() => {
-                            navigate(`/admin/hcmiu/notification`);
-                            handleClose();
-                        }}
+                        onClick={handleViewAllNotifications}
                         sx={{
                             fontWeight: "bold",
                             fontSize: { xs: "0.85rem", sm: "1rem" },
-                            background: theme => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                            background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
                             color: "primary.contrastText",
                             "&:hover": {
-                                background: theme => `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+                                background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
                             },
                             borderRadius: "8px",
                             px: 3,
+                            py: 0.5,
                         }}
                     >
                         Xem tất cả

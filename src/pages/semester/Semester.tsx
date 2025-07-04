@@ -74,7 +74,7 @@ const Semester: React.FC = () => {
                 throw new Error('Invalid API response structure.');
             }
         } catch (err: any) {
-            setError(err.message || t('manager_asset.semester.errors.unexpected'));
+            setError(err.message || t('manager_asset.semester.errors.unexpected', { defaultValue: 'An unexpected error occurred' }));
         } finally {
             setLoading(false);
         }
@@ -109,12 +109,12 @@ const Semester: React.FC = () => {
 
     const handleSave = async () => {
         if (name.trim() === '' || academicYear.trim() === '' || !startDate || !endDate) {
-            setError(t('manager_asset.semester.errors.required_fields'));
+            setError(t('manager_asset.semester.errors.required_fields', { defaultValue: 'All required fields must be filled' }));
             setSuccess(null);
             return;
         }
         if (new Date(startDate) > new Date(endDate)) {
-            setError(t('manager_asset.semester.errors.invalid_dates'));
+            setError(t('manager_asset.semester.errors.invalid_dates', { defaultValue: 'Start date must be before end date' }));
             setSuccess(null);
             return;
         }
@@ -131,15 +131,15 @@ const Semester: React.FC = () => {
             };
             if (editSemester) {
                 await putUpdateSemesterById(editSemester.id, semesterData);
-                setSuccess(t('manager_asset.semester.success.update'));
+                setSuccess(t('manager_asset.semester.success.update', { defaultValue: 'Semester updated successfully' }));
             } else {
                 await postCreateSemester(semesterData);
-                setSuccess(t('manager_asset.semester.success.create'));
+                setSuccess(t('manager_asset.semester.success.create', { defaultValue: 'Semester created successfully' }));
             }
             await fetchData();
             handleCloseDialog();
         } catch (err: any) {
-            setError(err.message || t('manager_asset.semester.errors.unexpected'));
+            setError(err.message || t('manager_asset.semester.errors.unexpected', { defaultValue: 'An unexpected error occurred' }));
             setSuccess(null);
         } finally {
             setLoading(false);
@@ -163,11 +163,10 @@ const Semester: React.FC = () => {
                 setError(null);
                 setSuccess(null);
                 await deleteSemesterById(deleteId);
-                setSuccess(t('manager_asset.semester.success.delete'));
+                setSuccess(t('manager_asset.semester.success.delete', { defaultValue: 'Semester deleted successfully' }));
                 await fetchData();
             } catch (err: any) {
-                setError(err.message || t('manager_asset.semester.errors.unexpected'));
-                setSuccess(null);
+                setError(err.message || t('manager_asset.semester.errors.unexpected', { defaultValue: 'An unexpected error occurred' }));
             } finally {
                 setLoading(false);
                 handleCloseDeleteDialog();
@@ -178,7 +177,7 @@ const Semester: React.FC = () => {
     const columns: GridColDef<Semester>[] = [
         {
             field: 'id',
-            headerName: 'No.',
+            headerName: t('manager_asset.semester.no', { defaultValue: 'No.' }),
             minWidth: 100,
             flex: 0.5,
             sortable: false,
@@ -192,19 +191,19 @@ const Semester: React.FC = () => {
         },
         {
             field: 'name',
-            headerName: t('manager_asset.semester.name'),
+            headerName: t('manager_asset.semester.name', { defaultValue: 'Name' }),
             minWidth: 150,
             flex: 1,
         },
         {
             field: 'academicYear',
-            headerName: t('manager_asset.semester.academic_year'),
+            headerName: t('manager_asset.semester.academic_year', { defaultValue: 'Academic Year' }),
             minWidth: 150,
             flex: 1,
         },
         {
             field: 'startDate',
-            headerName: t('manager_asset.semester.start_date'),
+            headerName: t('manager_asset.semester.start_date', { defaultValue: 'Start Date' }),
             minWidth: 150,
             flex: 1,
             valueGetter: ((value) => {
@@ -213,7 +212,7 @@ const Semester: React.FC = () => {
         },
         {
             field: 'endDate',
-            headerName: t('manager_asset.semester.end_date'),
+            headerName: t('manager_asset.semester.end_date', { defaultValue: 'End Date' }),
             minWidth: 150,
             flex: 1,
             valueGetter: ((value) => {
@@ -222,7 +221,7 @@ const Semester: React.FC = () => {
         },
         {
             field: 'actions',
-            headerName: t('manager_asset.semester.actions'),
+            headerName: t('manager_asset.semester.actions', { defaultValue: 'Actions' }),
             minWidth: 120,
             flex: 0.5,
             sortable: false,
@@ -253,13 +252,13 @@ const Semester: React.FC = () => {
     return (
         <>
             <Helmet>
-                <title>Semester | Lab Management IT</title>
+                <title>{t('manager_asset.semester.title', { defaultValue: 'Semester | Lab Management IT' })}</title>
             </Helmet>
             <div className="p-4">
-                <h2 className="text-2xl font-bold mb-4">{t('manager_asset.semester.title')}</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('manager_asset.semester.title', { defaultValue: 'Semester Manager' })}</h2>
 
                 <Button variant="contained" color="primary" onClick={handleOpenDialogCreate}>
-                    {t('manager_asset.semester.button_create')}
+                    {t('manager_asset.semester.button_create', { defaultValue: 'Create Semester' })}
                 </Button>
 
                 <CustomAlert
@@ -313,11 +312,11 @@ const Semester: React.FC = () => {
                 {/* Dialog Create/Update */}
                 <Dialog open={openDialog} onClose={handleCloseDialog}>
                     <DialogTitle>
-                        {editSemester ? t('manager_asset.semester.update_title') : t('manager_asset.semester.create_title')}
+                        {editSemester ? t('manager_asset.semester.update_title', { defaultValue: 'Update Semester' }) : t('manager_asset.semester.create_title', { defaultValue: 'Create Semester' })}
                     </DialogTitle>
                     <DialogContent className="space-y-4">
                         <TextField
-                            label={t('manager_asset.semester.name')}
+                            label={t('manager_asset.semester.name', { defaultValue: 'Name' })}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             variant="outlined"
@@ -326,7 +325,7 @@ const Semester: React.FC = () => {
                             sx={{ marginTop: 2 }}
                         />
                         <TextField
-                            label={t('manager_asset.semester.academic_year')}
+                            label={t('manager_asset.semester.academic_year', { defaultValue: 'Academic Year' })}
                             value={academicYear}
                             onChange={(e) => {
                                 const inputValue = e.target.value;
@@ -338,7 +337,7 @@ const Semester: React.FC = () => {
                             required
                         />
                         <TextField
-                            label={t('manager_asset.semester.start_date')}
+                            label={t('manager_asset.semester.start_date', { defaultValue: 'Start Date' })}
                             type="date"
                             value={startDate}
                             onChange={(e) => setStartDate(e.target.value)}
@@ -348,7 +347,7 @@ const Semester: React.FC = () => {
                             slotProps={{inputLabel:{ shrink: true }}}
                         />
                         <TextField
-                            label={t('manager_asset.semester.end_date')}
+                            label={t('manager_asset.semester.end_date', { defaultValue: 'End Date' })}
                             type="date"
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
@@ -360,26 +359,26 @@ const Semester: React.FC = () => {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseDialog} variant="outlined">
-                            {t('manager_asset.semester.button_cancel')}
+                            {t('manager_asset.semester.button_cancel', { defaultValue: 'Cancel' })}
                         </Button>
                         <Button onClick={handleSave} variant="contained" color="primary">
-                            {t('manager_asset.semester.button_save')}
+                            {t('manager_asset.semester.button_save', { defaultValue: 'Save' })}
                         </Button>
                     </DialogActions>
                 </Dialog>
 
                 {/* Dialog Xác nhận Xóa */}
                 <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog}>
-                    <DialogTitle>{t('manager_asset.semester.dialog_title')}</DialogTitle>
+                    <DialogTitle>{t('manager_asset.semester.dialog_title', { defaultValue: 'Confirm Deletion' })}</DialogTitle>
                     <DialogContent>
-                        <div>{t('manager_asset.semester.dialog_content')}</div>
+                        <div>{t('manager_asset.semester.dialog_content', { defaultValue: 'Are you sure you want to delete this semester?' })}</div>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseDeleteDialog} variant="outlined">
-                            {t('manager_asset.semester.button_cancel')}
+                            {t('manager_asset.semester.button_cancel', { defaultValue: 'Cancel' })}
                         </Button>
                         <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                            {t('manager_asset.semester.button_delete')}
+                            {t('manager_asset.semester.button_delete', { defaultValue: 'Delete' })}
                         </Button>
                     </DialogActions>
                 </Dialog>

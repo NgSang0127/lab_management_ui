@@ -9,7 +9,7 @@ import {
     IconButton,
     Drawer,
     Box,
-    Typography, useTheme, useMediaQuery,
+    Typography, useTheme, useMediaQuery, Avatar,
 } from '@mui/material';
 import {
     ManageSearch,
@@ -19,14 +19,13 @@ import {
     ExitToApp,
     Menu,
     Close,
-    DateRange
+    DateRange, Event
 } from '@mui/icons-material';
 import {useLocation, Link, useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
 import {RootState, useAppDispatch} from "../../state/store.ts";
 import {logout} from "../../state/auth/thunk.ts";
 import {endSession} from "../../state/user/thunk.ts";
-import {snipeItPath} from "../../route/SnipeItRoute.tsx";
 import {SidebarContext} from "../../context/SidebarContext.tsx";
 import {useTranslation} from "react-i18next";
 const SIDEBAR_WIDTH = 250;
@@ -48,6 +47,7 @@ const Sidebar: FC= ( ) => {
         {text: t('sidebar.dashboard'), icon: <Dashboard/>, link: ''},
         {text: t('sidebar.view_timetable'), icon: <DateRange/>, link: 'by-week'},
         {text: t('sidebar.booking'), icon: <ManageSearch/>, link: 'book'},
+        { text: t('sidebar.events'), icon: <Event />, link: 'events' },
         {text: t('sidebar.notification'), icon: <Notifications/>, link: 'notification'},
         {text: t('sidebar.setting'), icon: <Settings/>, link: 'setting'},
     ];
@@ -149,11 +149,40 @@ const Sidebar: FC= ( ) => {
                         height: '64px',
                     }}
                 >
-                    {isSidebarOpen && <Typography variant="h6">Hi ! {user?.username}</Typography>}
-                    <IconButton onClick={toggleSidebar}
-                                sx={{color: 'white', border: 'none', outline: 'none', boxShadow: 'none'}}>
-                        {isSidebarOpen ? <Close/> : <Menu/>}
-                    </IconButton>
+                    {isSidebarOpen &&
+                                <>
+                                    <Avatar
+                                        src={user?.image}
+                                        alt={user?.username}
+                                        sx={{
+                                            width: 40,
+                                            height: 40,
+                                            mr: 2,
+                                            bgcolor: 'primary.main',
+                                        }}
+                                    >
+                                        {user?.username?.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                    <Box sx={{ flex: 1 }}>
+                                        <Typography variant="body1" sx={{ fontWeight: 'bold', color: TEXT_COLOR }}>
+                                            {t('sidebar.welcome')}, {user?.username}!
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#b0b7c0', fontSize: '0.85rem', mt: 0.5 }}>
+                                            Role: {user?.role || 'Unknown'}
+                                        </Typography>
+                                    </Box>
+                                    <IconButton
+                                        onClick={toggleSidebar}
+                                        sx={{
+                                            color: TEXT_COLOR,
+                                            '&:hover': { backgroundColor: HOVER_COLOR },
+                                            borderRadius: '50%',
+                                        }}
+                                    >
+                                        {isSidebarOpen ? <Close /> : <Menu />}
+                                    </IconButton>
+                                </>
+                    }
                 </Box>
                 <Divider sx={{borderColor: 'rgba(255, 255, 255, 0.1)'}}/>
                 <List>{renderMenuItems()}</List>

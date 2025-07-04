@@ -98,7 +98,7 @@ const SelectWeek: React.FC<SelectWeekProps> = ({ onWeekChange }) => {
     return (
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
             <FormControl size="small" sx={{ minWidth: 200 }}>
-                <InputLabel id="semester-label">{t('timetable.selectSemester.title')}</InputLabel>
+                <InputLabel id="semester-label">{t('timetable.scheduleTable.selectSemester.title')}</InputLabel>
                 <Select
                     labelId="semester-label"
                     value={selectedSemesterId ?? ''}

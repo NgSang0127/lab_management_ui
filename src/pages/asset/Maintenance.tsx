@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
     IconButton, TextField, FormControl, InputLabel, Select, MenuItem,
@@ -6,8 +6,7 @@ import {
 import {
     DataGrid, GridColDef, GridCellParams, GridToolbar,
 } from '@mui/x-data-grid';
-import {AxiosError} from 'axios';
-import LoadingIndicator from "../../components/support/LoadingIndicator.tsx";
+import { AxiosError } from 'axios';
 import CustomAlert from "../../components/support/CustomAlert.tsx";
 import {
     MaintenanceRequest,
@@ -19,15 +18,14 @@ import {
     deleteMaintenanceById,
 } from "../../services/asset/maintenanceApi.ts";
 import AssetSelect from "../../components/asset/AssetSelect.tsx";
-import {format} from "date-fns";
-import {SelectChangeEvent} from "@mui/material/Select";
+import { format } from "date-fns";
+import { SelectChangeEvent } from "@mui/material/Select";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {CustomNoRowsOverlay} from "../../components/support/CustomNoRowsOverlay.tsx";
-import {Helmet} from "react-helmet-async";
+import { CustomNoRowsOverlay } from "../../components/support/CustomNoRowsOverlay.tsx";
+import { Helmet } from "react-helmet-async";
 
-interface MaintenancePageProps {
-}
+type MaintenancePageProps = object
 
 const Maintenance: React.FC<MaintenancePageProps> = () => {
     const [maintenances, setMaintenances] = useState<MaintenanceResponse[]>([]);
@@ -44,10 +42,10 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
     const [success, setSuccess] = useState<string | null>(null);
 
     const [openDialog, setOpenDialog] = useState(false);
-    const [editMaintenance, setEditMaintenance] = useState<MaintenanceRequest | null>(null);
+    const [editMaintenance, setEditMaintenance] = useState<MaintenanceResponse | null>(null);
 
     const [form, setForm] = useState<MaintenanceRequest>({
-        assetId: 0,
+        assetId: null, // Thay đổi từ 0 thành null vì AssetSelect trả về null khi không chọn
         scheduledDate: "",
         status: MaintenanceStatus.SCHEDULED,
         remarks: "",
@@ -81,7 +79,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
     const handleOpenDialogCreate = () => {
         setEditMaintenance(null);
         setForm({
-            assetId: 0,
+            assetId: null,
             scheduledDate: "",
             status: MaintenanceStatus.SCHEDULED,
             remarks: "",
@@ -103,8 +101,8 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
     const handleCloseDialog = () => setOpenDialog(false);
 
     const handleSave = async () => {
-        if (form.assetId === 0) {
-            setError("asset ID is required.");
+        if (!form.assetId) {
+            setError("Asset is required.");
             setSuccess(null);
             return;
         }
@@ -186,9 +184,10 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
         },
         {
             field: 'assetName',
-            headerName: 'asset Name',
+            headerName: 'Asset Name',
             minWidth: 150,
             flex: 1,
+            valueGetter: (value, row) => row.assetName || "N/A",
         },
         {
             field: 'scheduledDate',
@@ -219,18 +218,18 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
             renderCell: (params: GridCellParams) => (
                 <>
                     <IconButton
-                        sx={{color: 'primary.main'}}
+                        sx={{ color: 'primary.main' }}
                         size="small"
                         onClick={() => handleOpenDialogEdit(params.row as MaintenanceResponse)}
                     >
-                        <EditIcon/>
+                        <EditIcon />
                     </IconButton>
                     <IconButton
-                        sx={{color: 'error.main'}}
+                        sx={{ color: 'error.main' }}
                         size="small"
                         onClick={() => handleDeleteClick(params.row.id)}
                     >
-                        <DeleteIcon/>
+                        <DeleteIcon />
                     </IconButton>
                 </>
             ),
@@ -249,12 +248,12 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                         Create Maintenance
                     </Button>
 
-                    <Box sx={{display: "flex", gap: 2, ml: "auto"}}>
+                    <Box sx={{ display: "flex", gap: 2, ml: "auto" }}>
                         <TextField
                             label="Keyword"
                             variant="outlined"
                             sx={{
-                                '& .MuiOutlinedInput-root': {borderRadius: 10},
+                                '& .MuiOutlinedInput-root': { borderRadius: 10 },
                                 maxWidth: '200px'
                             }}
                             value={keyword}
@@ -266,7 +265,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                         />
                         <FormControl
                             variant="outlined"
-                            sx={{minWidth: 180, '& .MuiOutlinedInput-root': {borderRadius: 10}}}
+                            sx={{ minWidth: 180, '& .MuiOutlinedInput-root': { borderRadius: 10 } }}
                         >
                             <InputLabel id="status-filter-label">Filter by Status</InputLabel>
                             <Select
@@ -302,7 +301,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                     onClose={() => setSuccess(null)}
                 />
 
-                <Box sx={{height: '700px', width: '100%', mt: 4}}>
+                <Box sx={{ height: '700px', width: '100%', mt: 4 }}>
                     <DataGrid
                         rows={maintenances}
                         columns={columns.map((col) => ({
@@ -312,7 +311,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                         }))}
                         paginationMode="server"
                         rowCount={totalElements}
-                        paginationModel={{page, pageSize: rowsPerPage}}
+                        paginationModel={{ page, pageSize: rowsPerPage }}
                         onPaginationModelChange={(newModel) => {
                             setPage(newModel.page);
                             setRowsPerPage(newModel.pageSize);
@@ -345,15 +344,15 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                     <DialogTitle>
                         {editMaintenance ? "Update Maintenance" : "Create Maintenance"}
                     </DialogTitle>
-                    <DialogContent className="space-y-4" sx={{mt: 5}}>
+                    <DialogContent className="space-y-4" sx={{ mt: 5 }}>
                         <div className="mt-2">
                             {!editMaintenance && (
                                 <AssetSelect
-                                    selectedAssetId={form.assetId !== 0 ? form.assetId : null}
+                                    selectedAssetId={form.assetId || null}
                                     setSelectedAssetId={(id) => {
                                         setForm((prev) => ({
                                             ...prev,
-                                            assetId: id || 0,
+                                            assetId: id || null, // Đảm bảo null khi không chọn
                                         }));
                                     }}
                                 />
@@ -364,8 +363,8 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                             type="datetime-local"
                             fullWidth
                             value={form.scheduledDate}
-                            onChange={(e) => setForm({...form, scheduledDate: e.target.value})}
-                            InputLabelProps={{shrink: true}}
+                            onChange={(e) => setForm({ ...form, scheduledDate: e.target.value })}
+                            InputLabelProps={{ shrink: true }}
                         />
                         <FormControl fullWidth>
                             <InputLabel id="maintenance-status-label">Status</InputLabel>
@@ -374,7 +373,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                                 label="Status"
                                 value={form.status}
                                 onChange={(e) =>
-                                    setForm({...form, status: e.target.value as MaintenanceStatus})
+                                    setForm({ ...form, status: e.target.value as MaintenanceStatus })
                                 }
                             >
                                 <MenuItem value={MaintenanceStatus.SCHEDULED}>SCHEDULED</MenuItem>
@@ -388,7 +387,7 @@ const Maintenance: React.FC<MaintenancePageProps> = () => {
                             rows={3}
                             fullWidth
                             value={form.remarks}
-                            onChange={(e) => setForm({...form, remarks: e.target.value})}
+                            onChange={(e) => setForm({ ...form, remarks: e.target.value })}
                         />
                     </DialogContent>
                     <DialogActions>

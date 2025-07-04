@@ -242,9 +242,17 @@ const TimetableManager: React.FC = () => {
                 }
                 const formattedTimetables = validTimetables.map((timetable) => ({
                     ...timetable,
-                    cancelDates: timetable.cancelDates?.map((date) =>
-                        new Date(date).toLocaleDateString('en-GB').split('/').join('/')
-                    ) || [],
+                    cancelDates: timetable.cancelDates?.map((date) => {
+                        const parsedDate = new Date(date);
+                        if (!isNaN(parsedDate.getTime())) {
+                            return parsedDate.toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            }).split('/').join('/');
+                        }
+                        return date; // Keep original if invalid
+                    }) || [],
                 }));
                 setTimetables(formattedTimetables);
                 setTotalElements(response.totalElements);
@@ -798,13 +806,43 @@ const TimetableManager: React.FC = () => {
             renderCell: (params: GridRenderCellParams<TimetableDTO>) => {
                 const cancelDates = params.row.cancelDates || [];
                 return cancelDates.length > 0 ? (
-                    <Box display="flex" flexWrap="wrap" gap={1}>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: 1,
+                            justifyContent: 'center', // Center horizontally
+                            alignItems: 'center', // Center vertically
+                            height: '100%', // Ensure full cell height
+                            width: '100%', // Ensure full cell width
+                            padding: 1, // Add padding for better spacing
+                        }}
+                    >
                         {cancelDates.map((date, index) => (
-                            <Box key={index}>{date}</Box>
+                            <Chip
+                                key={index}
+                                label={date}
+                                size="small"
+                                sx={{
+                                    fontSize: isMobile ? '0.75rem' : '0.85rem',
+                                }}
+                            />
                         ))}
                     </Box>
                 ) : (
-                    'No cancel dates'
+                    <Typography
+                        sx={{
+                            textAlign: 'center',
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: isMobile ? '0.8rem' : '0.9rem',
+                        }}
+                    >
+                        No cancel dates
+                    </Typography>
                 );
             },
             align: 'center',

@@ -21,6 +21,7 @@ import { Send as SendIcon, Info as InfoIcon } from "@mui/icons-material";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
 
 const CustomAlertStyled = styled(Box)(({ theme }) => ({
     position: "fixed",
@@ -37,11 +38,12 @@ const CustomAlertStyled = styled(Box)(({ theme }) => ({
     alignItems: "center",
     gap: theme.spacing(2),
     '&.error': {
-        background: `linear-gradient(135deg, ${theme.palette.error.light}, ${theme.palette.error.main})`, // Giữ nguyên
+        background: `linear-gradient(135deg, ${theme.palette.error.light}, ${theme.palette.error.main})`,
     },
 }));
 
 const AdminNotificationCenter: React.FC = () => {
+    const { t } = useTranslation();
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [stompClient, setStompClient] = useState<Client | null>(null);
@@ -83,7 +85,7 @@ const AdminNotificationCenter: React.FC = () => {
         if (!title || !message) {
             setAlert({
                 open: true,
-                message: "Vui lòng nhập tiêu đề và nội dung!",
+                message: t('manager_asset.notification_center.error_required_fields', { defaultValue: 'Please enter title and message' }),
                 severity: "error",
                 timestamp: new Date(),
             });
@@ -97,7 +99,7 @@ const AdminNotificationCenter: React.FC = () => {
             setMessage("");
             setAlert({
                 open: true,
-                message: "Thông báo đã được gửi!",
+                message: t('manager_asset.notification_center.success_notification_sent', { defaultValue: 'Notification sent successfully' }),
                 severity: "success",
                 timestamp: new Date(),
             });
@@ -105,7 +107,7 @@ const AdminNotificationCenter: React.FC = () => {
             console.error("Lỗi khi gửi thông báo:", error);
             setAlert({
                 open: true,
-                message: "Gửi thông báo thất bại!",
+                message: t('manager_asset.notification_center.error_notification_failed', { defaultValue: 'Failed to send notification' }),
                 severity: "error",
                 timestamp: new Date(),
             });
@@ -121,7 +123,7 @@ const AdminNotificationCenter: React.FC = () => {
     return (
         <Box sx={{ py: 4, px: { xs: 2, sm: 4 } }}>
             <Helmet>
-                <title>Notifications | Lab Management IT</title>
+                <title>{t('manager_asset.notification_center.title_admin', { defaultValue: 'Admin Notifications | Lab Management IT' })}</title>
             </Helmet>
             {/* Custom Alert với thời gian */}
             <Fade in={alert.open} timeout={500}>
@@ -138,7 +140,7 @@ const AdminNotificationCenter: React.FC = () => {
                         onClick={handleCloseAlert}
                         sx={{ ml: "auto", color: "inherit" }}
                     >
-                        <Typography variant="caption">Đóng</Typography>
+                        <Typography variant="caption">{t('manager_asset.notification_center.close_button', { defaultValue: 'Close' })}</Typography>
                     </IconButton>
                 </CustomAlertStyled>
             </Fade>
@@ -163,12 +165,12 @@ const AdminNotificationCenter: React.FC = () => {
                         textAlign="center"
                         color="primary.main"
                     >
-                        Gửi Thông Báo
+                        {t('manager_asset.notification_center.send_notification_title', { defaultValue: 'Send Notification' })}
                     </Typography>
                     <Grid container spacing={2}>
                         <Grid size={{ xs: 12 }}>
                             <TextField
-                                label="Tiêu đề"
+                                label={t('manager_asset.notification_center.title_label', { defaultValue: 'Title' })}
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 fullWidth
@@ -178,7 +180,7 @@ const AdminNotificationCenter: React.FC = () => {
                         </Grid>
                         <Grid size={{ xs: 12 }}>
                             <TextField
-                                label="Nội dung thông báo"
+                                label={t('manager_asset.notification_center.message_label', { defaultValue: 'Message' })}
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 fullWidth
@@ -205,7 +207,7 @@ const AdminNotificationCenter: React.FC = () => {
                                 onClick={sendNotification}
                                 disabled={loading}
                             >
-                                {loading ? <CircularProgress size={24} color="inherit" /> : "Gửi Thông Báo"}
+                                {loading ? <CircularProgress size={24} color="inherit" /> : t('manager_asset.notification_center.send_button', { defaultValue: 'Send Notification' })}
                             </Button>
                         </Grid>
                     </Grid>

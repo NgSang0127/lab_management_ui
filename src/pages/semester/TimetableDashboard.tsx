@@ -16,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import {useTranslation} from "react-i18next";
 
 const StyledCard = styled(Card, {
     shouldForwardProp: (prop) => prop !== 'isActive',
@@ -60,6 +61,7 @@ const StyledCard = styled(Card, {
 }));
 
 const TimetableDashboard: React.FC = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const theme=useTheme();
@@ -103,25 +105,27 @@ const TimetableDashboard: React.FC = () => {
                 {/* Header Section */}
                 <Box sx={{ mb: 6, textAlign: { xs: 'center', sm: 'left' } }}>
                     <Typography
-                        variant="h2"
-                        component="h1"
+                        variant="h3"
+                        gutterBottom
                         sx={{
-                            fontWeight: 700,
-                            color: 'text.primary',
-                            mb: 2,
-                            fontSize: { xs: '2.5rem', sm: '3rem', md: '2.5rem' },
-                            letterSpacing: '-0.02em',
+                            fontWeight: 800,
+                            fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                            background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            mb: { xs: 1, sm: 2 },
+                            letterSpacing: -0.5,
                         }}
                     >
-                        Timetable Management
+                        {t("timetable.title",{ defaultValue: 'Timetable Management' })}
                     </Typography>
+
                     <Typography
                         variant="body1"
                         sx={{
-                            color: 'text.secondary',
-                            maxWidth: '700px',
-                            fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                            lineHeight: 1.6,
+                            color: "rgba(0, 0, 0, 0.6)",
+                            mb: { xs: 2, sm: 3, md: 4 },
+                            fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
                         }}
                     >
                         Streamline scheduling and semester planning with intuitive, powerful tools.

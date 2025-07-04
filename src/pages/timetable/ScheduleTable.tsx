@@ -126,7 +126,9 @@ const ScheduleTable: React.FC = () => {
                     convertDayOfWeek(item.dayOfWeek) === dayOfWeek &&
                     item.startLessonTime.lessonNumber <= period &&
                     item.endLessonTime.lessonNumber >= period &&
-                    item.room.name === roomName
+                    item.room.name === roomName &&
+                    item.status !== 'PENDING' &&
+                    item.status !== 'REJECTED'
                 );
             });
         },

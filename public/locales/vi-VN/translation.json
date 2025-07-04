@@ -124,12 +124,14 @@
       "title": "Liên hệ chúng tôi",
       "information": "Thông tin liên hệ",
       "address": "Địa chỉ: Khu phố 6, P. Linh Trung, TP. Thủ Đức, TP.HCM",
-      "phone": "Số Điện Thoại : (028) 37244270"
+      "phone": "Số Điện Thoại : (028) 37244270",
+      "button": "Gửi"
     },
     "contact_form": {
       "title": "Gửi tin nhắn",
       "name": "Tên của bạn",
       "message": "Tin nhắn",
+      "button": "Gửi",
       "sending": "Đang gửi ..."
     },
     "footer": {
@@ -367,6 +369,9 @@
     "scheduleTable": {
       "title": "Thời khóa biểu theo tuần từ {{startDate}} đến {{endDate}}",
       "defaultTitle": "Thời khóa biểu",
+      "selectSemester": {
+        "title": "Học kỳ"
+      },
       "errors": {
         "lessonTime": "Có lỗi xảy ra khi tải Tiết {{error}}",
         "timetable": "Có lỗi xảy ra khi tải thời khóa biểu {{error}}"

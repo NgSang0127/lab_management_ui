@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {
     Button, TextField, Typography, Box, FormControl, InputLabel, Select, MenuItem,
-    FormControlLabel, Switch, Avatar, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, Chip,
+    FormControlLabel, Switch, Avatar, IconButton, Dialog, DialogActions, DialogTitle, DialogContent, Chip,
 } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import {
@@ -22,19 +22,18 @@ import {
     transferOwnership,
     updateUser
 } from "../../state/admin/thunk.ts";
-import {CreateUserRequestByAdmin} from "../../state/admin/adminSlice.ts";
+import {CreateUserRequestByAdmin, resetUserRole} from "../../state/admin/adminSlice.ts";
 import {SelectChangeEvent} from "@mui/material/Select";
 import debounce from 'lodash.debounce';
 import {useTranslation} from "react-i18next";
 import {stringToColor} from "../../utils/randomColors.ts";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
-import TransferWithinAStationIcon from "@mui/icons-material/TransferWithinAStation";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import {format, parse} from "date-fns";
 import {CustomNoRowsOverlay} from "../../components/support/CustomNoRowsOverlay.tsx";
 import CustomAlert from "../../components/support/CustomAlert.tsx";
-import {AssetResponse, OperationTime, Status} from "../../services/asset/assetApi.ts";
 import {Role, User} from "../../state/auth/authSlice.ts";
 import {Helmet} from "react-helmet-async";
 
@@ -153,10 +152,10 @@ const UserManagement: React.FC = () => {
             setSuccess(null);
             if (editUser) {
                 await dispatch(updateUser({id: editUser.id, request: formData})).unwrap();
-                setSuccess("user updated successfully.");
+                setSuccess("User updated successfully.");
             } else {
                 await dispatch(createUser(formData)).unwrap();
-                setSuccess("user created successfully.");
+                setSuccess("User created successfully.");
             }
             handleClose();
             debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
@@ -191,12 +190,40 @@ const UserManagement: React.FC = () => {
                 setError(null);
                 setSuccess(null);
                 await dispatch(deleteUser(id)).unwrap();
-                setSuccess("user deleted successfully.");
+                setSuccess("User deleted successfully.");
                 debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
             } catch (err: any) {
                 setError(err.message || "An unexpected error occurred.");
                 setSuccess(null);
             }
+        }
+    };
+
+    const handleTransferOwnership = async (id: number) => {
+        try {
+            setError(null);
+            setSuccess(null);
+            await dispatch(transferOwnership(id)).unwrap();
+            dispatch(resetUserRole());
+            setSuccess("Ownership transferred successfully.");
+            debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
+        } catch (err: any) {
+            setError(err.message || "Failed to transfer ownership.");
+            setSuccess(null);
+        }
+    };
+
+    const handlePromoteUser = async (id: number) => {
+        try {
+            setError(null);
+            setSuccess(null);
+            await dispatch(promoteUser(id)).unwrap();
+            dispatch(resetUserRole());
+            setSuccess("User promoted successfully.");
+            debouncedFetchUsers(page, rowsPerPage, keyword, roleFilter);
+        } catch (err: any) {
+            setError(err.message || "Failed to promote user.");
+            setSuccess(null);
         }
     };
 
@@ -312,7 +339,7 @@ const UserManagement: React.FC = () => {
                 const getLabel = (val: string | undefined) => {
                     switch (val) {
                         case Role.ADMIN:
-                            return 'admin';
+                            return 'Admin';
                         case Role.STUDENT:
                             return 'Student';
                         case Role.CO_OWNER:
@@ -388,16 +415,16 @@ const UserManagement: React.FC = () => {
                             <IconButton
                                 sx={{color: 'warning.main'}}
                                 size="small"
-                                onClick={() => dispatch(transferOwnership(params.row.id))}
+                                onClick={() => handleTransferOwnership(params.row.id)}
                             >
-                                <TransferWithinAStationIcon/>
+                                <GroupAddIcon/>
                             </IconButton>
                             <IconButton
                                 sx={{color: 'success.main'}}
                                 size="small"
-                                onClick={() => dispatch(promoteUser(params.row.id))}
+                                onClick={() => handlePromoteUser(params.row.id)}
                             >
-                                <VerifiedUserIcon/>
+                                <PersonAddIcon/>
                             </IconButton>
                         </>
                     )}
@@ -419,9 +446,23 @@ const UserManagement: React.FC = () => {
                 <title>User Management | Lab Management IT</title>
             </Helmet>
             <div className="p-6">
-                <Typography variant="h4" className="pb-4">
-                    {t('user_management.title')}
+                <Typography
+                    variant="h3"
+                    gutterBottom
+                    align="center"
+                    sx={{
+                        fontWeight: 800,
+                        fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                        background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        mb: { xs: 1, sm: 2 },
+                        letterSpacing: -0.5,
+                    }}
+                >
+                    {t("user_management.title")}
                 </Typography>
+
                 <Box display="flex" gap={2} mb={2}>
                     <Button
                         variant="contained"

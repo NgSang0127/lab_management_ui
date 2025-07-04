@@ -26,6 +26,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../../state/store.ts';
 import {Outlet} from 'react-router-dom';
 import {Helmet} from "react-helmet-async";
+import {useTranslation} from "react-i18next";
 
 const StyledCard = styled(Card, {
     shouldForwardProp: (prop) => prop !== 'isActive',
@@ -68,6 +69,7 @@ const StyledCard = styled(Card, {
 }));
 
 const AssetDashboard: React.FC = () => {
+    const { t } = useTranslation();
     const location = useLocation();
     const navigate = useNavigate();
     const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -169,22 +171,26 @@ const AssetDashboard: React.FC = () => {
                 <Box sx={{ mb: 5, textAlign: { xs: 'center', sm: 'left' } }}>
                     <Typography
                         variant="h3"
-                        component="h1"
+                        gutterBottom
                         sx={{
-                            fontWeight: 700,
-                            color: 'text.primary',
-                            mb: 1.5,
-                            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                            fontWeight: 800,
+                            fontSize: { xs: "1.8rem", sm: "2.2rem", md: "2.5rem" },
+                            background: "linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                            mb: { xs: 1, sm: 2 },
+                            letterSpacing: -0.5,
                         }}
                     >
-                        Asset Management
+                        {t("timetable.title",{ defaultValue: 'Asset Management' })}
                     </Typography>
+
                     <Typography
                         variant="body1"
                         sx={{
-                            color: 'text.secondary',
-                            maxWidth: '600px',
-                            fontSize: { xs: '1rem', sm: '1.1rem' },
+                            color: "rgba(0, 0, 0, 0.6)",
+                            mb: { xs: 2, sm: 3, md: 4 },
+                            fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
                         }}
                     >
                         Streamline scheduling and semester planning with intuitive tools designed for efficiency.
