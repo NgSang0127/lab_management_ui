@@ -18,29 +18,31 @@ import {
     TableRow,
     Paper,
     Chip,
+    Card,
+    CardContent,
+    CardHeader,
+    Alert,
 } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from '../../state/store.ts';
-import { createTimetable, fetchTimetableByDateAndRoom } from '../../state/timetable/thunk.ts';
-import { periods, rooms } from '../../utils/utilsTimetable.ts';
+import { createTimetable, fetchTimetableByDate } from '../../state/timetable/thunk.ts';
+import { periods } from '../../utils/utilsTimetable.ts';
 import LoadingIndicator from '../../components/support/LoadingIndicator.tsx';
 import CustomAlert from '../../components/support/CustomAlert.tsx';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { fetchSemesters } from '../../services/semester/semesterApi.ts';
 import InstructorAutocomplete from '../../components/semester/InstructorAutocomplete.tsx';
-import SemesterAutocomplete from '../../components/semester/SemesterAutocomplete.tsx';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { format, Locale } from 'date-fns';
+import { format, Locale, isToday, isFuture } from 'date-fns';
 import { enUS, vi } from 'date-fns/locale';
 import i18n from 'i18next';
 import { Timetable } from '../../state/timetable/timetableSlice.ts';
-import PendingTimetablePanel from './PendingTimetablePanel'; // Import component mới
+import PendingTimetablePanel from './PendingTimetablePanel';
 
 const FormContainer = styled(Box)(({ theme }) => ({
-    maxWidth: '800px',
+    maxWidth: '1200px',
     margin: '0 auto',
     padding: theme.spacing(4),
     backgroundColor: theme.palette.background.paper,
@@ -63,12 +65,34 @@ const SubmitButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-interface Semester {
-    id: number;
-    name: string;
-    academicYear: string;
-    startDate: string;
-    endDate: string;
+const RoomCard = styled(Card)(({ theme, selected }: { theme: any; selected: boolean }) => ({
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    border: selected ? `2px solid ${theme.palette.primary.main}` : '1px solid #e0e0e0',
+    backgroundColor: selected ? theme.palette.primary.light : theme.palette.background.paper,
+    '&:hover': {
+        boxShadow: theme.shadows[4],
+        transform: 'translateY(-2px)',
+    },
+    height: '100%',
+}));
+
+const PeriodChip = styled(Chip)(({ theme, available }: { theme: any; available: boolean }) => ({
+    margin: theme.spacing(0.25),
+    backgroundColor: available ? theme.palette.success.light : theme.palette.error.light,
+    color: available ? theme.palette.success.contrastText : theme.palette.error.contrastText,
+    fontSize: '0.75rem',
+    height: '24px',
+    '&:hover': {
+        backgroundColor: available ? theme.palette.success.main : theme.palette.error.main,
+    },
+}));
+
+interface RoomSchedule {
+    roomName: string;
+    timetables: Timetable[];
+    availablePeriods: { start: number; end: number }[];
+    bookedPeriods: number[];
 }
 
 const CreateTimetable: React.FC = () => {
@@ -77,21 +101,19 @@ const CreateTimetable: React.FC = () => {
     const { isLoading, error } = useSelector((state: RootState) => state.timetable);
     const { user } = useSelector((state: RootState) => state.auth);
 
+    // All possible rooms - replace with your actual room list
+    const ALL_ROOMS = ['LA1.604', 'LA1.605', 'LA1.606', 'LA1.607', 'LA1.608', 'AI'];
+
     // Form state
     const [timetableName, setTimetableName] = useState('');
-    const [roomName, setRoomName] = useState('');
+    const [selectedRoomName, setSelectedRoomName] = useState('');
     const [startLesson, setStartLesson] = useState<number | ''>('');
     const [endLesson, setEndLesson] = useState<number | ''>('');
     const [date, setDate] = useState<Date | null>(null);
     const [instructorId, setInstructorId] = useState<number | null>(null);
     const [description, setDescription] = useState('');
-    const [semesterId, setSemesterId] = useState<number | ''>('');
-    const [existingTimetables, setExistingTimetables] = useState<Timetable[]>([]);
+    const [roomSchedules, setRoomSchedules] = useState<RoomSchedule[]>([]);
     const [isLoadingTimetables, setIsLoadingTimetables] = useState(false);
-
-    // Semester state
-    const [semesters, setSemesters] = useState<Semester[]>([]);
-    const [isLoadingSemesters, setIsLoadingSemesters] = useState(false);
 
     // Alert state
     const [alertOpen, setAlertOpen] = useState(false);
@@ -141,33 +163,31 @@ const CreateTimetable: React.FC = () => {
         }
     }, [isTeacher, user]);
 
-    useEffect(() => {
-        const loadSemesters = async () => {
-            setIsLoadingSemesters(true);
-            try {
-                const response = await fetchSemesters(0, 10);
-                setSemesters(response.content);
-            } catch (err: any) {
-                handleAlert(t('timetable.createTimetable.errors.fetchSemesters', {
-                    error: err.message || err,
-                    defaultValue: 'Failed to load semesters: {{error}}'
-                }), 'error');
-            } finally {
-                setIsLoadingSemesters(false);
-            }
-        };
-        loadSemesters();
-    }, [t]);
-
+    // Load timetables when date changes
     useEffect(() => {
         const loadTimetables = async () => {
-            if (date && roomName) {
+            if (date) {
                 setIsLoadingTimetables(true);
                 try {
                     const formattedDate = format(date, 'yyyy-MM-dd');
-                    const action = await dispatch(fetchTimetableByDateAndRoom({ date: formattedDate, roomName }));
+                    const action = await dispatch(fetchTimetableByDate({ date: formattedDate }));
                     const timetables = action.payload as Timetable[];
-                    setExistingTimetables(timetables);
+
+                    // Process room schedules
+                    const schedules: RoomSchedule[] = ALL_ROOMS.map(roomName => {
+                        const roomTimetables = timetables.filter(t => t.room.name === roomName);
+                        const bookedPeriods = getBookedPeriods(roomTimetables);
+                        const availablePeriods = getAvailablePeriods(bookedPeriods);
+
+                        return {
+                            roomName,
+                            timetables: roomTimetables,
+                            availablePeriods,
+                            bookedPeriods
+                        };
+                    });
+
+                    setRoomSchedules(schedules);
                 } catch (err: any) {
                     handleAlert(t('timetable.createTimetable.errors.fetchTimetables', {
                         error: err.message || err,
@@ -177,11 +197,48 @@ const CreateTimetable: React.FC = () => {
                     setIsLoadingTimetables(false);
                 }
             } else {
-                setExistingTimetables([]);
+                setRoomSchedules([]);
             }
         };
         loadTimetables();
-    }, [date, roomName, dispatch, t]);
+    }, [date, dispatch, t]);
+
+    const getBookedPeriods = (timetables: Timetable[]): number[] => {
+        const bookedPeriods: number[] = [];
+        timetables.forEach((timetable) => {
+            for (let i = timetable.startLesson; i <= timetable.endLessonTime.lessonNumber; i++) {
+                bookedPeriods.push(i);
+            }
+        });
+        return bookedPeriods.sort((a, b) => a - b);
+    };
+
+    const getAvailablePeriods = (bookedPeriods: number[]): { start: number; end: number }[] => {
+        const totalPeriods = 16;
+        const isBooked: boolean[] = new Array(totalPeriods).fill(false);
+
+        bookedPeriods.forEach(period => {
+            if (period >= 1 && period <= totalPeriods) {
+                isBooked[period - 1] = true;
+            }
+        });
+
+        const availablePeriods: { start: number; end: number }[] = [];
+        let start = 1;
+
+        for (let i = 0; i < totalPeriods; i++) {
+            if (!isBooked[i]) {
+                if (i === 0 || isBooked[i - 1]) {
+                    start = i + 1;
+                }
+                if (i === totalPeriods - 1 || isBooked[i + 1]) {
+                    availablePeriods.push({ start, end: i + 1 });
+                }
+            }
+        }
+
+        return availablePeriods;
+    };
 
     const handleAlert = (message: string, severity: 'success' | 'error') => {
         setAlertMessage(message);
@@ -200,31 +257,27 @@ const CreateTimetable: React.FC = () => {
         return t('timetable.createTimetable.defaultTimetableName', { defaultValue: 'Unnamed Timetable' });
     };
 
-    const getAvailablePeriods = () => {
-        const totalPeriods = 16;
-        const bookedPeriods: boolean[] = new Array(totalPeriods).fill(false);
+    const handleRoomSelect = (roomSchedule: RoomSchedule) => {
+        setSelectedRoomName(roomSchedule.roomName);
+        setStartLesson('');
+        setEndLesson('');
 
-        existingTimetables.forEach((timetable) => {
-            for (let i = timetable.startLesson; i <= timetable.endLessonTime.lessonNumber; i++) {
-                bookedPeriods[i - 1] = true;
-            }
-        });
+        // Log room information for debugging
+        console.log('Selected room:', roomSchedule.roomName);
+        console.log('Room timetables:', roomSchedule.timetables);
+        console.log('Available periods:', roomSchedule.availablePeriods);
+        console.log('Booked periods:', roomSchedule.bookedPeriods);
+    };
 
-        const availablePeriods: { start: number; end: number }[] = [];
-        let start = 1;
-        for (let i = 0; i < totalPeriods; i++) {
-            if (!bookedPeriods[i]) {
-                if (i === 0 || bookedPeriods[i - 1]) start = i + 1;
-                if (i === totalPeriods - 1 || bookedPeriods[i + 1]) availablePeriods.push({ start, end: i + 1 });
-            }
-        }
-        return availablePeriods;
+    const handlePeriodSelect = (start: number, end: number) => {
+        setStartLesson(start);
+        setEndLesson(end);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!timetableName || !roomName || startLesson === '' || endLesson === '' || !date || !instructorId || !description || !semesterId) {
+        if (!timetableName || !selectedRoomName || startLesson === '' || endLesson === '' || !date || !instructorId || !description) {
             handleAlert(t('timetable.createTimetable.errors.allFields', { defaultValue: 'Please fill in all required fields' }), 'error');
             return;
         }
@@ -234,42 +287,44 @@ const CreateTimetable: React.FC = () => {
             return;
         }
 
-        const isConflict = existingTimetables.some(
-            (timetable) => timetable.startLesson <= Number(endLesson) && timetable.endLessonTime.lessonNumber >= Number(startLesson)
-        );
-        if (isConflict) {
-            handleAlert(t('timetable.createTimetable.errors.conflict', { defaultValue: 'Time conflict with existing timetable' }), 'error');
-            return;
+        const selectedRoomSchedule = roomSchedules.find(rs => rs.roomName === selectedRoomName);
+        if (selectedRoomSchedule) {
+            const isConflict = selectedRoomSchedule.timetables.some(
+                (timetable) => timetable.startLesson <= Number(endLesson) && timetable.endLessonTime.lessonNumber >= Number(startLesson)
+            );
+            if (isConflict) {
+                handleAlert(t('timetable.createTimetable.errors.conflict', { defaultValue: 'Time conflict with existing timetable' }), 'error');
+                return;
+            }
         }
 
         const formattedDate = date ? format(date, 'yyyy-MM-dd') : '';
         const timetableData = {
             timetableName,
-            roomName,
+            roomName: selectedRoomName,
             startLesson: Number(startLesson),
             endLesson: Number(endLesson),
             date: formattedDate,
             instructorId: String(instructorId),
             description,
-            semesterId: Number(semesterId),
         };
 
         try {
             // @ts-ignore
             await dispatch(createTimetable(timetableData)).unwrap();
             handleAlert(t('timetable.createTimetable.success.create', { defaultValue: 'Timetable created successfully' }), 'success');
+
+            // Reset form
             setTimetableName('');
-            setRoomName('');
+            setSelectedRoomName('');
             setStartLesson('');
             setEndLesson('');
             setDate(null);
-            // Don't reset instructorId for teachers
             if (!isTeacher) {
                 setInstructorId(null);
             }
             setDescription('');
-            setSemesterId('');
-            setExistingTimetables([]);
+            setRoomSchedules([]);
         } catch (err: any) {
             handleAlert(t('timetable.createTimetable.errors.create', { error: err.message || err, defaultValue: 'Failed to create timetable: {{error}}' }), 'error');
         }
@@ -284,17 +339,20 @@ const CreateTimetable: React.FC = () => {
         }
     };
 
-    const handlePeriodSelect = (start: number, end: number) => {
-        setStartLesson(start);
-        setEndLesson(end);
+    // Check if date is valid (today or future)
+    const isDateValid = (date: Date | null): boolean => {
+        if (!date) return false;
+        return isToday(date) || isFuture(date);
     };
+
+    const selectedRoomSchedule = roomSchedules.find(rs => rs.roomName === selectedRoomName);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={currentLocale}>
             <Helmet>
                 <title>Create Timetable | Lab Management IT</title>
             </Helmet>
-            <PendingTimetablePanel/>
+            <PendingTimetablePanel />
             <FormContainer>
                 <Typography
                     variant="h3"
@@ -322,7 +380,7 @@ const CreateTimetable: React.FC = () => {
                         fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
                     }}
                 >
-                    Select a date and timetable to book
+                    Select a date and room to book timetable
                 </Typography>
 
                 {isTeacher && (
@@ -350,91 +408,162 @@ const CreateTimetable: React.FC = () => {
                             />
                         </Grid>
 
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl fullWidth required variant="outlined">
-                                <SemesterAutocomplete
-                                    selectedSemesterId={semesterId as number}
-                                    setSelectedSemesterId={(id) => setSemesterId(id)}
-                                />
-                            </FormControl>
-                        </Grid>
-
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl fullWidth required variant="outlined">
-                                <InputLabel>{t('timetable.createTimetable.room', { defaultValue: 'Room' })}</InputLabel>
-                                <Select
-                                    value={roomName}
-                                    onChange={(e) => setRoomName(e.target.value as string)}
-                                    label={t('timetable.createTimetable.room', { defaultValue: 'Room' })}
-                                >
-                                    {rooms.map((room, index) => (
-                                        <MenuItem key={index} value={room}>
-                                            {room}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
                         <Grid size={{ xs: 12 }}>
                             <DatePicker
                                 format="dd/MM/yyyy"
                                 label={t('timetable.createTimetable.date', { defaultValue: 'Date' })}
                                 value={date}
                                 onChange={(newValue) => {
-                                    setDate(newValue);
-                                    setStartLesson('');
-                                    setEndLesson('');
+                                    if (newValue && isDateValid(newValue)) {
+                                        setDate(newValue);
+                                        setSelectedRoomName('');
+                                        setStartLesson('');
+                                        setEndLesson('');
+                                    } else if (newValue) {
+                                        handleAlert('Cannot select past dates. Please select today or a future date.', 'error');
+                                    } else {
+                                        setDate(newValue);
+                                    }
                                 }}
+                                shouldDisableDate={(date) => !isDateValid(date)}
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
                                         required: true,
                                         variant: 'outlined',
                                         slotProps: { inputLabel: { shrink: true } },
+                                        error: date && !isDateValid(date),
+                                        helperText: date && !isDateValid(date) ? 'Please select today or a future date' : '',
                                     },
                                 }}
                             />
                         </Grid>
 
-                        {date && roomName && (
+                        {date && isDateValid(date) && (
                             <Grid size={{ xs: 12 }}>
                                 <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                                    {t('timetable.createTimetable.schedule', { defaultValue: 'Current Schedule' })}
+                                    {t('timetable.createTimetable.roomSelection', { defaultValue: 'Room Selection' })}
                                 </Typography>
-                                <TableContainer component={Paper} sx={{ maxHeight: 300, mb: 2 }}>
-                                    <Table size="small">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>{t('timetable.createTimetable.timetableName', { defaultValue: 'Name' })}</TableCell>
-                                                <TableCell>{t('timetable.createTimetable.startLesson', { defaultValue: 'Start' })}</TableCell>
-                                                <TableCell>{t('timetable.createTimetable.endLesson', { defaultValue: 'End' })}</TableCell>
-                                                <TableCell>{t('timetable.createTimetable.instructor', { defaultValue: 'Teacher' })}</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {existingTimetables.map((timetable) => (
-                                                <TableRow key={timetable.id}>
-                                                    <TableCell>{getTimetableDisplayName(timetable)}</TableCell>
-                                                    <TableCell>{timetable.startLesson}</TableCell>
-                                                    <TableCell>{timetable.endLessonTime.lessonNumber}</TableCell>
-                                                    <TableCell>
-                                                        {
-                                                            timetable.instructor.user.fullName
+
+                                {isLoadingTimetables ? (
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                                        <Typography>Loading room schedules...</Typography>
+                                    </Box>
+                                ) : (
+                                    <Grid container spacing={2}>
+                                        {roomSchedules.map((roomSchedule) => (
+                                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={roomSchedule.roomName}>
+                                                <RoomCard
+                                                    selected={selectedRoomName === roomSchedule.roomName}
+                                                    onClick={() => handleRoomSelect(roomSchedule)}
+                                                >
+                                                    <CardHeader
+                                                        title={
+                                                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                                                {roomSchedule.roomName}
+                                                            </Typography>
                                                         }
-                                                    </TableCell>
+                                                        subheader={
+                                                            <Typography variant="body2" color="text.secondary">
+                                                                {roomSchedule.availablePeriods.length > 0
+                                                                    ? `${roomSchedule.availablePeriods.length} available slots`
+                                                                    : 'Fully booked'
+                                                                }
+                                                            </Typography>
+                                                        }
+                                                    />
+                                                    <CardContent sx={{ pt: 0 }}>
+                                                        <Box sx={{ mb: 2 }}>
+                                                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 'medium' }}>
+                                                                Available Periods:
+                                                            </Typography>
+                                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                                {roomSchedule.availablePeriods.length > 0 ? (
+                                                                    roomSchedule.availablePeriods.map((period, index) => (
+                                                                        <PeriodChip
+                                                                            key={index}
+                                                                            label={`${period.start}-${period.end}`}
+                                                                            size="small"
+                                                                            available={true}
+                                                                        />
+                                                                    ))
+                                                                ) : (
+                                                                    <Typography variant="body2" color="error">
+                                                                        No available periods
+                                                                    </Typography>
+                                                                )}
+                                                            </Box>
+                                                        </Box>
+
+                                                        {roomSchedule.timetables.length > 0 && (
+                                                            <Box>
+                                                                <Typography variant="body2" sx={{ mb: 1, fontWeight: 'medium' }}>
+                                                                    Booked Periods:
+                                                                </Typography>
+                                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                                    {roomSchedule.bookedPeriods.map((period, index) => (
+                                                                        <PeriodChip
+                                                                            key={index}
+                                                                            label={period.toString()}
+                                                                            size="small"
+                                                                            available={false}
+                                                                        />
+                                                                    ))}
+                                                                </Box>
+                                                            </Box>
+                                                        )}
+                                                    </CardContent>
+                                                </RoomCard>
+                                            </Grid>
+                                        ))}
+                                    </Grid>
+                                )}
+                            </Grid>
+                        )}
+
+                        {selectedRoomSchedule && (
+                            <Grid size={{ xs: 12 }}>
+                                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                                    {t('timetable.createTimetable.schedule', { defaultValue: `Current Schedule for ${selectedRoomName}` })}
+                                </Typography>
+
+                                {selectedRoomSchedule.timetables.length > 0 ? (
+                                    <TableContainer component={Paper} sx={{ maxHeight: 300, mb: 2 }}>
+                                        <Table size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>{t('timetable.createTimetable.timetableName', { defaultValue: 'Name' })}</TableCell>
+                                                    <TableCell>{t('timetable.createTimetable.startLesson', { defaultValue: 'Start' })}</TableCell>
+                                                    <TableCell>{t('timetable.createTimetable.endLesson', { defaultValue: 'End' })}</TableCell>
+                                                    <TableCell>{t('timetable.createTimetable.instructor', { defaultValue: 'Teacher' })}</TableCell>
                                                 </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                                            </TableHead>
+                                            <TableBody>
+                                                {selectedRoomSchedule.timetables.map((timetable) => (
+                                                    <TableRow key={timetable.id}>
+                                                        <TableCell>{getTimetableDisplayName(timetable)}</TableCell>
+                                                        <TableCell>{timetable.startLesson}</TableCell>
+                                                        <TableCell>{timetable.endLessonTime.lessonNumber}</TableCell>
+                                                        <TableCell>
+                                                            {timetable.instructor.user.fullName}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                ) : (
+                                    <Alert severity="info" sx={{ mb: 2 }}>
+                                        No existing timetables for this room on selected date.
+                                    </Alert>
+                                )}
 
                                 <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold' }}>
-                                    {t('timetable.createTimetable.availablePeriods', { defaultValue: 'Available Periods' })}
+                                    {t('timetable.createTimetable.selectPeriod', { defaultValue: 'Select Available Period' })}
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-                                    {getAvailablePeriods().length > 0 ? (
-                                        getAvailablePeriods().map((period, index) => (
+                                    {selectedRoomSchedule.availablePeriods.length > 0 ? (
+                                        selectedRoomSchedule.availablePeriods.map((period, index) => (
                                             <Chip
                                                 key={index}
                                                 label={`Period ${period.start} - ${period.end}`}
@@ -460,7 +589,7 @@ const CreateTimetable: React.FC = () => {
                                     value={startLesson}
                                     onChange={(e) => setStartLesson(e.target.value as number)}
                                     label={t('timetable.createTimetable.startLesson', { defaultValue: 'Start Lesson' })}
-                                    disabled={getAvailablePeriods().length === 0}
+                                    disabled={!selectedRoomSchedule || selectedRoomSchedule.availablePeriods.length === 0}
                                 >
                                     {periods.map((period, index) => (
                                         <MenuItem key={index} value={period}>
@@ -478,7 +607,7 @@ const CreateTimetable: React.FC = () => {
                                     value={endLesson}
                                     onChange={(e) => handleEndLessonChange(e.target.value as number)}
                                     label={t('timetable.createTimetable.endLesson', { defaultValue: 'End Lesson' })}
-                                    disabled={getAvailablePeriods().length === 0}
+                                    disabled={!selectedRoomSchedule || selectedRoomSchedule.availablePeriods.length === 0}
                                 >
                                     {periods.map((period, index) => (
                                         <MenuItem key={index} value={period}>
@@ -538,7 +667,7 @@ const CreateTimetable: React.FC = () => {
                                 variant="contained"
                                 color="primary"
                                 fullWidth
-                                disabled={isLoading || isLoadingSemesters || isLoadingTimetables}
+                                disabled={isLoading || isLoadingTimetables}
                             >
                                 {isLoading
                                     ? t('timetable.createTimetable.submit_button', { defaultValue: 'Creating...' })
@@ -549,7 +678,7 @@ const CreateTimetable: React.FC = () => {
                     </Grid>
                 </form>
 
-                <LoadingIndicator open={isLoading || isLoadingSemesters || isLoadingTimetables} />
+                <LoadingIndicator open={isLoading || isLoadingTimetables} />
 
                 <CustomAlert
                     open={alertOpen}
